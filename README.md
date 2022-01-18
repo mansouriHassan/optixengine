@@ -152,8 +152,8 @@ If you run a multi-GPU system, read the `system_rtigo3_dual_gpu_local.txt` for t
 * cd /d ..\OptixBuild
 * cmake --build . --config Debug
 
-* Xcopy /E /I /Y ..\optix_loreal\dll .\bin\Debug
-* Xcopy /E /I /Y ..\optix_loreal\data .\bin\Debug
+* Xcopy /E /I /Y ..\optixengine\dll .\bin\Debug
+* Xcopy /E /I /Y ..\optixengine\data .\bin\Debug
 
 * cd /d bin\Debug
 * rtigo3.exe -s system_rtigo3_single_gpu.txt -d scene_rtigo3_hair_half_head.txt
