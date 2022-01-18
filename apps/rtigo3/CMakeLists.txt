@@ -104,6 +104,7 @@ set( HEADERS
   inc/RaytracerMultiGPUZeroCopy.h
   inc/RaytracerSingleGPU.h
   inc/SceneGraph.h
+  inc/Socket.h
   inc/Texture.h
   inc/Timer.h
   inc/TonemapperGUI.h
@@ -136,6 +137,7 @@ set( SOURCES
   src/RaytracerSingleGPU.cpp
   src/SceneGraph.cpp
   src/Sphere.cpp
+  src/Socket.cpp
   src/Texture.cpp
   src/Timer.cpp
   src/Torus.cpp
