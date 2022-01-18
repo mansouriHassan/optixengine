@@ -140,7 +140,7 @@ If you run a multi-GPU system, read the `system_rtigo3_dual_gpu_local.txt` for t
 
 * git clone https://github.com/mansouriHassan/optixengine.git
 
-* cd /d optixengine
+* cd /d optix_loreal
 * call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
 * 3rdparty.cmd
 
