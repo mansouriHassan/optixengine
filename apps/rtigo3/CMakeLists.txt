@@ -87,6 +87,7 @@ set( HEADERS
   inc/Camera.h
   inc/CheckMacros.h
   inc/ConfigParser.h
+  inc/ConvertImage.h
   inc/Device.h
   inc/DeviceMultiGPULocalCopy.h
   inc/DeviceMultiGPUPeerAccess.h
@@ -118,6 +119,7 @@ set( SOURCES
   src/Box.cpp
   src/Camera.cpp
   src/ConfigParser.cpp
+  src/ConvertImage.cpp
   src/Device.cpp
   src/DeviceMultiGPULocalCopy.cpp
   src/DeviceMultiGPUPeerAccess.cpp
