@@ -13,15 +13,15 @@ ConfigParser::ConfigParser()
 //ConfigParser::~ConfigParser()
 //{
 //}
-#if 0
-bool Parser::load(std::string const& filename)
+
+bool ConfigParser::load(std::string const& filename)
 {
   m_source.clear();
 
   std::ifstream inputStream(filename);
   if (!inputStream)
   {
-    std::cerr << "ERROR: Parser::load() failed to open file " << filename << '\n';
+    std::cerr << "ERROR: ConfigParser::load() failed to open file " << filename << '\n';
     return false;
   }
 
@@ -39,7 +39,7 @@ bool Parser::load(std::string const& filename)
   return true;
 }
 
-ParserTokenType Parser::getNextToken(std::string& token)
+ParserTokenType ConfigParser::getNextToken(std::string& token)
 {
   const static std::string whitespace = " \t"; // space, tab
   const static std::string value      = "+-0123456789.eE";
@@ -134,20 +134,18 @@ ParserTokenType Parser::getNextToken(std::string& token)
   return type;
 }
 
-std::string::size_type Parser::getSize() const
+std::string::size_type ConfigParser::getSize() const
 {
   return m_source.size();
 }
 
-std::string::size_type Parser::getIndex() const
+std::string::size_type ConfigParser::getIndex() const
 {
   return m_index;
 }
 
-unsigned int Parser::getLine() const
+unsigned int ConfigParser::getLine() const
 {
   return m_line;
 }
-
-#endif
 

@@ -5,7 +5,7 @@
 #define CONFIG_PARSER_H
 
 #include <string>
-#if 0
+
 enum ParserTokenType
 {
   PTT_UNKNOWN, // Unknown, normally indicates an error.
@@ -18,11 +18,11 @@ enum ParserTokenType
 
 
 // System and scene file parsing information.
-class Parser
+class ConfigParser
 {
 public:
-  Parser();
-  //~Parser();
+  ConfigParser();
+  //~ConfigParser();
   
   bool load(std::string const& filename);
 
@@ -36,7 +36,6 @@ private:
   std::string            m_source; // System or scene description file contents.
   std::string::size_type m_index;  // Parser's current character index into m_source.
   unsigned int           m_line;   // Current source code line, one-based for error messages.
-  #endif
 };
 
 #endif // CONFIG_PARSER_H
