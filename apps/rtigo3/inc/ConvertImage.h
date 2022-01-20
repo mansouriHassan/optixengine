@@ -2,6 +2,7 @@
 #include<opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 
+#include <iostream>
 #include <vector>
 #include <string>
 
@@ -11,6 +12,10 @@ using namespace cv;
 #ifndef CONVERTIMAGE_H_
 #define CONVERTIMAGE_H_
 
+#define CV_IMWRITE_JPEG_QUALITY 1
+#define CV_IMWRITE_PNG_COMPRESSION 16
+#define CV_IMWRITE_PXM_BINARY 32
+  
 /**
  * Classe que converte as imagens para base64 e virse e versa
  */
