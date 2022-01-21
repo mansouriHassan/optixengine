@@ -36,6 +36,7 @@ find_package(OptiX71 REQUIRED)
 find_package(CUDA 11.3 REQUIRED)
 find_package(DevIL_1_8_0 REQUIRED)
 find_package(ASSIMP REQUIRED)
+find_package(OpenCV_4_5 REQUIRED)
 
 # Make the build work with either OptiX 7.0.0 and 7.1.0 releases
 if (OptiX73_FOUND)
@@ -204,6 +205,7 @@ source_group( "ptx"             FILES ${PTX_SOURCES})
 #message("CUDA_TOOLKIT_INCLUDE = " "${CUDA_TOOLKIT_INCLUDE}")
 #message("IL_INCLUDE_DIR       = " "${IL_INCLUDE_DIR}")
 #message("ASSIMP_INCLUDE_DIRS  = " "${ASSIMP_INCLUDE_DIRS}")
+#message("OPENCV_INCLUDE_DIRS  = " "${OPENCV_INCLUDE_DIRS}")
 
 include_directories(
   "."
@@ -215,6 +217,7 @@ include_directories(
   ${CUDA_TOOLKIT_INCLUDE}
   ${IL_INCLUDE_DIR}
   ${ASSIMP_INCLUDE_DIRS}
+  ${OPENCV_INCLUDE_DIRS}
 )
 
 add_definitions(
@@ -240,6 +243,7 @@ add_executable( rtigo3
 #message("ILU_LIBRARIES     = " "${ILU_LIBRARIES}")
 #message("ILUT_LIBRARIES    = " "${ILUT_LIBRARIES}")
 #message("ASSIMP_LIBRARIES  = " "${ASSIMP_LIBRARIES}")
+#message("OPENCV_LIBRARIES  = " "${OPENCV_LIBRARIES}")
 
 target_link_libraries( rtigo3
   ${OPENGL_gl_LIBRARY}
@@ -250,6 +254,7 @@ target_link_libraries( rtigo3
   ${ILU_LIBRARIES}
   ${ILUT_LIBRARIES}
   ${ASSIMP_LIBRARIES}
+  ${OPENCV_LIBRARIES}
 )
 
 if (UNIX)

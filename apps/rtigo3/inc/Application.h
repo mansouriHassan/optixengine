@@ -78,6 +78,7 @@
 #include <map>
 #include <memory>
 
+#include "inc/ConvertImage.h"
 
 #define APP_EXIT_SUCCESS          0
 
@@ -378,6 +379,7 @@ private:
   bool m_lightings_on[5] = { true,true,true,true,true };
   bool m_geo_group[8] = { true,true,true,true,true,true,true,true };
   int m_lighting_emission[5] = { 12,12,12,12,12};
+  ImagemConverter* imageConverter;
 };
 
 #endif // APPLICATION_H

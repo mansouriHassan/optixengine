@@ -382,7 +382,8 @@ Application::Application(GLFWwindow* window, Options const& options)
 
     restartRendering(); // Trigger a new rendering.
 
-    m_isValid = true;   
+    m_isValid = true;
+	imageConverter = new ImagemConverter();
   }
   catch (std::exception const& e)
   {
