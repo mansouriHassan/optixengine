@@ -5603,6 +5603,23 @@ bool Application::screenshot(const bool tonemap)
 	
     if (ilSaveImage((const ILstring) filename.c_str()))
     {
+		std::string image_path = samples::findFile(filename.c_str());
+		std::cout << image_path << std::endl;
+		Mat img = imread(image_path, IMREAD_COLOR);
+		if (img.empty())
+		{
+			std::cout << "Could not read the image: " << image_path << std::endl;
+		}
+
+		std::string imagebase64 = imageConverter->mat2str(img);
+
+		std::cout << imagebase64 << std::endl;
+
+		ofstream myfile;
+		myfile.open("image.txt");
+		myfile << imagebase64;
+		myfile.close();
+		
       ilDeleteImages(1, &imageID);
 
       std::cout << filename << '\n'; // Print out filename to indicate that a screenshot has been taken.
