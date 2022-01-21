@@ -85,6 +85,8 @@ message("Creating 3rdparty library folder for ${GENERATOR} ${BUILD_ARCH}")
 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty" CACHE PATH "default install path" FORCE)
 
+set(CMAKE_LIBS_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/libs" CACHE PATH "default install path" FORCE)
+
 set(DOWNLOAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/downloads")
 set(PATCH_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/patches")
 
@@ -180,9 +182,23 @@ macro(assimp_github)
     execute_process(COMMAND devenv.exe "${BUILD_DIR}/assimp/assimp.sln" /Build "Release|${BUILD_ARCH}" /Project INSTALL WORKING_DIRECTORY "${BUILD_DIR}/assimp")
 endmacro()
 
+macro(opencv_source)
+    message("OPENCV")
+	set(FILENAME "opencv_4_5.zip")
+	message("Install lib : ${CMAKE_LIBS_PREFIX}/${FILENAME}")
+	
+	if (EXISTS "${CMAKE_LIBS_PREFIX}/${FILENAME}")
+		message("  extracting")
+		execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "${CMAKE_LIBS_PREFIX}/${FILENAME}" WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
+		message("  removing ${CMAKE_LIBS_PREFIX}/${FILENAME}")
+		execute_process(COMMAND ${CMAKE_COMMAND} -E remove "${CMAKE_LIBS_PREFIX}/${FILENAME}")
+	endif()
+endmacro()
+
 glew_sourceforge()
 glfw_sourceforge()
 assimp_github()
+opencv_source()
 
 # If the 3rdparty tools should be updated with additional libraries, commenting out these two lines avoids expensive recompilation of existing tools again.
 message("deleting temp folder")
