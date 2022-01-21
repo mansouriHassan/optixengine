@@ -29,20 +29,32 @@
 #include "shaders/config.h"
 
 #include "inc/Application.h"
+#include "inc/Socket.h"
 
 #include <IL/il.h>
 
 #include <algorithm>
 #include <iostream>
+#include <thread>         // std::this_thread::sleep_for
+#include <chrono>         // std::chrono::seconds
 
 
 static Application* g_app = nullptr;
+static Socket* socket_server = nullptr;
 
 static void callbackError(int error, const char* description)
 {
   std::cerr << "Error: "<< error << ": " << description << '\n';
 }
 
+void start_server()
+{
+    if (socket_server != NULL)
+    {
+        std::this_thread::sleep_for(std::chrono::microseconds(500));
+        socket_server->socket_start();
+    }
+}
 
 static int runApp(Options const& options)
 {
@@ -129,6 +141,9 @@ static int runApp(Options const& options)
 
 int main(int argc, char *argv[])
 {
+  socket_server = Socket::getInstance();
+  std::thread thread_server(&start_server);   // start server
+  
   glfwSetErrorCallback(callbackError);
 
 

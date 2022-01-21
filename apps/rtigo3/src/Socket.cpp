@@ -3,12 +3,34 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <iostream>
-#include "inc/Socket.h"
+#include "Socket.h"
 
 Socket* Socket::socket_server = nullptr;
 
-Socket* Socket::getInstance()
-{
+Socket::Socket() {
+
+    iResult = 0;
+
+    ListenSocket = INVALID_SOCKET;
+    ClientSocket = INVALID_SOCKET;
+
+    addrinfo* result = NULL;
+    struct addrinfo hints = {0};
+
+    iSendResult = 0;
+    memset(recvbuf, 0, sizeof(recvbuf));
+    recvbuflen = MAX_BUFFER_SIZE;
+    socket_connected = false;
+}
+
+Socket::~Socket() {
+    ListenSocket = INVALID_SOCKET;
+    ClientSocket = INVALID_SOCKET;
+    memset(recvbuf, 0, sizeof(recvbuf));
+    close_socket();
+}
+
+Socket* Socket::getInstance() {
     if (socket_server == nullptr) {
         socket_server = new Socket();
     }
@@ -16,16 +38,15 @@ Socket* Socket::getInstance()
     return socket_server;
 }
 
-int __cdecl Socket::socket_init(void)
-{
-    while(true) {
+int __cdecl Socket::socket_start(void) {
+    while (true) {
 
-        while(!socket_connected) {
+        while (!socket_connected) {
             // Initialize Winsock
             iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
             if (iResult != 0) {
                 printf("WSAStartup failed with error: %d\n", iResult);
-                return 1;
+                return iResult;
             }
 
             ZeroMemory(&hints, sizeof(hints));
@@ -40,7 +61,7 @@ int __cdecl Socket::socket_init(void)
                 printf("getaddrinfo failed with error: %d\n", iResult);
                 WSACleanup();
                 socket_connected = false;
-                return 1;
+                return iResult;
             }
 
             // Create a SOCKET for connecting to server
@@ -50,7 +71,7 @@ int __cdecl Socket::socket_init(void)
                 freeaddrinfo(result);
                 WSACleanup();
                 socket_connected = false;
-                return 1;
+                return WSAGetLastError();
             }
 
             // Setup the TCP listening socket
@@ -61,9 +82,9 @@ int __cdecl Socket::socket_init(void)
                 closesocket(ListenSocket);
                 WSACleanup();
                 socket_connected = false;
-                return 1;
+                return WSAGetLastError();
             }
-
+            printf("server start, waiting for client to connect ...");
             freeaddrinfo(result);
 
             iResult = listen(ListenSocket, SOMAXCONN);
@@ -72,8 +93,7 @@ int __cdecl Socket::socket_init(void)
                 closesocket(ListenSocket);
                 WSACleanup();
                 socket_connected = false;
-                exit(0);
-                return 1;
+                return WSAGetLastError();
             }
 
             // Accept a client socket
@@ -83,144 +103,98 @@ int __cdecl Socket::socket_init(void)
                 closesocket(ListenSocket);
                 WSACleanup();
                 socket_connected = false;
-                return 1;
+                return WSAGetLastError();
             }
             else {
+                printf("Client connected");
                 socket_connected = true;
             }
         }
-        // Receive until the peer shuts down the connection
-        //while(socket_connected) {
-            /*
-            memset(recvbuf, 0, sizeof(recvbuf));
-            iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-            if (iResult > 0) {
-                printf("Bytes received: %d\n", iResult);
-                printf("Message received: %s\n", recvbuf);
-            }
-            else if (iResult == 0) {
-                printf("Connection closing...\n");
-                socket_connected = false;
-            }
-            else {
-                printf("recv failed with error: %d\n", WSAGetLastError());
-                closesocket(ClientSocket);
-                WSACleanup();
-                socket_connected = false;
-                return 1;
-            }
-            */
-        //}
     }
     return 0;
 }
 
-int Socket::socket_send(const std::string& message) {
+int Socket::socket_send(std::string& message) {
     // Echo the buffer back to the sender
     int iSendResult = 0;
-    if(socket_connected) {
-        if(ClientSocket != INVALID_SOCKET) {
+    if (socket_connected) {
+        if (ClientSocket != INVALID_SOCKET) {
+            message = "$" + message + "#";
             iSendResult = send(ClientSocket, message.c_str(), message.length(), 0);
             if (iSendResult == SOCKET_ERROR) {
                 printf("send failed with error: %d\n", WSAGetLastError());
                 closesocket(ClientSocket);
                 WSACleanup();
                 socket_connected = false;
-                return 1;
+            } else if (iSendResult == 0) {
+                closesocket(ClientSocket);
+                WSACleanup();
+                socket_connected = false;
             }
-
             printf("Bytes sent: %d\n", iSendResult);
         }
     }
     return iSendResult;
 }
 
-int send_image(char* server, int PORT, char* lfile, char* rfile)
-{
-    int socketDESC;
-    struct sockaddr_in serverADDRESS;
-    struct hostent* hostINFO;
-    FILE* file_to_send;
-    int ch;
-    char toSEND[1];
-    char remoteFILE[65536];
-    int count1 = 1, count2 = 1, percent;
+std::string Socket::socket_read() {
+    int iReadResult = 0;
+    std::string message;
+    bool reading = true;
 
-    hostINFO = gethostbyname("localhost");
-    if (hostINFO == NULL)
-    {
-        printf("Problem interpreting host\n");
-        return 1;
-    }
+    if (socket_connected) {
+        if (ClientSocket != INVALID_SOCKET) {
+            while (reading) {
+                memset(recvbuf, 0, sizeof(recvbuf)); // clear buffer
+                iReadResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+                message = message + std::string(recvbuf);
 
-    socketDESC = socket(AF_INET, SOCK_STREAM, 0);
-    if (socketDESC < 0)
-    {
-        printf("Cannot create socket\n");
-        return 1;
-    }
-
-    serverADDRESS.sin_family = AF_INET;
-    serverADDRESS.sin_port = htons(PORT);
-    serverADDRESS.sin_addr = *((struct in_addr*)hostINFO->h_addr);
-
-
-    ZeroMemory(&(serverADDRESS.sin_zero), 8);
-
-    if (connect(socketDESC, (struct sockaddr*)&serverADDRESS, sizeof(serverADDRESS)) < 0)
-    {
-        printf("Cannot connect\n");
-        return 1;
-    }
-
-    file_to_send = fopen(lfile, "r");
-    if (!file_to_send)
-    {
-        printf("Error opening file\n");
-        closesocket(socketDESC);
-        return 0;
-    }
-
-    else
-    {
-        long fileSIZE;
-        fseek(file_to_send, 0, SEEK_END);
-        fileSIZE = ftell(file_to_send);
-        rewind(file_to_send);
-
-        sprintf(remoteFILE, "FBEGIN:%s:%d\r\n", rfile, fileSIZE);
-        send(socketDESC, remoteFILE, sizeof(remoteFILE), 0);
-
-        percent = fileSIZE / 100;
-        while ((ch = getc(file_to_send)) != EOF)
-        {
-            toSEND[0] = ch;
-            send(socketDESC, toSEND, 1, 0);
-
-            if (count1 == count2)
-            {
-                printf("33[0;0H");
-                printf("\33[2J");
-                printf("Filename: %s\n", lfile);
-                printf("Filesize: %d Kb\n", fileSIZE / 1024);
-                printf("Percent : %d%% ( %d Kb)\n", count1 / percent, count1 / 1024);
-                count1 += percent;
+                if (message[0] == '$' && message[message.length() - 1] == '#') {
+                    printf("%s reading : %d", __FUNCTION__, iReadResult);
+                    reading = false;
+                }
+                if (iReadResult <= 0) {
+                    printf("%s error in reading : %d", __FUNCTION__, iReadResult);
+                    reading = false;
+                }
             }
-            count2++;
-
         }
     }
-    fclose(file_to_send);
-    closesocket(socketDESC);
+    if (message.length() > 0) {
+        std::size_t first = message.find("$");
+        std::size_t last = message.find("#");
+        if (first >= 0 && last > 1) {
+            message = message.substr(first + 1, last - first - 1);
+        }
+    }
 
-    return 0;
+    //printf("Bytes received: %d\n", message.length());
+    //printf("Message received: %s\n", message.c_str());
+
+    return message;
 }
 
-int Socket::stop_socket()
-{
-    // No longer need server socket
-    closesocket(ListenSocket);
+std::string Socket::socket_read_string() {
+    int iReadResult = 0;
+    std::string message;
 
+    if (socket_connected) {
+        if (ClientSocket != INVALID_SOCKET) {
+            memset(recvbuf, 0, sizeof(recvbuf)); // clear buffer
+            iReadResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+            if (iReadResult > 0) {
+                message = message + std::string(recvbuf);
+
+                printf("Bytes received: %d\n", message.length());
+                printf("Message received: %s\n", message.c_str());
+            }
+        }
+    }
+    
+    return message;
+}
+
+int Socket::close_socket() {
     // shutdown the connection since we're done
     int iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR) {
@@ -234,5 +208,9 @@ int Socket::stop_socket()
     closesocket(ClientSocket);
     WSACleanup();
 
-    return 0;
+    return iResult;
+}
+
+bool Socket::isClientConnected() {
+    return socket_connected;
 }
