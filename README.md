@@ -92,9 +92,6 @@ Pre-requisites:
 * Execute these commands to setup the 3rdparty library:
 	- call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
 	- 3rdparty.cmd
-* Copy the assimp and devil libraries to the 3rdparty directory:
-	- Xcopy /E /I /Y .\libs\assimp 3rdparty\assimp
-	- Xcopy /E /I /Y .\libs\devil_1_8_0 3rdparty\devil_1_8_0
 
 Generate the solution:
 * Create an empty directory for building the project. Give it whatever name you want:
@@ -143,9 +140,6 @@ If you run a multi-GPU system, read the `system_rtigo3_dual_gpu_local.txt` for t
 * cd /d optixengine
 * call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
 * 3rdparty.cmd
-
-* Xcopy /E /I /Y .\libs\assimp 3rdparty\assimp
-* Xcopy /E /I /Y .\libs\devil_1_8_0 3rdparty\devil_1_8_0
 
 * mkdir ..\OptixBuild
 * cmake -G "Visual Studio 16 2019" -A x64 -S . -B ..\OptixBuild
