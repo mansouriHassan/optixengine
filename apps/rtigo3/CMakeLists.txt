@@ -37,6 +37,7 @@ find_package(CUDA 11.3 REQUIRED)
 find_package(DevIL_1_8_0 REQUIRED)
 find_package(ASSIMP REQUIRED)
 find_package(OpenCV_4_5 REQUIRED)
+find_package(RapidJson REQUIRED)
 
 # Make the build work with either OptiX 7.0.0 and 7.1.0 releases
 if (OptiX73_FOUND)
@@ -206,6 +207,7 @@ source_group( "ptx"             FILES ${PTX_SOURCES})
 #message("IL_INCLUDE_DIR       = " "${IL_INCLUDE_DIR}")
 #message("ASSIMP_INCLUDE_DIRS  = " "${ASSIMP_INCLUDE_DIRS}")
 #message("OPENCV_INCLUDE_DIRS  = " "${OPENCV_INCLUDE_DIRS}")
+#message("RAPIDJSON_INCLUDE_DIRS  = " "${RAPIDJSON_INCLUDE_DIRS}")
 
 include_directories(
   "."
@@ -218,6 +220,7 @@ include_directories(
   ${IL_INCLUDE_DIR}
   ${ASSIMP_INCLUDE_DIRS}
   ${OPENCV_INCLUDE_DIRS}
+  ${RAPIDJSON_INCLUDE_DIRS}
 )
 
 add_definitions(

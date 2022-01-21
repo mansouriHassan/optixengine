@@ -221,6 +221,19 @@ macro(opencv_extract)
 	endif()
 endmacro()
 
+macro(rapidjson_extract)
+    message("OPENCV")
+	set(FILENAME "rapidjson.zip")
+	message("Install lib : ${CMAKE_LIBS_PREFIX}/${FILENAME}")
+	
+	if (EXISTS "${CMAKE_LIBS_PREFIX}/${FILENAME}")
+		message("  extracting")
+		execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "${CMAKE_LIBS_PREFIX}/${FILENAME}" WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
+		#message("  removing ${CMAKE_LIBS_PREFIX}/${FILENAME}")
+		#execute_process(COMMAND ${CMAKE_COMMAND} -E remove "${CMAKE_LIBS_PREFIX}/${FILENAME}")
+	endif()
+endmacro()
+
 macro(dll_extract)
     message("OPENCV")
 	set(FILENAME "dll.zip")
@@ -240,6 +253,7 @@ assimp_github()
 assimp_extract()
 devil_extract()
 opencv_extract()
+rapidjson_extract()
 dll_extract()
 
 # If the 3rdparty tools should be updated with additional libraries, commenting out these two lines avoids expensive recompilation of existing tools again.
