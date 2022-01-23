@@ -79,6 +79,7 @@
 #include <memory>
 
 #include "inc/ConvertImage.h"
+#include "inc/Socket.h"
 
 #define APP_EXIT_SUCCESS          0
 
@@ -172,9 +173,12 @@ public:
 
   void guiUserWindow(bool* p_open = NULL); //PSAN user ui
   void ShowOptionLayout(bool* p_open); // Here old version material interface and others settings
-  void ShowAbsolueLayout(bool* p_open); // Test interface with 7 dye colors 
+  void ShowAbsolueLayout(bool* p_open); // Test interface with 7 dye colors
 
   bool is_fullscreen() { return m_is_fullscreen; }
+
+  bool sendImage(const bool tonemap);
+  bool looping;
 
 private:
   bool loadSystemDescription(std::string const& filename);
@@ -380,6 +384,7 @@ private:
   bool m_geo_group[8] = { true,true,true,true,true,true,true,true };
   int m_lighting_emission[5] = { 12,12,12,12,12};
   ImagemConverter* imageConverter;
+  Socket* socket_server;
 };
 
 #endif // APPLICATION_H

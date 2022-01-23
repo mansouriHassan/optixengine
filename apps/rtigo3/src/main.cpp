@@ -56,6 +56,22 @@ void start_server()
     }
 }
 
+void send_image(int second)
+{
+    while (true)
+    {
+        if (g_app != NULL)
+        {
+            do {
+                if (socket_server->isClientConnected()) {
+                    g_app->sendImage(true);
+                    std::this_thread::sleep_for(std::chrono::seconds(second));
+                }
+            } while (!g_app->looping);
+        }
+    }
+}
+
 static int runApp(Options const& options)
 {
   int width  = std::max(1, options.getWidth());
@@ -143,6 +159,7 @@ int main(int argc, char *argv[])
 {
   socket_server = Socket::getInstance();
   std::thread thread_server(&start_server);   // start server
+  std::thread thread_send_image(&send_image, 1);
   
   glfwSetErrorCallback(callbackError);
 

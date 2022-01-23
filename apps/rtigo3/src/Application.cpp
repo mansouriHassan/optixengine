@@ -84,6 +84,7 @@ Application::Application(GLFWwindow* window, Options const& options)
     , m_current_camera(0)
     , m_lock_camera(0)
     , nbQuickSaveValue(0)
+    , looping(true)
 {
   try
   {
@@ -384,6 +385,7 @@ Application::Application(GLFWwindow* window, Options const& options)
 
     m_isValid = true;
 	imageConverter = new ImagemConverter();
+    socket_server = Socket::getInstance();
   }
   catch (std::exception const& e)
   {
@@ -5603,23 +5605,6 @@ bool Application::screenshot(const bool tonemap)
 	
     if (ilSaveImage((const ILstring) filename.c_str()))
     {
-		std::string image_path = samples::findFile(filename.c_str());
-		std::cout << image_path << std::endl;
-		Mat img = imread(image_path, IMREAD_COLOR);
-		if (img.empty())
-		{
-			std::cout << "Could not read the image: " << image_path << std::endl;
-		}
-
-		std::string imagebase64 = imageConverter->mat2str(img);
-
-		std::cout << imagebase64 << std::endl;
-
-		ofstream myfile;
-		myfile.open("image.txt");
-		myfile << imagebase64;
-		myfile.close();
-		
       ilDeleteImages(1, &imageID);
 
       std::cout << filename << '\n'; // Print out filename to indicate that a screenshot has been taken.
@@ -5769,6 +5754,152 @@ bool Application::screenshot(const bool tonemap, std::string name)
             ilDeleteImages(1, &imageID);
 
             //std::cout << filename << '\n'; // Print out filename to indicate that a screenshot has been taken.
+            return true;
+        }
+    }
+
+    // There was an error when reaching this code.
+    ILenum error = ilGetError(); // DEBUG 
+    std::cerr << "ERROR: screenshot() failed with IL error " << error << '\n';
+
+    while (ilGetError() != IL_NO_ERROR) // Clean up errors.
+    {
+    }
+
+    // Free all resources associated with the DevIL image
+    ilDeleteImages(1, &imageID);
+
+    return false;
+}
+
+bool Application::sendImage(const bool tonemap)
+{
+    ILboolean hasImage = false;
+
+    const int spp = m_samplesSqrt * m_samplesSqrt; // Add the samples per pixel to the filename for quality comparisons.
+
+    std::ostringstream path;
+    std::cerr << "the camera values are\n m_phi : " << m_camera.m_phi << "\nm_theta : " << m_camera.m_theta << "\nm_fov : " << m_camera.m_fov << "\nm_distance : " << m_camera.m_distance << "\n";
+    path << m_prefixScreenshot << "_" << spp << "spp_" << getDateTime();
+
+    std::string tmpValue = path.str();
+    auto path_value = tmpValue.find_last_of("\\");
+    tmpValue = tmpValue.substr(0, path_value);
+    std::cerr << tmpValue << std::endl;
+    if (!fs::exists(tmpValue)) {
+        fs::create_directory(tmpValue);
+    }
+
+    unsigned int imageID;
+
+    ilGenImages(1, (ILuint*)&imageID);
+
+    ilBindImage(imageID);
+    ilActiveImage(0);
+    ilActiveFace(0);
+
+    ilDisable(IL_ORIGIN_SET);
+
+    const float4* bufferHost = reinterpret_cast<const float4*>(m_raytracer->getOutputBufferHost());
+
+    if (tonemap)
+    {
+        // Store a tonemapped RGB8 *.png image
+        path << ".png";
+
+        if (ilTexImage(m_resolution.x, m_resolution.y, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, nullptr))
+        {
+            uchar3* dst = reinterpret_cast<uchar3*>(ilGetData());
+
+            const float  invGamma = 1.0f / m_tonemapperGUI.gamma;
+            const float3 colorBalance = make_float3(m_tonemapperGUI.colorBalance[0], m_tonemapperGUI.colorBalance[1], m_tonemapperGUI.colorBalance[2]);
+            const float  invWhitePoint = m_tonemapperGUI.brightness / m_tonemapperGUI.whitePoint;
+            const float  burnHighlights = m_tonemapperGUI.burnHighlights;
+            const float  crushBlacks = m_tonemapperGUI.crushBlacks + m_tonemapperGUI.crushBlacks + 1.0f;
+            const float  saturation = m_tonemapperGUI.saturation;
+
+            for (int y = 0; y < m_resolution.y; ++y)
+            {
+                for (int x = 0; x < m_resolution.x; ++x)
+                {
+                    const int idx = y * m_resolution.x + x;
+
+                    // Tonemapper. // PERF Add a native CUDA kernel doing this.
+                    float3 hdrColor = make_float3(bufferHost[idx]);
+                    float3 ldrColor = invWhitePoint * colorBalance * hdrColor;
+                    ldrColor *= ((ldrColor * burnHighlights) + 1.0f) / (ldrColor + 1.0f);
+
+                    float luminance = dot(ldrColor, make_float3(0.3f, 0.59f, 0.11f));
+                    ldrColor = lerp(make_float3(luminance), ldrColor, saturation); // This can generate negative values for saturation > 1.0f!
+                    ldrColor = fmaxf(make_float3(0.0f), ldrColor); // Prevent negative values.
+
+                    luminance = dot(ldrColor, make_float3(0.3f, 0.59f, 0.11f));
+                    if (luminance < 1.0f)
+                    {
+                        const float3 crushed = powf(ldrColor, crushBlacks);
+                        ldrColor = lerp(crushed, ldrColor, sqrtf(luminance));
+                        ldrColor = fmaxf(make_float3(0.0f), ldrColor); // Prevent negative values.
+                    }
+                    ldrColor = clamp(powf(ldrColor, invGamma), 0.0f, 1.0f); // Saturate, clamp to range [0.0f, 1.0f].
+
+                    dst[idx] = make_uchar3((unsigned char)(ldrColor.x * 255.0f),
+                        (unsigned char)(ldrColor.y * 255.0f),
+                        (unsigned char)(ldrColor.z * 255.0f));
+                }
+            }
+            hasImage = true;
+        }
+    }
+    else
+    {
+        // Store the float4 linear output buffer as *.hdr image.
+        // FIXME Add a half float conversion and store as *.exr. (Pre-built DevIL 1.7.8 supports EXR, DevIL 1.8.0 doesn't!)
+        path << ".hdr";
+
+        hasImage = ilTexImage(m_resolution.x, m_resolution.y, 1, 4, IL_RGBA, IL_FLOAT, (void*)bufferHost);
+    }
+
+    if (hasImage)
+    {
+        ilEnable(IL_FILE_OVERWRITE); // By default, always overwrite
+
+        std::string filename = path.str();
+        convertPath(filename);
+
+        if (ilSaveImage((const ILstring)filename.c_str()))
+        {
+            ilDeleteImages(1, &imageID);
+
+            std::cout << filename << '\n'; // Print out filename to indicate that a screenshot has been taken.
+            
+            std::string image_path = samples::findFile(filename.c_str());
+            std::cout << image_path << std::endl;
+            Mat img = imread(image_path, IMREAD_COLOR);
+            if (img.empty())
+            {
+                std::cout << "Could not read the image: " << image_path << std::endl;
+            }
+
+            std::string imagebase64 = imageConverter->mat2str(img);
+
+            //std::cout << imagebase64 << std::endl;
+
+            imagebase64 = "{\"image_view\":\"right\",\"image_data\":" + imagebase64 + "}";
+            imagebase64 = "$" + imagebase64 + "#";
+            /*
+            ofstream myfile;
+            myfile.open("image.txt");
+            myfile << imagebase64;
+            myfile.close();
+            */
+            if (socket_server->isClientConnected()) {
+                int iSendResult = socket_server->socket_send(imagebase64);
+                if (iSendResult > 0) {
+                    std::cout << "file = " << imagebase64 << std::endl;
+                }
+                printf("Bytes sent: %d\n", iSendResult);
+            }
+
             return true;
         }
     }
