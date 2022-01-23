@@ -5899,6 +5899,13 @@ bool Application::sendImage(const bool tonemap)
                 }
                 printf("Bytes sent: %d\n", iSendResult);
             }
+			
+			int status = std::remove(filename.c_str());
+            if (status == 0) {
+                cout << "\nFile Deleted Successfully!";
+            } else {
+                cout << "\nError Occurred!";
+            }
 
             return true;
         }

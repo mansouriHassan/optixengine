@@ -119,7 +119,7 @@ int Socket::socket_send(std::string& message) {
     int iSendResult = 0;
     if (socket_connected) {
         if (ClientSocket != INVALID_SOCKET) {
-            message = "$" + message + "#";
+            //message = "$" + message + "#";
             iSendResult = send(ClientSocket, message.c_str(), message.length(), 0);
             if (iSendResult == SOCKET_ERROR) {
                 printf("send failed with error: %d\n", WSAGetLastError());
