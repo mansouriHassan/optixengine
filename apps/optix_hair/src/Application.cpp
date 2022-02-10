@@ -147,7 +147,11 @@ Application::Application(GLFWwindow* window, Options const& options)
     m_tonemapperGUI.brightness      = 1.0f;
 
     // System wide parameters are loaded from this file to keep the number of command line options small.
-    const std::string filenameSystem = options.getSystem();
+    std::string filenameSystem = options.getSystem();
+    if (filenameSystem.empty()) {
+        filenameSystem = "system_optix_hair_single_gpu.txt";
+    }
+
     if (!loadSystemDescription(filenameSystem))
     {
       std::cerr << "ERROR: Application() failed to load system description file " << filenameSystem << '\n';
@@ -340,7 +344,10 @@ Application::Application(GLFWwindow* window, Options const& options)
     createLights();
     
     // Load the scene description file and generate the host side scene.
-    const std::string filenameScene = options.getScene();
+    std::string filenameScene = options.getScene();
+    if (filenameScene.empty()) {
+        filenameScene = "scene_optix_hair_half_head.txt";
+    }
     if (!loadSceneDescription(filenameScene))
     {
       std::cerr << "ERROR: Application() failed to load scene description file " << filenameScene << '\n';
