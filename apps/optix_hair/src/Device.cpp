@@ -567,47 +567,47 @@ void Device::initPipeline()
   pco.pipelineLaunchParamsVariableName = "sysData";
 
   OptixModule moduleRaygeneration;
-  std::string ptx = readPTX("./rtigo3_core/raygeneration.ptx");
+  std::string ptx = readPTX("./optix_hair_core/raygeneration.ptx");
   OPTIX_CHECK( m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleRaygeneration) );
 
   OptixModule moduleException;
-  ptx = readPTX("./rtigo3_core/exception.ptx");
+  ptx = readPTX("./optix_hair_core/exception.ptx");
   OPTIX_CHECK( m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleException) );
   
   OptixModule moduleMiss;
-  ptx = readPTX("./rtigo3_core/miss.ptx");
+  ptx = readPTX("./optix_hair_core/miss.ptx");
   OPTIX_CHECK( m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleMiss) );
 
   OptixModule moduleClosesthit;
-  ptx = readPTX("./rtigo3_core/closesthit.ptx");
+  ptx = readPTX("./optix_hair_core/closesthit.ptx");
   OPTIX_CHECK( m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleClosesthit) );
 
   OptixModule moduleAnyhit;
-  ptx = readPTX("./rtigo3_core/anyhit.ptx");
+  ptx = readPTX("./optix_hair_core/anyhit.ptx");
   OPTIX_CHECK( m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleAnyhit) );
 
   OptixModule moduleLensShader;
-  ptx = readPTX("./rtigo3_core/lens_shader.ptx");
+  ptx = readPTX("./optix_hair_core/lens_shader.ptx");
   OPTIX_CHECK( m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleLensShader) );
 
   OptixModule moduleLightSample;
-  ptx = readPTX("./rtigo3_core/light_sample.ptx");
+  ptx = readPTX("./optix_hair_core/light_sample.ptx");
   OPTIX_CHECK( m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleLightSample) );
   
   OptixModule moduleDiffuse;
-  ptx = readPTX("./rtigo3_core/bxdf_diffuse.ptx");
+  ptx = readPTX("./optix_hair_core/bxdf_diffuse.ptx");
   OPTIX_CHECK( m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleDiffuse) );
 
   OptixModule moduleSpecular;
-  ptx = readPTX("./rtigo3_core/bxdf_specular.ptx");
+  ptx = readPTX("./optix_hair_core/bxdf_specular.ptx");
   OPTIX_CHECK( m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleSpecular) );
 
   OptixModule moduleGgxSmith;
-  ptx = readPTX("./rtigo3_core/bxdf_ggx_smith.ptx");
+  ptx = readPTX("./optix_hair_core/bxdf_ggx_smith.ptx");
   OPTIX_CHECK( m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleGgxSmith) );
 
   OptixModule moduleBCSDFHair;
-  ptx = readPTX("./rtigo3_core/bcsdf_hair.ptx");
+  ptx = readPTX("./optix_hair_core/bcsdf_hair.ptx");
   OPTIX_CHECK(m_api.optixModuleCreateFromPTX(m_optixContext, &mco, &pco, ptx.c_str(), ptx.size(), nullptr, nullptr, &moduleBCSDFHair));
 
   OptixModule moduleLinearCurve;

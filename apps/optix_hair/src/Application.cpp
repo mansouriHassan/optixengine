@@ -766,7 +766,7 @@ void Application::createLights()
       {
 
           // Create a material for this light.
-          std::string reference = "rtigo3_area_light_" +std::to_string(i);
+          std::string reference = "optix_hair_area_light_" +std::to_string(i);
 
           const int indexMaterial = static_cast<int>(m_materialsGUI.size());
 
@@ -813,7 +813,7 @@ void Application::guiEventHandler()
   {
     m_isVisibleGUI = !m_isVisibleGUI;
   }
-  if (ImGui::IsKeyPressed('S', false)) // Key S: Save the current system options to a file "system_rtigo3_<year><month><day>_<hour><minute><second>_<millisecond>.txt"
+  if (ImGui::IsKeyPressed('S', false)) // Key S: Save the current system options to a file "system_optix_hair_<year><month><day>_<hour><minute><second>_<millisecond>.txt"
   {
     MY_VERIFY( saveSystemDescription() );
   }
@@ -3801,7 +3801,7 @@ bool Application::saveSystemDescription()
   description << "saturation " << m_tonemapperGUI.saturation << '\n';
   description << "brightness " << m_tonemapperGUI.brightness << '\n';
 
-  const std::string filename = std::string("system_rtigo3_") + getDateTime() + std::string(".txt");
+  const std::string filename = std::string("system_optix_hair_") + getDateTime() + std::string(".txt");
   const bool success = saveString(filename, description.str());
   if (success)
   {

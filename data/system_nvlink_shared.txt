@@ -1,6 +1,6 @@
 # This nvlink_shared system option file handles multiple settings of the same option, the last one wins!
 
-# There is only one rendering strategy implemented in this renderer which matches the rtigo3 strategy 3:
+# There is only one rendering strategy implemented in this renderer which matches the optix_hair strategy 3:
 # 3 = Interactive Multi-GPU rendering into local GPU buffers of roughly 1/activeDevices size.
 #     Tiled rendering with tileSize blocks in a checkered pattern evenly distributed to all enabled GPUs.
 #     The full image is composited on the first device resp. the OpenGL interop device.

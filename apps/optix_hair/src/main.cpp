@@ -78,7 +78,7 @@ static int runApp(Options const& options)
   int height = std::max(1, options.getHeight());
  
   auto monitor = glfwGetPrimaryMonitor();
-  GLFWwindow* window = glfwCreateWindow(width, height, "rtigo3 - Copyright (c) 2020 NVIDIA Corporation", nullptr, NULL);
+  GLFWwindow* window = glfwCreateWindow(width, height, "optix_hair - Copyright (c) 2020 NVIDIA Corporation", nullptr, NULL);
  // const GLFWvidmode* wmode = glfwGetVideoMode(monitor);
   //auto scr_width = wmode->width;
   //auto scr_height = wmode->height;

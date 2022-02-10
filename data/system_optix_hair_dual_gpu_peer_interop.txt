@@ -1,4 +1,4 @@
-# This rtigo system option file handles multiple settings of the same option, the last one wins!
+# This optix_hair system option file handles multiple settings of the same option, the last one wins!
 
 # Define the raytracer's rendering strategy
 # 0 = Interactive Single-GPU, with or without OpenGL interop.
@@ -14,17 +14,14 @@
 #     Tiled rendering with tileSize blocks in a checkered pattern evenly distributed to all enabled GPUs.
 #     The full image is composited on the first device resp. the OpenGL interop device.
 #     The local data from other devices (not full resolution) is copied to that main device and composited by a native CUDA kernel.
-# 4 = Multi-GPU Tiled Final Frame rendering.
-#     Tiled rendering with tileSize blocks but all samples per pixels in one launch with different tiles distributed to all enabled GPUs.
-#     The full image is allocated in pinned memory and used by a separate kernel to accumulate and write the final tiles into the shared buffer.
 
-strategy 0
+strategy 2
 
 # The devicesMask indicates which devices should be used in a 32-bit bitfield.
 # The default is 255 which means 8 bits set so all boards in an RTX server.
 # The application will only use the boards actually visible.
 
-devicesMask 1
+devicesMask 3
 
 # Use different strategies to update the OpenGL display texture.
 # The performance effect of interop 2 is only really visible interactive rendering (-m 0) and present 1.
@@ -88,7 +85,6 @@ light 0
 # Path lengths minimum and maximum.
 # Minimum path length before Russian Roulette kicks in.
 # Maximum path length before termination.
-# Maximum number of volume scattering events.
 # Set min >= max to disable Russian Rouelette.
 # pathLengths <int> <int> in range [0, 100]
 
@@ -129,7 +125,7 @@ camera 0.815 0.6 45 10
 # Path with an existing(!) folder and optional partial filename prefix which should receive the screenshots. 
 # If this is just a folder, end it with '/'
 
-prefixScreenshot "./screenshots/rtigo3"
+prefixScreenshot "./screenshots/optix_hair"
 
 # Tonemapper settings.
 # Neutral tonemapper GUI settings showing the linear image:

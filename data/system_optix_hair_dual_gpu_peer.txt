@@ -1,4 +1,4 @@
-# This rtigo system option file handles multiple settings of the same option, the last one wins!
+# This optix_hair system option file handles multiple settings of the same option, the last one wins!
 
 # Define the raytracer's rendering strategy
 # 0 = Interactive Single-GPU, with or without OpenGL interop.
@@ -15,7 +15,7 @@
 #     The full image is composited on the first device resp. the OpenGL interop device.
 #     The local data from other devices (not full resolution) is copied to that main device and composited by a native CUDA kernel.
 
-strategy 3
+strategy 2
 
 # The devicesMask indicates which devices should be used in a 32-bit bitfield.
 # The default is 255 which means 8 bits set so all boards in an RTX server.
@@ -125,7 +125,7 @@ camera 0.815 0.6 45 10
 # Path with an existing(!) folder and optional partial filename prefix which should receive the screenshots. 
 # If this is just a folder, end it with '/'
 
-prefixScreenshot "./screenshots/rtigo3"
+prefixScreenshot "./screenshots/optix_hair"
 
 # Tonemapper settings.
 # Neutral tonemapper GUI settings showing the linear image:

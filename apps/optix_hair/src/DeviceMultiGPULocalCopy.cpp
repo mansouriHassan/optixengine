@@ -55,7 +55,7 @@ DeviceMultiGPULocalCopy::DeviceMultiGPULocalCopy(const RendererStrategy strategy
 , m_d_compositorData(0)
 , m_cudaGraphicsResource(nullptr)
 {
-  CU_CHECK( cuModuleLoad(&m_moduleCompositor, "./rtigo3_core/compositor.ptx") ); // FIXME Only load this on the primary device!
+  CU_CHECK( cuModuleLoad(&m_moduleCompositor, "./optix_hair_core/compositor.ptx") ); // FIXME Only load this on the primary device!
   CU_CHECK( cuModuleGetFunction(&m_functionCompositor, m_moduleCompositor, "compositor") );
 }
 
