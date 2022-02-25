@@ -39,6 +39,7 @@ public:
 	 * @return imagem em base64
 	 */
 	string mat2str(const Mat& img);
+	string img2str(const string& filename);
 
 	virtual ~ImagemConverter();
 

@@ -137,8 +137,6 @@ string ImagemConverter::mat2str(const Mat& m)
 
 }
 
-
-
 Mat ImagemConverter::str2mat(const string& s)
 {
 	// Decode data
@@ -147,6 +145,20 @@ Mat ImagemConverter::str2mat(const string& s)
 
 	cv::Mat img = imdecode(data, IMREAD_UNCHANGED);
 	return img;
+}
+
+string ImagemConverter::img2str(const string& filename)
+{
+	std::string image_path = samples::findFile(filename.c_str());
+	std::cout << image_path << std::endl;
+	Mat img = imread(image_path, IMREAD_COLOR);
+	if (img.empty())
+	{
+		std::cout << "Could not read the image: " << image_path << std::endl;
+	}
+
+	return mat2str(img);
+
 }
 
 ImagemConverter::~ImagemConverter()

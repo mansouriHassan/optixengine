@@ -6876,19 +6876,10 @@ bool Application::sendImage(const bool tonemap)
 
             std::cout << filename << '\n'; // Print out filename to indicate that a screenshot has been taken.
 
-            std::string image_path = samples::findFile(filename.c_str());
-            std::cout << image_path << std::endl;
-            Mat img = imread(image_path, IMREAD_COLOR);
-            if (img.empty())
-            {
-                std::cout << "Could not read the image: " << image_path << std::endl;
-            }
-
-            std::string imagebase64 = imageConverter->mat2str(img);
-
+            std::string imagebase64 = imageConverter->img2str(filename);
             //std::cout << imagebase64 << std::endl;
 
-            imagebase64 = "{\"image_view\":\"right\",\"image_data\":" + imagebase64 + "}";
+            imagebase64 = "{\"image_view\":\"front\",\"image_data\":\"" + imagebase64 + "\"}";
             imagebase64 = "$" + imagebase64 + "#";
             /*
             ofstream myfile;
