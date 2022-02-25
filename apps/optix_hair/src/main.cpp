@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2013-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ static Socket* socket_server = nullptr;
 
 static void callbackError(int error, const char* description)
 {
-  std::cerr << "Error: "<< error << ": " << description << '\n';
+    std::cerr << "Error: " << error << ": " << description << '\n';
 }
 
 void start_server()
@@ -74,121 +74,122 @@ void send_image(int second)
 
 static int runApp(Options const& options)
 {
-  int width  = std::max(1, options.getWidth());
-  int height = std::max(1, options.getHeight());
- 
-  auto monitor = glfwGetPrimaryMonitor();
-  GLFWwindow* window = glfwCreateWindow(width, height, "optix_hair - Copyright (c) 2020 NVIDIA Corporation", nullptr, NULL);
- // const GLFWvidmode* wmode = glfwGetVideoMode(monitor);
-  //auto scr_width = wmode->width;
-  //auto scr_height = wmode->height;
-  //glfwSetWindowSize(window, scr_width, scr_height);
+    int width = std::max(1, options.getWidth());
+    int height = std::max(1, options.getHeight());
 
-  if (!window)
-  {
-    callbackError(APP_ERROR_CREATE_WINDOW, "glfwCreateWindow() failed.");
-    glfwTerminate();
-    return APP_ERROR_CREATE_WINDOW;
-  }
+    auto monitor = glfwGetPrimaryMonitor();
+    GLFWwindow* window = glfwCreateWindow(width, height, "optix_hair - Copyright (c) 2020 NVIDIA Corporation", nullptr, NULL);
+    // const GLFWvidmode* wmode = glfwGetVideoMode(monitor);
+     //auto scr_width = wmode->width;
+     //auto scr_height = wmode->height;
+     //glfwSetWindowSize(window, scr_width, scr_height);
 
-  glfwMakeContextCurrent(window);
-
-  if (glewInit() != GL_NO_ERROR)
-  {
-    callbackError(APP_ERROR_GLEW_INIT, "GLEW failed to initialize.");
-    glfwTerminate();
-    return APP_ERROR_GLEW_INIT;
-  }
-    
-  ilInit(); // Initialize DevIL once.
-
-  g_app = new Application(window, options);
-
-  if (!g_app->isValid())
-  {
-    std::cerr << "ERROR: Application() failed to initialize successfully.\n";
-    ilShutDown();
-    glfwTerminate();
-    return APP_ERROR_APP_INIT;
-  }
-
-  const int mode = std::max(0, options.getMode());
-
-  if (mode == 0) // Interactive, default.
-  {
-    // Main loop
-    bool finish = false;
-    while (!finish && !glfwWindowShouldClose(window))
+    if (!window)
     {
-
-        glfwPollEvents(); // Render continuously. Battery drainer!
-
-
-
-        glfwGetFramebufferSize(window, &width, &height);
-
-        g_app->reshape(width, height);
-        g_app->guiNewFrame();
-        //g_app->guiReferenceManual();  // HACK The ImGUI "Programming Manual" as example code.
-        //g_app->guiWindow();             // This application's GUI window rendering commands.
-        g_app->guiUserWindow();           // This application's GUI window renderind commands for user expert color.
-        g_app->guiEventHandler();       // SPACE to toggle the GUI windows and all mouse tracking via GuiState.
-        finish = g_app->render();       // OptiX rendering, returns true when benchmark is enabled and the samples per pixel have been rendered.
-        g_app->display();               // OpenGL display always required to lay the background for the GUI.
-        g_app->guiRender();             // Render all ImGUI elements at last.
-
-        glfwSwapBuffers(window);
-
-        //glfwWaitEvents(); // Render only when an event is happening. Needs some glfwPostEmptyEvent() to prevent GUI lagging one frame behind when ending an action.
+        callbackError(APP_ERROR_CREATE_WINDOW, "glfwCreateWindow() failed.");
+        glfwTerminate();
+        return APP_ERROR_CREATE_WINDOW;
     }
-  }
-  else if (mode == 1) // Batched benchmark single shot. // FIXME When not using anything OpenGL, the whole window and OpenGL setup could be removed.
-  {
-    g_app->benchmark();
-  }
 
-  delete g_app;
+    glfwMakeContextCurrent(window);
 
-  ilShutDown();
+    if (glewInit() != GL_NO_ERROR)
+    {
+        callbackError(APP_ERROR_GLEW_INIT, "GLEW failed to initialize.");
+        glfwTerminate();
+        return APP_ERROR_GLEW_INIT;
+    }
 
-  return APP_EXIT_SUCCESS;
+    ilInit(); // Initialize DevIL once.
+
+    g_app = new Application(window, options);
+
+    if (!g_app->isValid())
+    {
+        std::cerr << "ERROR: Application() failed to initialize successfully.\n";
+        ilShutDown();
+        glfwTerminate();
+        return APP_ERROR_APP_INIT;
+    }
+
+    const int mode = std::max(0, options.getMode());
+
+    if (mode == 0) // Interactive, default.
+    {
+        // Main loop
+        bool finish = false;
+        while (!finish && !glfwWindowShouldClose(window))
+        {
+
+            glfwPollEvents(); // Render continuously. Battery drainer!
+
+
+
+            glfwGetFramebufferSize(window, &width, &height);
+
+            g_app->reshape(width, height);
+            g_app->guiNewFrame();
+            //g_app->guiReferenceManual();  // HACK The ImGUI "Programming Manual" as example code.
+            //g_app->guiWindow();             // This application's GUI window rendering commands.
+            //g_app->guiUserWindow();           // This application's GUI window renderind commands for user expert color.
+            g_app->customGuiUserWindow();
+            g_app->guiEventHandler();       // SPACE to toggle the GUI windows and all mouse tracking via GuiState.
+            finish = g_app->render();       // OptiX rendering, returns true when benchmark is enabled and the samples per pixel have been rendered.
+            g_app->display();               // OpenGL display always required to lay the background for the GUI.
+            g_app->guiRender();             // Render all ImGUI elements at last.
+
+            glfwSwapBuffers(window);
+
+            //glfwWaitEvents(); // Render only when an event is happening. Needs some glfwPostEmptyEvent() to prevent GUI lagging one frame behind when ending an action.
+        }
+    }
+    else if (mode == 1) // Batched benchmark single shot. // FIXME When not using anything OpenGL, the whole window and OpenGL setup could be removed.
+    {
+        g_app->benchmark();
+    }
+
+    delete g_app;
+
+    ilShutDown();
+
+    return APP_EXIT_SUCCESS;
 }
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  socket_server = Socket::getInstance();
-  std::thread thread_server(&start_server);   // start server
-  std::thread thread_send_image(&send_image, 1);
-  
-  glfwSetErrorCallback(callbackError);
+    socket_server = Socket::getInstance();
+    std::thread thread_server(&start_server);   // start server
+    std::thread thread_send_image(&send_image, 1);
+
+    glfwSetErrorCallback(callbackError);
 
 
-  if (!glfwInit())
-  {
-    callbackError(APP_ERROR_GLFW_INIT, "GLFW failed to initialize.");
-    return APP_ERROR_GLFW_INIT;
-  }
+    if (!glfwInit())
+    {
+        callbackError(APP_ERROR_GLFW_INIT, "GLFW failed to initialize.");
+        return APP_ERROR_GLFW_INIT;
+    }
 
-  int result = APP_ERROR_UNKNOWN;
+    int result = APP_ERROR_UNKNOWN;
 
-  Options options;
+    Options options;
 
-  if (options.parseCommandLine(argc, argv))
-  {
-      if (options.getHeight() == 0 || options.getWidth() == 0)
-      {
-          auto monitor = glfwGetPrimaryMonitor();
-          const GLFWvidmode* wmode = glfwGetVideoMode(monitor);
-          options.setWidth(wmode->width);
-          options.setHeight(wmode->height);
-          //const GLFWvidmode* wmode = glfwGetVideoMode(monitor);
-          //auto scr_width = wmode->width;
-          //auto scr_height = wmode->height;
-          //glfwSetWindowSize(window, scr_width, scr_height);
-      }
-      result = runApp(options);
-  }
+    if (options.parseCommandLine(argc, argv))
+    {
+        if (options.getHeight() == 0 || options.getWidth() == 0)
+        {
+            auto monitor = glfwGetPrimaryMonitor();
+            const GLFWvidmode* wmode = glfwGetVideoMode(monitor);
+            options.setWidth(wmode->width);
+            options.setHeight(wmode->height);
+            //const GLFWvidmode* wmode = glfwGetVideoMode(monitor);
+            //auto scr_width = wmode->width;
+            //auto scr_height = wmode->height;
+            //glfwSetWindowSize(window, scr_width, scr_height);
+        }
+        result = runApp(options);
+    }
 
-  return result;
+    return result;
 }
