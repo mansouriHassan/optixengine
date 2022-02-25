@@ -185,7 +185,7 @@ std::string Socket::socket_read_string() {
             if (iReadResult > 0) {
                 message = message + std::string(recvbuf);
 
-                printf("Bytes received: %d\n", message.length());
+                printf("Bytes received: %ld\n", message.length());
                 printf("Message received: %s\n", message.c_str());
             }
         }
