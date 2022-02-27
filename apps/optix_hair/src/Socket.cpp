@@ -170,7 +170,6 @@ std::string Socket::socket_read() {
 
     //printf("Bytes received: %d\n", message.length());
     //printf("Message received: %s\n", message.c_str());
-
     return message;
 }
 

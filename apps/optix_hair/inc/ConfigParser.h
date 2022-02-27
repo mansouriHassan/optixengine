@@ -9,14 +9,11 @@
 
 #include <string>
 
-enum ParserTokenType
+enum HairType
 {
-  PTT_UNKNOWN, // Unknown, normally indicates an error.
-  PTT_ID,      // Keywords, identifiers (not a number).
-  PTT_VAL,     // Immediate floating point value.
-  PTT_STRING,  // Filenames and any other identifiers in quotation marks.
-  PTT_EOL,     // End of line.
-  PTT_EOF      // End of file.
+  STRAIGHT_HAIR,      // Straight hair
+  CURLY_HAIR,         // Curly hair.
+  WAVY_HAIR           // Wavy hair.
 };
 
 
@@ -25,20 +22,22 @@ class ConfigParser
 {
 public:
   ConfigParser();
-  //~ConfigParser();
+  ~ConfigParser();
+
+  void parseConfigData(const std::string& json_data);
   
-  bool load(std::string const& filename);
 
-  ParserTokenType getNextToken(std::string& token);
+  int                 getHairType() const;
+  int                 getView() const;
 
-  size_t                 getSize() const;
-  std::string::size_type getIndex() const;
-  unsigned int           getLine() const;
-    
+  static ConfigParser* getInstance();
+
+protected:
+    static ConfigParser* config_parser;
+
 private:
-  std::string            m_source; // System or scene description file contents.
-  std::string::size_type m_index;  // Parser's current character index into m_source.
-  unsigned int           m_line;   // Current source code line, one-based for error messages.
+  rapidjson::Document document;
+  int hair_type;
 };
 
 #endif // CONFIG_PARSER_H

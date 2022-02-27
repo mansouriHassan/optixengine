@@ -393,6 +393,7 @@ Application::Application(GLFWwindow* window, Options const& options)
         m_isValid = true;
         imageConverter = new ImagemConverter();
         socket_server = Socket::getInstance();
+        config_parser = ConfigParser::getInstance();
     }
     catch (std::exception const& e)
     {
@@ -3658,7 +3659,8 @@ void Application::customGuiUserWindow(bool* p_open)
         }
 #endif
     }
-    if (ImGui::CollapsingHeader("Dynamic settings"))
+    //if (ImGui::CollapsingHeader("Dynamic settings"))
+    if(1)
     {
         bool changed = false;
         const char* current_HDR_value;
@@ -3705,12 +3707,15 @@ void Application::customGuiUserWindow(bool* p_open)
             ImGui::EndCombo();
         }
 #endif
-        if (ImGui::BeginCombo("Hair type", current_item_model_value))
+        //if (ImGui::BeginCombo("Hair type", current_item_model_value))
+        if(1)
         {
-            for (int n = 0; n < m_models.size(); n++)
-            {
+            int n = config_parser->getHairType();
+            //for (int n = 0; n < m_models.size(); n++)
+            //{
                 bool is_selected = (current_item_model == &m_models[n]); // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(m_models[n].name.c_str(), is_selected))
+                //if (ImGui::Selectable(m_models[n].name.c_str(), is_selected))
+                if(1)
                 {
                     if (current_item_model != &m_models[n])
                     {
@@ -3817,8 +3822,8 @@ void Application::customGuiUserWindow(bool* p_open)
                         m_raytracer->updateCamera(0, m_cameras[0]);
                     }
                 }
-            }
-            ImGui::EndCombo();
+            //}
+            //ImGui::EndCombo();
         }
 #if 0
         if (ImGui::BeginCombo("Color Switch", current_item_colorswatch_value))

@@ -80,6 +80,7 @@
 
 #include "inc/ConvertImage.h"
 #include "inc/Socket.h"
+#include "inc/ConfigParser.h"
 
 #define APP_EXIT_SUCCESS          0
 
@@ -172,6 +173,8 @@ public:
     void guiRender();
 
     void customGuiUserWindow(bool* p_open = NULL); //PSAN user ui
+    void parseConfigData();
+
     void guiUserWindow(bool* p_open = NULL); //PSAN user ui
     void ShowOptionLayout(bool* p_open); // Here old version material interface and others settings
     void ShowAbsolueLayout(bool* p_open); // Test interface with 7 dye colors
@@ -386,6 +389,7 @@ private:
     int m_lighting_emission[5] = { 12,12,12,12,12 };
     ImagemConverter* imageConverter;
     Socket* socket_server;
+    ConfigParser* config_parser;
 };
 
 #endif // APPLICATION_H

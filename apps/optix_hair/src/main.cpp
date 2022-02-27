@@ -30,6 +30,7 @@
 
 #include "inc/Application.h"
 #include "inc/Socket.h"
+#include "inc/ConfigParser.h"
 
 #include <IL/il.h>
 
@@ -41,6 +42,7 @@
 
 static Application* g_app = nullptr;
 static Socket* socket_server = nullptr;
+static ConfigParser* config_parser = nullptr;
 
 static void callbackError(int error, const char* description)
 {
@@ -56,6 +58,21 @@ void start_server()
     }
 }
 
+void get_config_data()
+{
+    while(true) {
+        if (socket_server != NULL)
+        {
+            if (socket_server->isClientConnected()) {
+                std::string const json_data = socket_server->socket_read();
+                if(config_parser != NULL && !json_data.empty())
+                {
+                    config_parser->parseConfigData(json_data);
+                }
+            }
+        }
+    }
+}
 void send_image(int second)
 {
     while (true)
@@ -159,7 +176,9 @@ static int runApp(Options const& options)
 int main(int argc, char* argv[])
 {
     socket_server = Socket::getInstance();
+    config_parser = ConfigParser::getInstance();
     std::thread thread_server(&start_server);   // start server
+    std::thread thread_config(&get_config_data);   // start server
     std::thread thread_send_image(&send_image, 1);
 
     glfwSetErrorCallback(callbackError);
