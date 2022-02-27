@@ -3242,23 +3242,24 @@ void Application::customGuiUserWindow(bool* p_open)
                 || materialGUI.name.find("Hair") != std::string::npos)
                 && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_materialsGUI[i].name.c_str()))
 #endif
+                std::cout << "=================== m_materialsGUI[i].name.c_str() = " << m_materialsGUI[i].name.c_str() << std::endl;
             if ((materialGUI.name.find("Hair") != std::string::npos)
                 && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_materialsGUI[i].name.c_str()))
             {
-#if 0
                 if (ImGui::Combo("BxDF Type", (int*)&materialGUI.indexBSDF, "BRDF Diffuse\0BRDF Specular\0BSDF Specular\0BRDF GGX Smith\0BSDF GGX Smith\0BSDF Hair\0\0"))
                 {
                     changed = true;
                 }
-#endif
                 if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR)
                 {
                     float pasAffinage(0.25f);
                     ImVec2 sz(20, 20);// size button + -   
 
                     ImGui::PushID("HT");
-                    if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
+                    //if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
+                    if(1)
                     {
+                        materialGUI.HT = config_parser->getHair1HT();
                         materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
@@ -3288,6 +3289,8 @@ void Application::customGuiUserWindow(bool* p_open)
                     ImGui::PushItemWidth(250);
                     if (ImGui::SliderInt("", &materialGUI.int_VertRouge_Concentration, 0, 8, vertRougeIndex[materialGUI.int_VertRouge_Concentration]))
                     {
+                        //materialGUI.int_VertRouge_Concentration = config_parser->getVertRouge_Concentration();
+                        std::cout << "materialGUI.int_VertRouge_Concentration : " << materialGUI.int_VertRouge_Concentration << std::endl;
                         changed = true;
                     }
                     ImGui::PopItemWidth();
@@ -3316,9 +3319,8 @@ void Application::customGuiUserWindow(bool* p_open)
                     char* CendreCuivreIndex[] = { "10","11","1","01","","04","4","44","40" };
                     if (ImGui::SliderInt("", &materialGUI.int_CendreCuivre_Concentration, 0, 8, CendreCuivreIndex[materialGUI.int_CendreCuivre_Concentration]))
                     {
-
+                        //materialGUI.int_CendreCuivre_Concentration = config_parser->getCendreCuivre_Concentration();
                         changed = true;
-
                     }
                     ImGui::PopItemWidth();
                     ImGui::PopID();
@@ -3347,9 +3349,8 @@ void Application::customGuiUserWindow(bool* p_open)
                     ImGui::PushItemWidth(250);
                     if (ImGui::SliderInt("", &materialGUI.int_IriseDore_Concentration, 0, 8, IriseDoreIndex[materialGUI.int_IriseDore_Concentration]))
                     {
-
+                        //materialGUI.int_IriseDore_Concentration = config_parser->getIriseDore_Concentration();
                         changed = true;
-
                     }
                     ImGui::PopItemWidth();
                     ImGui::PopID();

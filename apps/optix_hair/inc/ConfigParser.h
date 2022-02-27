@@ -27,8 +27,13 @@ public:
   void parseConfigData(const std::string& json_data);
   
 
-  int                 getHairType() const;
-  int                 getView() const;
+  int getHairType() const;
+  int getHair1HT() const;
+  int getHair2HT() const;
+  int getVertRouge_Concentration() const;
+  int getCendreCuivre_Concentration() const;
+  int getIriseDore_Concentration() const;
+  int getView() const;
 
   static ConfigParser* getInstance();
 
@@ -38,6 +43,11 @@ protected:
 private:
   rapidjson::Document document;
   int hair_type;
+  int hair1_HT;
+  int hair2_HT;
+  int vertRouge_Concentration;
+  int cendreCuivre_Concentration;
+  int iriseDore_Concentration;
 };
 
 #endif // CONFIG_PARSER_H
