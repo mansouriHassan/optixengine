@@ -3243,8 +3243,8 @@ void Application::customGuiUserWindow(bool* p_open)
         }
 
     }
-    //if (ImGui::CollapsingHeader("Material", true))
-    if(config_parser->collapsingHeader_material == true)
+    if (ImGui::CollapsingHeader("Material", true))
+    //if(config_parser->collapsingHeader_material == true)
     {
         config_parser->collapsingHeader_material = false;
         int i = 0;
@@ -3271,14 +3271,16 @@ void Application::customGuiUserWindow(bool* p_open)
                     ImVec2 sz(20, 20);// size button + -   
 
                     ImGui::PushID("HT");
-                    //if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
-                    if(1)
+                    if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
+                    //if(1)
                     {
+                        /*
                         if(i == 6) {
                             materialGUI.HT = config_parser->getHair1HT();
                         } else if (i == 7) {
                             materialGUI.HT = config_parser->getHair2HT();
                         }
+                        */
                         materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
