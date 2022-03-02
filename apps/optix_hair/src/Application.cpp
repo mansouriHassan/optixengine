@@ -3173,8 +3173,18 @@ void Application::customGuiUserWindow(bool* p_open)
         show_absolue_layout = true;
     }
 #endif
-    if (ImGui::CollapsingHeader("Camera", true))
+    //if (ImGui::CollapsingHeader("Camera", true))
+    if(config_parser->collapsingHeader_camera == true)
     {
+        config_parser->collapsingHeader_camera = false;
+
+        if(config_parser->camera_views.size() > 0) {
+            m_camera.m_phi = std::stof(config_parser->camera_views[config_parser->view_index].view_phi);
+            m_camera.m_theta = std::stof(config_parser->camera_views[config_parser->view_index].view_theta);
+            m_camera.m_fov = std::stof(config_parser->camera_views[config_parser->view_index].view_fov);
+            m_camera.m_distance = std::stof(config_parser->camera_views[config_parser->view_index].view_distance);
+        }
+        /*
         int tmp = m_camera.pov;
         ImGui::RadioButton("Center", &(m_camera.pov), 0);
         ImGui::SameLine();
@@ -3184,8 +3194,11 @@ void Application::customGuiUserWindow(bool* p_open)
         ImGui::RadioButton("Left", &(m_camera.pov), 2);
         ImGui::SameLine();
         ImGui::RadioButton("Right", &(m_camera.pov), 3);
-        if (m_camera.pov != tmp)
+        */
+        //if (m_camera.pov != tmp)
+        if(1)
         {
+            /*
             switch (m_camera.pov)
             {
             case 0:
@@ -3225,12 +3238,15 @@ void Application::customGuiUserWindow(bool* p_open)
                 m_camera.m_distance = 10.f;
                 break;
             }
+            */
             m_camera.markDirty(true);
         }
 
     }
-    if (ImGui::CollapsingHeader("Material", true))
+    //if (ImGui::CollapsingHeader("Material", true))
+    if(config_parser->collapsingHeader_material == true)
     {
+        config_parser->collapsingHeader_material = false;
         int i = 0;
         for (; i < static_cast<int>(m_materialsGUI.size()); ++i)
         {
@@ -3242,7 +3258,6 @@ void Application::customGuiUserWindow(bool* p_open)
                 || materialGUI.name.find("Hair") != std::string::npos)
                 && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_materialsGUI[i].name.c_str()))
 #endif
-                std::cout << "=================== m_materialsGUI[i].name.c_str() = " << m_materialsGUI[i].name.c_str() << std::endl;
             if ((materialGUI.name.find("Hair") != std::string::npos)
                 && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_materialsGUI[i].name.c_str()))
             {
@@ -3259,7 +3274,11 @@ void Application::customGuiUserWindow(bool* p_open)
                     //if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
                     if(1)
                     {
-                        materialGUI.HT = config_parser->getHair1HT();
+                        if(i == 6) {
+                            materialGUI.HT = config_parser->getHair1HT();
+                        } else if (i == 7) {
+                            materialGUI.HT = config_parser->getHair2HT();
+                        }
                         materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
@@ -3279,6 +3298,9 @@ void Application::customGuiUserWindow(bool* p_open)
                     ImGui::PushID("Vert");
                     if (ImGui::ColorEdit3("", (float*)&materialGUI.vert, ImGuiColorEditFlags_NoInputs))
                     {
+                        auto vert = (float*)&materialGUI.vert;
+                        printf("============ vert : %f =============\n", *vert);
+
                         changed = true;
                     }
                     ImGui::PopID();
@@ -3377,6 +3399,7 @@ void Application::customGuiUserWindow(bool* p_open)
                 ImGui::TreePop();
             }
         }
+
 #if 0
         if (ImGui::TreeNode((void*)(intptr_t)i, "Save and Switch"))// (ImGui::CollapsingHeader("Save and Switch"))
         {
@@ -4437,13 +4460,19 @@ void Application::updateDYE(MaterialGUI& materialGUI)
         materialGUI.concentrationAcajou +
         materialGUI.concentrationRouge +
         materialGUI.concentrationVert);
-
+    printf("======================= coeffisient = %f ====================\n", coeffisient);
     float3 rgb;
     if (coeffisient != 0)
         rgb = make_float3(moyenRGB.x / coeffisient, moyenRGB.y / coeffisient, moyenRGB.z / coeffisient);
     else
         rgb = make_float3(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0);
 
+    printf("======================= rgb.x = %f ====================\n", rgb.x);
+    printf("======================= rgb.y = %f ====================\n", rgb.y);
+    printf("======================= rgb.z = %f ====================\n", rgb.z);
+    rgb.x = 0.12;
+    rgb.y = 0.0456;
+    rgb.z = 0.780;
     materialGUI.dye = rgb;
 }
 
@@ -6896,7 +6925,8 @@ bool Application::sendImage(const bool tonemap)
             if (socket_server->isClientConnected()) {
                 int iSendResult = socket_server->socket_send(imagebase64);
                 if (iSendResult > 0) {
-                    std::cout << "file = " << imagebase64 << std::endl;
+                    std::cout << "file = " << std::endl;
+                    //std::cout << "file = " << imagebase64 << std::endl;
                 }
                 printf("Bytes sent: %d\n", iSendResult);
             }

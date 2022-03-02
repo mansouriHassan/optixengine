@@ -7,7 +7,10 @@
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
 #include "rapidjson/prettywriter.h" // for stringify JSON
 
+#include <iostream>
 #include <string>
+#include <map>
+#include <vector>
 
 enum HairType
 {
@@ -16,8 +19,14 @@ enum HairType
   WAVY_HAIR           // Wavy hair.
 };
 
-
-// System and scene file parsing information.
+struct View
+{
+    std::string view_name;             // The name used in the scene description to identify this material instance.
+	std::string view_phi;
+	std::string view_theta;
+	std::string view_fov;
+	std::string view_distance;
+};
 class ConfigParser
 {
 public:
@@ -33,7 +42,10 @@ public:
   int getVertRouge_Concentration() const;
   int getCendreCuivre_Concentration() const;
   int getIriseDore_Concentration() const;
-  int getView() const;
+  int getColorL() const;
+  int getColorA() const;
+  int getColorB() const;
+  std::vector<View> getViews() const;
 
   static ConfigParser* getInstance();
 
@@ -48,6 +60,17 @@ private:
   int vertRouge_Concentration;
   int cendreCuivre_Concentration;
   int iriseDore_Concentration;
+
+  int colorL;
+  int colorA;
+  int colorB;
+
+public:
+	bool collapsingHeader_camera;
+	bool collapsingHeader_material;
+	int view_index;
+	bool isConfigfinished;
+	std::vector<View> camera_views;
 };
 
 #endif // CONFIG_PARSER_H

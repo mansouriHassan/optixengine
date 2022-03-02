@@ -12,12 +12,22 @@ ConfigParser* ConfigParser::config_parser = nullptr;
 
 ConfigParser::ConfigParser()
 {
+    view_index = 0;
     hair_type = 0;
     hair1_HT = 5;
     hair2_HT = 5;
     vertRouge_Concentration = 4;
     cendreCuivre_Concentration = 4;
     iriseDore_Concentration = 4;
+
+    colorL = 255;
+    colorA = 255;
+    colorB = 255;
+
+    collapsingHeader_camera = false;
+    collapsingHeader_material = false;
+
+    isConfigfinished = false;
 }
 
 ConfigParser::~ConfigParser()
@@ -116,37 +126,48 @@ void ConfigParser::parseConfigData(const std::string& json_data)
 
         /*************************** Cameras data ******************************/
         const rapidjson::Value& cameras = document["Cameras"];
+        View view;
         assert(cameras.IsArray());
         for (int i = 0; i < cameras.Size(); i++) { // Uses SizeType instead of size_t
             assert(cameras[i].IsObject());
 
             assert(cameras[i].HasMember("name"));
             assert(cameras[i]["name"].IsString());
-            printf("name = %s\n", cameras[i]["name"].GetString());
-            config_json = config_json + "cameras name : " + cameras[i]["name"].GetString() + "\n";
+            view.view_name = std::string(cameras[i]["name"].GetString());
+            printf("name = %s\n", view.view_name.c_str());
+            config_json = config_json + "cameras name : " + view.view_name + "\n";
 
             assert(cameras[i].HasMember("m_camera.m_phi"));
             assert(cameras[i]["m_camera.m_phi"].IsString());
-            printf("m_camera.m_phi = %s\n", cameras[i]["m_camera.m_phi"].GetString());
-            config_json = config_json + "m_camera.m_phi : " + cameras[i]["m_camera.m_phi"].GetString() + "\n";
+            view.view_phi = cameras[i]["m_camera.m_phi"].GetString();
+            printf("m_camera.m_phi = %s\n", view.view_phi.c_str());
+            config_json = config_json + "m_camera.m_phi : " + view.view_phi + "\n";
 
             assert(cameras[i].HasMember("m_camera.m_theta"));
             assert(cameras[i]["m_camera.m_theta"].IsString());
-            printf("m_camera.m_theta = %s\n", cameras[i]["m_camera.m_theta"].GetString());
-            config_json = config_json + "m_camera.m_theta : " + cameras[i]["m_camera.m_theta"].GetString() + "\n";
+            view.view_theta = std::string(cameras[i]["m_camera.m_theta"].GetString());
+            printf("m_camera.m_theta = %s\n", view.view_theta.c_str());
+            config_json = config_json + "m_camera.m_theta : " + view.view_theta + "\n";
 
             assert(cameras[i].HasMember("m_camera.m_fov"));
             assert(cameras[i]["m_camera.m_fov"].IsString());
-            printf("m_camera.m_fov = %s\n", cameras[i]["m_camera.m_fov"].GetString());
-            config_json = config_json + "m_camera.m_fov : " + cameras[i]["m_camera.m_fov"].GetString() + "\n";
+            view.view_fov = std::string(cameras[i]["m_camera.m_fov"].GetString());
+            printf("m_camera.m_fov = %s\n", view.view_fov.c_str());
+            config_json = config_json + "m_camera.m_fov : " + view.view_fov + "\n";
 
             assert(cameras[i].HasMember("m_camera.m_distance"));
             assert(cameras[i]["m_camera.m_distance"].IsString());
-            printf("m_camera.m_distance = %s\n", cameras[i]["m_camera.m_distance"].GetString());
-            config_json = config_json + "m_camera.m_distance : " + cameras[i]["m_camera.m_distance"].GetString() + "\n";
+            view.view_distance = std::string(cameras[i]["m_camera.m_distance"].GetString());
+            printf("m_camera.m_distance = %s\n", view.view_fov.c_str());
+            config_json = config_json + "m_camera.m_distance : " + view.view_fov + "\n";
+
+            camera_views.push_back(view);
+            collapsingHeader_camera = true;
+            collapsingHeader_material = true;
+            
         }
         /************************************************************************/
-
+        isConfigfinished = true;
         std::ofstream configFile;
         configFile.open("config.json");
         configFile << config_json + "\n";
@@ -177,4 +198,17 @@ int ConfigParser::getCendreCuivre_Concentration() const {
 int ConfigParser::getIriseDore_Concentration() const {
     return iriseDore_Concentration;
 }
+
+int ConfigParser::getColorL() const {
+    return colorL;
+}
+
+int ConfigParser::getColorA() const {
+    return colorA;
+}
+
+int ConfigParser::getColorB() const {
+    return colorB;
+}
+
 

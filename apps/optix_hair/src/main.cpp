@@ -58,6 +58,23 @@ void start_server()
     }
 }
 
+void change_view(int second)
+{
+    while(true) {
+        if (config_parser != NULL && config_parser->isConfigfinished)
+        {
+            int len = config_parser->camera_views.size();
+            if (len > 0) {
+                for(int index = 0; index < len; index++) {
+                    std::this_thread::sleep_for(std::chrono::seconds(second));
+                    config_parser->view_index = index;
+                    config_parser->collapsingHeader_camera = true;
+                }
+            }
+        }
+    }
+}
+
 void get_config_data()
 {
     while(true) {
@@ -73,6 +90,7 @@ void get_config_data()
         }
     }
 }
+
 void send_image(int second)
 {
     while (true)
@@ -180,6 +198,7 @@ int main(int argc, char* argv[])
     std::thread thread_server(&start_server);   // start server
     std::thread thread_config(&get_config_data);   // start server
     std::thread thread_send_image(&send_image, 1);
+    std::thread thread_change_view(&change_view, 5);
 
     glfwSetErrorCallback(callbackError);
 
