@@ -58,6 +58,7 @@ private:
   rapidjson::Document document;
   std::vector<std::string> vecBSDF;
   FunctionIndex indexBSDF;
+  View default_view;
   int hair_type;
   int hair1_HT;
   int hair2_HT;
@@ -94,6 +95,7 @@ public:
 
 	bool isConfigFinished;
 	std::vector<View> camera_views;
+	std::string view_name;
 };
 
 #endif // CONFIG_PARSER_H

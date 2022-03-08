@@ -3162,12 +3162,19 @@ void Application::customGuiUserWindow(bool* p_open)
     MaterialGUI* materialGUI2 = materialGUI1;
     if (current_item_model->material1Name != current_item_model->material2Name)
         materialGUI2 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
+    /*
+    printf("==================== m_camera.m_phi : %f ===============\n", m_camera.m_phi);
+    printf("==================== m_camera.m_theta : %f =============\n", m_camera.m_theta);
+    printf("==================== m_camera.m_fov : %f ===============\n", m_camera.m_fov);
+    printf("==================== m_camera.m_distance : %f ==========\n", m_camera.m_distance);
+    */
 
     //if (ImGui::CollapsingHeader("Camera", true))
     if (config_parser->isCamreaChanged == true)
     {
         config_parser->isCamreaChanged = false;
         if (config_parser->camera_views.size() > 0) {
+            config_parser->view_name = config_parser->camera_views[config_parser->view_index].view_name;
             m_camera.m_phi = std::stof(config_parser->camera_views[config_parser->view_index].view_phi);
             m_camera.m_theta = std::stof(config_parser->camera_views[config_parser->view_index].view_theta);
             m_camera.m_fov = std::stof(config_parser->camera_views[config_parser->view_index].view_fov);
@@ -6252,7 +6259,7 @@ bool Application::sendImage(const bool tonemap)
             std::string imagebase64 = imageConverter->img2str(filename);
             //std::cout << imagebase64 << std::endl;
 
-            imagebase64 = "{\"image_view\":\"front\",\"image_data\":\"" + imagebase64 + "\"}";
+            imagebase64 = "{\"image_view\":\"" + config_parser->view_name + "\",\"image_data\":\"" + imagebase64 + "\"}";
             imagebase64 = "$" + imagebase64 + "#";
             /*
             ofstream myfile;

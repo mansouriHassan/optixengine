@@ -13,6 +13,11 @@ ConfigParser* ConfigParser::config_parser = nullptr;
 ConfigParser::ConfigParser()
 {
     view_index = 0;
+    default_view.view_phi = "0.815f";
+    default_view.view_theta = "0.6f";
+    default_view.view_fov = "45.f";
+    default_view.view_distance = "10.f";
+    camera_views = {default_view};
     vecBSDF = {"BRDF Diffuse", "BRDF Specular", "BSDF Specular", "BRDF GGX Smith", "BSDF GGX Smith", "BSDF Hair"};
     hair_type = 0;
     hair1_HT = 5;
