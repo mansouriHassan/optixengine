@@ -13,9 +13,11 @@ ConfigParser* ConfigParser::config_parser = nullptr;
 ConfigParser::ConfigParser()
 {
     view_index = 0;
+    vecBSDF = {"BRDF Diffuse", "BRDF Specular", "BSDF Specular", "BRDF GGX Smith", "BSDF GGX Smith", "BSDF Hair"};
     hair_type = 0;
     hair1_HT = 5;
     hair2_HT = 5;
+    indexBSDF = INDEX_BCSDF_HAIR;
     vertRouge_Concentration = 4;
     cendreCuivre_Concentration = 4;
     iriseDore_Concentration = 4;
@@ -24,10 +26,27 @@ ConfigParser::ConfigParser()
     colorA = 255;
     colorB = 255;
 
-    collapsingHeader_camera = false;
-    collapsingHeader_material = false;
+    isCamreaChanged = false;
+    isMaterialChanged = false;
+    isFirstBxDFTypeChanged = false;
+    isSecondBxDFTypeChanged = false;
+    isFirstHTChanged = false;
+    isSecondHTChanged = false;
+    isFirstHairColorChanged = false;
+    isSecondHairColorChanged = false;
+    isDynamicSettingsChanged = false;
+    isHairTypeChanged = false;
+    isDyeNeutralHTChanged = false;
+    isMaterialGUIVertChanged = false;
+    isVertRougeConcentrationChanged = false;
+    isMaterialGUIRedChanged = false;
+    isMaterialGUICendreChanged = false;
+    isCendreCuivreConcentrationChanged = false;
+    isMaterialGUICuivreChanged = false;
+    isMaterialGUIIriseChanged = false;
+    isMaterialGUIDoreeChanged = false;
 
-    isConfigfinished = false;
+    isConfigFinished = false;
 }
 
 ConfigParser::~ConfigParser()
@@ -68,7 +87,10 @@ void ConfigParser::parseConfigData(const std::string& json_data)
 
         assert(shadeColor1.HasMember("BxDfType"));
         assert(shadeColor1["BxDfType"].IsString());
-        printf("shadeColor1 BxDfType = %s\n", shadeColor1["BxDfType"].GetString());
+        std::string bsdf = std::string(shadeColor1["BxDfType"].GetString());
+        printf("shadeColor1 BxDfType = %s\n", bsdf.c_str());
+        vecBSDF;
+        indexBSDF;
         config_json = config_json + "BxDfType : " + shadeColor1["BxDfType"].GetString() + "\n";
 
         assert(shadeColor1.HasMember("HT"));
@@ -162,12 +184,22 @@ void ConfigParser::parseConfigData(const std::string& json_data)
             config_json = config_json + "m_camera.m_distance : " + view.view_fov + "\n";
 
             camera_views.push_back(view);
-            collapsingHeader_camera = true;
-            collapsingHeader_material = true;
+            isCamreaChanged = true;
+            isMaterialChanged = true;
+            isFirstBxDFTypeChanged = true;
+            isSecondBxDFTypeChanged = true;
+            isFirstHTChanged = true;
+            isSecondHTChanged = true;
+            isFirstHairColorChanged = true;
+            isSecondHairColorChanged = true;
+            isDynamicSettingsChanged = true;
+            isHairTypeChanged = true;
+
+            isConfigFinished = true;
             
         }
         /************************************************************************/
-        isConfigfinished = true;
+        isConfigFinished = true;
         std::ofstream configFile;
         configFile.open("config.json");
         configFile << config_json + "\n";
@@ -209,6 +241,10 @@ int ConfigParser::getColorA() const {
 
 int ConfigParser::getColorB() const {
     return colorB;
+}
+
+FunctionIndex ConfigParser::getIndexBSDF() const {
+    return indexBSDF;
 }
 
 

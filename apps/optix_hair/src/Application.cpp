@@ -3162,91 +3162,23 @@ void Application::customGuiUserWindow(bool* p_open)
     MaterialGUI* materialGUI2 = materialGUI1;
     if (current_item_model->material1Name != current_item_model->material2Name)
         materialGUI2 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
-#if 0
-    if (ImGui::Button("Option", ImVec2(60, 20)))
-    {
-        show_option_layout = true;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Affinage", ImVec2(60, 20)))
-    {
-        show_absolue_layout = true;
-    }
-#endif
-    //if (ImGui::CollapsingHeader("Camera", true))
-    if(config_parser->collapsingHeader_camera == true)
-    {
-        config_parser->collapsingHeader_camera = false;
 
-        if(config_parser->camera_views.size() > 0) {
+    //if (ImGui::CollapsingHeader("Camera", true))
+    if (config_parser->isCamreaChanged == true)
+    {
+        config_parser->isCamreaChanged = false;
+        if (config_parser->camera_views.size() > 0) {
             m_camera.m_phi = std::stof(config_parser->camera_views[config_parser->view_index].view_phi);
             m_camera.m_theta = std::stof(config_parser->camera_views[config_parser->view_index].view_theta);
             m_camera.m_fov = std::stof(config_parser->camera_views[config_parser->view_index].view_fov);
             m_camera.m_distance = std::stof(config_parser->camera_views[config_parser->view_index].view_distance);
         }
-        /*
-        int tmp = m_camera.pov;
-        ImGui::RadioButton("Center", &(m_camera.pov), 0);
-        ImGui::SameLine();
-        ImGui::RadioButton("Zoomed Center", &m_camera.pov, 1);
-        ImGui::SameLine();
-        ImGui::RadioButton("Top Front", &(m_camera.pov), 4);
-        ImGui::RadioButton("Left", &(m_camera.pov), 2);
-        ImGui::SameLine();
-        ImGui::RadioButton("Right", &(m_camera.pov), 3);
-        */
-        //if (m_camera.pov != tmp)
-        if(1)
-        {
-            /*
-            switch (m_camera.pov)
-            {
-            case 0:
-                m_camera.m_phi = 0.251406f;
-                m_camera.m_theta = 0.570703f;
-                m_camera.m_fov = 32.f;
-                m_camera.m_distance = 10.f;
-                break;
-            case 1:
-                m_camera.m_phi = 0.251406f;
-                m_camera.m_theta = 0.570703f;
-                m_camera.m_fov = 12.f;
-                m_camera.m_distance = 10.f;
-                break;
-            case 2:
-                m_camera.m_phi = 0.981875f;
-                m_camera.m_theta = 0.535547;
-                m_camera.m_fov = 32.f;
-                m_camera.m_distance = 10.f;
-                break;
-            case 3:
-                m_camera.m_phi = 0.5092198f;
-                m_camera.m_theta = 0.521875f;
-                m_camera.m_fov = 29.f;
-                m_camera.m_distance = 10.f;
-                break;
-            case 4:
-                m_camera.m_phi = 0.757265f;
-                m_camera.m_theta = 0.719141f;
-                m_camera.m_fov = 29.f;
-                m_camera.m_distance = 10.f;
-                break;
-            default:
-                m_camera.m_phi = 0.251406f;
-                m_camera.m_theta = 0.570703f;
-                m_camera.m_fov = 32.f;
-                m_camera.m_distance = 10.f;
-                break;
-            }
-            */
-            m_camera.markDirty(true);
-        }
+        m_camera.markDirty(true);
 
     }
+    
     if (ImGui::CollapsingHeader("Material", true))
-    //if(config_parser->collapsingHeader_material == true)
     {
-        config_parser->collapsingHeader_material = false;
         int i = 0;
         for (; i < static_cast<int>(m_materialsGUI.size()); ++i)
         {
@@ -3265,6 +3197,7 @@ void Application::customGuiUserWindow(bool* p_open)
                 {
                     changed = true;
                 }
+                materialGUI.indexBSDF = config_parser->getIndexBSDF();
                 if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR)
                 {
                     float pasAffinage(0.25f);
@@ -3272,15 +3205,7 @@ void Application::customGuiUserWindow(bool* p_open)
 
                     ImGui::PushID("HT");
                     if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
-                    //if(1)
                     {
-                        /*
-                        if(i == 6) {
-                            materialGUI.HT = config_parser->getHair1HT();
-                        } else if (i == 7) {
-                            materialGUI.HT = config_parser->getHair2HT();
-                        }
-                        */
                         materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
@@ -3300,9 +3225,6 @@ void Application::customGuiUserWindow(bool* p_open)
                     ImGui::PushID("Vert");
                     if (ImGui::ColorEdit3("", (float*)&materialGUI.vert, ImGuiColorEditFlags_NoInputs))
                     {
-                        auto vert = (float*)&materialGUI.vert;
-                        printf("============ vert : %f =============\n", *vert);
-
                         changed = true;
                     }
                     ImGui::PopID();
@@ -3311,10 +3233,9 @@ void Application::customGuiUserWindow(bool* p_open)
                     ImGui::PushID("Vert-Rouge");
                     char* vertRougeIndex[] = { "70","77","7","07","","06","6","66","60" };
                     ImGui::PushItemWidth(250);
-                    if (ImGui::SliderInt("", &materialGUI.int_VertRouge_Concentration, 0, 8, vertRougeIndex[materialGUI.int_VertRouge_Concentration]))
+                    if (ImGui::SliderInt("AAAAAAAA", &materialGUI.int_VertRouge_Concentration, 0, 8, vertRougeIndex[materialGUI.int_VertRouge_Concentration]))
                     {
-                        //materialGUI.int_VertRouge_Concentration = config_parser->getVertRouge_Concentration();
-                        std::cout << "materialGUI.int_VertRouge_Concentration : " << materialGUI.int_VertRouge_Concentration << std::endl;
+                        printf("================= VertRouge_Concentration : %d ==================\n", materialGUI.int_VertRouge_Concentration);
                         changed = true;
                     }
                     ImGui::PopItemWidth();
@@ -3343,8 +3264,9 @@ void Application::customGuiUserWindow(bool* p_open)
                     char* CendreCuivreIndex[] = { "10","11","1","01","","04","4","44","40" };
                     if (ImGui::SliderInt("", &materialGUI.int_CendreCuivre_Concentration, 0, 8, CendreCuivreIndex[materialGUI.int_CendreCuivre_Concentration]))
                     {
-                        //materialGUI.int_CendreCuivre_Concentration = config_parser->getCendreCuivre_Concentration();
+                        printf("================= CendreCuivre_Concentration : %d ==================\n", materialGUI.int_CendreCuivre_Concentration);
                         changed = true;
+
                     }
                     ImGui::PopItemWidth();
                     ImGui::PopID();
@@ -3373,7 +3295,7 @@ void Application::customGuiUserWindow(bool* p_open)
                     ImGui::PushItemWidth(250);
                     if (ImGui::SliderInt("", &materialGUI.int_IriseDore_Concentration, 0, 8, IriseDoreIndex[materialGUI.int_IriseDore_Concentration]))
                     {
-                        //materialGUI.int_IriseDore_Concentration = config_parser->getIriseDore_Concentration();
+                        printf("================= IriseDore_Concentration : %d ==================\n", materialGUI.int_IriseDore_Concentration);
                         changed = true;
                     }
                     ImGui::PopItemWidth();
@@ -3390,10 +3312,10 @@ void Application::customGuiUserWindow(bool* p_open)
 
                 if (changed)
                 {
-                    updateDYEinterface(materialGUI);
+                    //updateDYEinterface(materialGUI);
                     updateDYE(materialGUI);
-                    updateDYEconcentration(materialGUI);
-                    updateHT(materialGUI);
+                    //updateDYEconcentration(materialGUI);
+                    //updateHT(materialGUI);
 
                     m_raytracer->updateMaterial(i, materialGUI);
                     refresh = true;
@@ -3401,292 +3323,9 @@ void Application::customGuiUserWindow(bool* p_open)
                 ImGui::TreePop();
             }
         }
-
-#if 0
-        if (ImGui::TreeNode((void*)(intptr_t)i, "Save and Switch"))// (ImGui::CollapsingHeader("Save and Switch"))
-        {
-            static std::string current_Material1_value;
-            static std::string current_Material2_value;
-            static MaterialGUI* current_Material1;
-            static MaterialGUI* current_Material2;
-            for (auto& mat : m_materialsGUI)
-            {
-                if (mat.name.find("default") != std::string::npos)
-                {
-                    current_Material1 = &mat;
-                    current_Material2 = &mat;
-                    break;
-                }
-            }
-            MY_ASSERT(current_Material1 != nullptr);
-            current_Material1_value = current_Material1->name.c_str();
-            current_Material2_value = current_Material1_value;
-            ImGui::Text("Switch the materials");
-            if (ImGui::BeginCombo("Material1", current_Material1_value.c_str()))
-            {
-                for (int n = 0; n < m_materialsGUI.size(); n++)
-                {
-                    if (m_materialsGUI.at(n).name.find("default") != std::string::npos
-                        || m_materialsGUI.at(n).name.find("Hair") != std::string::npos)
-                    {
-                        bool is_selected = (current_Material1 == &m_materialsGUI[n]); // You can store your selection however you want, outside or inside your objects
-                        if (ImGui::Selectable(m_materialsGUI[n].name.c_str()))
-                        {
-                            if (&m_materialsGUI[n] != current_Material1)
-                            {
-                                current_Material1 = &m_materialsGUI[n];
-                                current_Material1_value = m_materialsGUI[n].name.c_str();
-                            }
-                        }
-                        if (is_selected)
-                            ImGui::SetItemDefaultFocus();
-                    }
-                }
-                ImGui::EndCombo();
-            }
-            if (ImGui::Button("<"))
-            {
-                if (current_Material1 != NULL && current_Material2 != NULL && current_Material1 != current_Material2)
-                {
-                    std::string tmp = current_Material1->name;
-                    *current_Material1 = *current_Material2;
-                    current_Material1->name = tmp;
-                    for (int i = 0; i < static_cast<int>(m_materialsGUI.size()); ++i)
-                    {
-                        if (current_Material1 == &m_materialsGUI[i])
-                            m_raytracer->updateMaterial(i, *current_Material1);
-                    }
-                }
-
-
-
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("<>"))
-            {
-                if (current_Material1 != NULL && current_Material2 != NULL && current_Material1 != current_Material2)
-                {
-                    std::string tmp = current_Material1->name;
-                    std::string tmp2 = current_Material2->name;
-                    MaterialGUI tmpMaterial = *current_Material2;
-                    *current_Material2 = *current_Material1;
-                    current_Material2->name = tmp2;
-                    *current_Material1 = tmpMaterial;
-                    current_Material1->name = tmp;
-                    for (int i = 0; i < static_cast<int>(m_materialsGUI.size()); ++i)
-                    {
-                        if (current_Material2 == &m_materialsGUI[i])
-                            m_raytracer->updateMaterial(i, *current_Material2);
-                        if (current_Material1 == &m_materialsGUI[i])
-                            m_raytracer->updateMaterial(i, *current_Material1);
-                    }
-                }
-
-
-
-            }
-            ImGui::SameLine();
-
-            if (ImGui::Button(">"))
-            {
-                if (current_Material1 != NULL && current_Material2 != NULL && current_Material1 != current_Material2)
-                {
-                    std::string tmp = current_Material2->name;
-                    *current_Material2 = *current_Material1;
-                    current_Material2->name = tmp;
-                    for (int i = 0; i < static_cast<int>(m_materialsGUI.size()); ++i)
-                    {
-                        if (current_Material2 == &m_materialsGUI[i])
-                            m_raytracer->updateMaterial(i, *current_Material2);
-                    }
-                }
-
-            }
-            if (ImGui::BeginCombo("Material2", current_Material2_value.c_str()))
-            {
-                for (int n = 0; n < m_materialsGUI.size() - 3; n++)
-                {
-                    bool is_selected = (current_Material2 == &m_materialsGUI[n]); // You can store your selection however you want, outside or inside your objects
-                    if (ImGui::Selectable(m_materialsGUI[n].name.c_str()))
-                    {
-                        if (&m_materialsGUI[n] != current_Material2)
-                        {
-                            current_Material2 = &m_materialsGUI[n];
-                            current_Material2_value = m_materialsGUI[n].name.c_str();
-                        }
-                    }
-                    if (is_selected)
-                        ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-
-            ImGui::NewLine();
-            ImGui::Text("Quick Saves");
-            const char* quickvalue_name[] = { "Quick Save 1", "Quick Save 2", "Quick Save 3", "Quick Save 4", "Quick Save 5" };
-            static int listbox_item_current = -1;
-            ImGui::ListBox("", &listbox_item_current, quickvalue_name, nbQuickSaveValue, 4);
-            ImGui::SameLine();
-            if (ImGui::Button("Quick Load"))
-            {
-                if (listbox_item_current != -1)
-                {
-                    *materialGUI1 = QuickSaveValue[listbox_item_current]->first;
-                    *materialGUI2 = QuickSaveValue[listbox_item_current]->second;
-
-                    m_raytracer->updateMaterial(materialGUI1ID, *materialGUI1);
-                    if (materialGUI1 != materialGUI2)
-                        m_raytracer->updateMaterial(materialGUI2ID, *materialGUI2);
-                    refresh = true;
-                }
-            }
-            ImGui::NewLine();
-            if (ImGui::Button("Quick Save"))
-            {
-                if (nbQuickSaveValue == 5)
-                {
-                    delete QuickSaveValue[0];
-                    QuickSaveValue[0] = NULL;
-                    QuickSaveValue[0] = QuickSaveValue[1];
-                    QuickSaveValue[1] = QuickSaveValue[2];
-                    QuickSaveValue[2] = QuickSaveValue[3];
-                    QuickSaveValue[3] = QuickSaveValue[4];
-                    QuickSaveValue[4] = NULL;
-                }
-                if (nbQuickSaveValue < 5)
-                    nbQuickSaveValue++;
-                std::pair<MaterialGUI, MaterialGUI>* value = new std::pair<MaterialGUI, MaterialGUI>();
-                value->first = *materialGUI1;
-                value->second = *materialGUI2;
-                QuickSaveValue[nbQuickSaveValue - 1] = value;
-            }
-            ImGui::NewLine();
-            ImGui::Text("Save the materials");
-            static char SwitchName[30] = "Switch";
-            ImGui::InputText("Switch Name", SwitchName, IM_ARRAYSIZE(SwitchName));
-            if (ImGui::Button("Save Materials as Color Switch"))
-                clicked = true;
-            if (clicked == true)
-            {
-                for (int i = 0; i < 5; i++)
-                {
-                    delete QuickSaveValue[i];
-                    QuickSaveValue[i] = NULL;
-                }
-                nbQuickSaveValue = 0;
-
-                ColorSwitch new_element;
-                std::string Path = m_prefixColorSwitch + SwitchName + ".color";
-                new_element.name = SwitchName;
-                int i = 0;
-                while (fs::exists(Path))
-                {
-                    new_element.name = "Switch" + std::to_string(i);
-                    Path = m_prefixColorSwitch + new_element.name + ".color";
-                    i++;
-                }
-                new_element.Material1 = *materialGUI1;
-                new_element.Material2 = *materialGUI2;
-                strcpy(SwitchName, new_element.name.c_str());
-                if (!hasChanged && current_settings_value != NULL)
-                    new_element.SettingFile = current_settings_value;
-                else
-                {
-                    std::string tmp = new_element.name + "_Setting";
-                    std::string Path = m_prefixSettings + tmp + ".settings";
-                    int i = 0;
-                    while (fs::exists(Path))
-                    {
-                        tmp = new_element.name + "_Settings_" + std::to_string(i);
-                        Path = m_prefixSettings + tmp + ".settings";
-                        i++;
-                    }
-
-                    saveSettingToFile(Path);
-                    m_settings.push_back(std::pair<std::string, std::string>(tmp, Path));
-                    new_element.SettingFile = tmp.c_str();
-                    std::string newLine = "settings " + tmp + " \"" + Path + "\"";
-                    f_options->addCommand(newLine);
-                    hasChanged = false;
-                    refresh = true;
-                }
-                m_materialsColor.push_back(new_element);
-                current_settings_value = m_materialsColor[m_materialsColor.size() - 1].SettingFile.c_str();
-                //create the command to add to the file
-                std::ofstream i_writeCmd(Path, std::ios::app);
-                i_writeCmd << roundFloat(new_element.Material1.dye.x * 255.0f) + ";" + roundFloat(new_element.Material1.dye.y * 255.0f) + ";" + roundFloat(new_element.Material1.dye.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.dye_concentration) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.whitepercen) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.scale_angle_deg) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.roughnessM) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.roughnessN) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.melanin_concentration) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.melanin_ratio) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.melanin_concentration_disparity) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.melanin_ratio_disparity) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.dyeNeutralHT.x * 255.0f) + ";" + roundFloat(new_element.Material1.dyeNeutralHT.y * 255.0f) + ";" + roundFloat(new_element.Material1.dyeNeutralHT.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.dyeNeutralHT_Concentration) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.HT)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_VertRouge_Concentration)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_CendreCuivre_Concentration)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_IriseDore_Concentration)) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.cendre.x * 255.0f) + ";" + roundFloat(new_element.Material1.cendre.y * 255.0f) + ";" + roundFloat(new_element.Material1.cendre.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.irise.x * 255.0f) + ";" + roundFloat(new_element.Material1.irise.y * 255.0f) + ";" + roundFloat(new_element.Material1.irise.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.doree.x * 255.0f) + ";" + roundFloat(new_element.Material1.doree.y * 255.0f) + ";" + roundFloat(new_element.Material1.doree.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.cuivre.x * 255.0f) + ";" + roundFloat(new_element.Material1.cuivre.y * 255.0f) + ";" + roundFloat(new_element.Material1.cuivre.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.acajou.x * 255.0f) + ";" + roundFloat(new_element.Material1.acajou.y * 255.0f) + ";" + roundFloat(new_element.Material1.acajou.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.red.x * 255.0f) + ";" + roundFloat(new_element.Material1.red.y * 255.0f) + ";" + roundFloat(new_element.Material1.red.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.vert.x * 255.0f) + ";" + roundFloat(new_element.Material1.vert.y * 255.0f) + ";" + roundFloat(new_element.Material1.vert.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.concentrationCendre) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.concentrationIrise) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.concentrationDore) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.concentrationCuivre) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.concentrationAcajou) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.concentrationRouge) + "\n";
-                i_writeCmd << roundFloat(new_element.Material1.concentrationVert) + "\n";
-
-                i_writeCmd << roundFloat(new_element.Material2.dye.x * 255.0f) + ";" + roundFloat(new_element.Material2.dye.y * 255.0f) + ";" + roundFloat(new_element.Material2.dye.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.dye_concentration) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.whitepercen) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.scale_angle_deg) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.roughnessM) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.roughnessN) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.melanin_concentration) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.melanin_ratio) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.melanin_concentration_disparity) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.melanin_ratio_disparity) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.dyeNeutralHT.x * 255.0f) + ";" + roundFloat(new_element.Material2.dyeNeutralHT.y * 255.0f) + ";" + roundFloat(new_element.Material2.dyeNeutralHT.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.dyeNeutralHT_Concentration) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.HT)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_VertRouge_Concentration)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_CendreCuivre_Concentration)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_IriseDore_Concentration)) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.cendre.x * 255.0f) + ";" + roundFloat(new_element.Material2.cendre.y * 255.0f) + ";" + roundFloat(new_element.Material2.cendre.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.irise.x * 255.0f) + ";" + roundFloat(new_element.Material2.irise.y * 255.0f) + ";" + roundFloat(new_element.Material2.irise.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.doree.x * 255.0f) + ";" + roundFloat(new_element.Material2.doree.y * 255.0f) + ";" + roundFloat(new_element.Material2.doree.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.cuivre.x * 255.0f) + ";" + roundFloat(new_element.Material2.cuivre.y * 255.0f) + ";" + roundFloat(new_element.Material2.cuivre.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.acajou.x * 255.0f) + ";" + roundFloat(new_element.Material2.acajou.y * 255.0f) + ";" + roundFloat(new_element.Material2.acajou.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.red.x * 255.0f) + ";" + roundFloat(new_element.Material2.red.y * 255.0f) + ";" + roundFloat(new_element.Material2.red.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.vert.x * 255.0f) + ";" + roundFloat(new_element.Material2.vert.y * 255.0f) + ";" + roundFloat(new_element.Material2.vert.z * 255.0f) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.concentrationCendre) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.concentrationIrise) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.concentrationDore) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.concentrationCuivre) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.concentrationAcajou) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.concentrationRouge) + "\n";
-                i_writeCmd << roundFloat(new_element.Material2.concentrationVert) + "\n";
-                i_writeCmd << new_element.SettingFile << "\n";
-                i_writeCmd.close();
-                std::string newLine = "color " + new_element.name + " \"" + Path + "\"";
-                f_options->addCommand(newLine);
-                refresh = true;
-            }
-            ImGui::TreePop();
-        }
-#endif
     }
-    //if (ImGui::CollapsingHeader("Dynamic settings"))
-    if(1)
+    
+    if (ImGui::CollapsingHeader("Dynamic settings"))
     {
         bool changed = false;
         const char* current_HDR_value;
@@ -3703,45 +3342,12 @@ void Application::customGuiUserWindow(bool* p_open)
         if (current_item_model->material1Name != current_item_model->material2Name)
             materialGUI2 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
 
-#if 0
-        if (ImGui::BeginCombo("HDR", current_HDR_value))
+        if (ImGui::BeginCombo("Hair type", current_item_model_value))
         {
-            for (int n = 0; n < m_HDR.size(); n++)
+            for (int n = 0; n < m_models.size(); n++)
             {
-                bool is_selected = (current_item_HDR == &m_HDR[n]); // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(m_HDR[n].name.c_str(), is_selected))
-                {
-                    if (&m_HDR[n] != current_item_HDR)
-                    {
-                        current_item_HDR = &m_HDR[n];
-                        current_HDR_value = m_HDR[n].name.c_str();
-                        m_environment = m_HDR[n].file_name;
-                        convertPath(m_environment);
-
-                        Picture* picture = new Picture();
-                        picture->load(m_environment, IMAGE_FLAG_2D);
-                        delete m_mapPictures[std::string("environment")];
-                        m_mapPictures[std::string("environment")] = picture;
-                        m_raytracer->initTextures(m_mapPictures);
-                        m_raytracer->initLights(m_lights);
-                        m_raytracer->updateCamera(0, m_cameras[0]);
-                    }
-                }
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-            ImGui::EndCombo();
-        }
-#endif
-        //if (ImGui::BeginCombo("Hair type", current_item_model_value))
-        if(1)
-        {
-            int n = config_parser->getHairType();
-            //for (int n = 0; n < m_models.size(); n++)
-            //{
                 bool is_selected = (current_item_model == &m_models[n]); // You can store your selection however you want, outside or inside your objects
-                //if (ImGui::Selectable(m_models[n].name.c_str(), is_selected))
-                if(1)
+                if (ImGui::Selectable(m_models[n].name.c_str(), is_selected))
                 {
                     if (current_item_model != &m_models[n])
                     {
@@ -3788,7 +3394,7 @@ void Application::customGuiUserWindow(bool* p_open)
                                     }
                                 }
                             }
-                        }
+                    }
 
                         current_item_model_value = m_models[n].name.c_str();
                         current_item_model = &m_models[n];
@@ -3846,287 +3452,14 @@ void Application::customGuiUserWindow(bool* p_open)
                         refresh = true;
                         m_isValid = true;
                         m_raytracer->updateCamera(0, m_cameras[0]);
-                    }
                 }
-            //}
-            //ImGui::EndCombo();
-        }
-#if 0
-        if (ImGui::BeginCombo("Color Switch", current_item_colorswatch_value))
-        {
-            for (int n = 0; n < m_materialsColor.size(); n++)
-            {
-                bool is_selected = (current_item_colorswatch == &m_materialsColor[n]);
-                if (ImGui::Selectable(m_materialsColor[n].name.c_str(), is_selected))
-                {
-                    current_item_colorswatch_value = m_materialsColor[n].name.c_str();
-                    materialGUI1->dye = m_materialsColor[n].Material1.dye;
-                    materialGUI1->dye_concentration = m_materialsColor[n].Material1.dye_concentration;
-                    materialGUI1->melanin_concentration = m_materialsColor[n].Material1.melanin_concentration;
-                    materialGUI1->melanin_ratio = m_materialsColor[n].Material1.melanin_ratio;
-                    materialGUI1->melanin_concentration_disparity = m_materialsColor[n].Material1.melanin_concentration_disparity;
-                    materialGUI1->melanin_ratio_disparity = m_materialsColor[n].Material1.melanin_ratio_disparity;
-                    materialGUI1->whitepercen = m_materialsColor[n].Material1.whitepercen;
-                    materialGUI1->scale_angle_deg = m_materialsColor[n].Material1.scale_angle_deg;
-                    materialGUI1->roughnessM = m_materialsColor[n].Material1.roughnessM;
-                    materialGUI1->roughnessN = m_materialsColor[n].Material1.roughnessN;
-
-                    materialGUI1->dyeNeutralHT = m_materialsColor[n].Material1.dyeNeutralHT;
-                    materialGUI1->dyeNeutralHT_Concentration = m_materialsColor[n].Material1.dyeNeutralHT_Concentration;
-                    materialGUI1->HT = m_materialsColor[n].Material1.HT;
-                    materialGUI1->int_VertRouge_Concentration = m_materialsColor[n].Material1.int_VertRouge_Concentration;
-                    materialGUI1->int_CendreCuivre_Concentration = m_materialsColor[n].Material1.int_CendreCuivre_Concentration;
-                    materialGUI1->int_IriseDore_Concentration = m_materialsColor[n].Material1.int_IriseDore_Concentration;
-                    materialGUI1->cendre = m_materialsColor[n].Material1.cendre;
-                    materialGUI1->acajou = m_materialsColor[n].Material1.acajou;
-                    materialGUI1->vert = m_materialsColor[n].Material1.vert;
-                    materialGUI1->red = m_materialsColor[n].Material1.red;
-                    materialGUI1->irise = m_materialsColor[n].Material1.irise;
-                    materialGUI1->cuivre = m_materialsColor[n].Material1.cuivre;
-                    materialGUI1->doree = m_materialsColor[n].Material1.doree;
-                    materialGUI1->concentrationCendre = m_materialsColor[n].Material1.concentrationCendre;
-                    materialGUI1->concentrationIrise = m_materialsColor[n].Material1.concentrationIrise;
-                    materialGUI1->concentrationDore = m_materialsColor[n].Material1.concentrationDore;
-                    materialGUI1->concentrationCuivre = m_materialsColor[n].Material1.concentrationCuivre;
-                    materialGUI1->concentrationAcajou = m_materialsColor[n].Material1.concentrationAcajou;
-                    materialGUI1->concentrationRouge = m_materialsColor[n].Material1.concentrationRouge;
-                    materialGUI1->concentrationVert = m_materialsColor[n].Material1.concentrationVert;
-                    if (materialGUI1 != materialGUI2)
-                    {
-                        materialGUI2->dye = m_materialsColor[n].Material2.dye;
-                        materialGUI2->dye_concentration = m_materialsColor[n].Material2.dye_concentration;
-                        materialGUI2->melanin_concentration = m_materialsColor[n].Material2.melanin_concentration;
-                        materialGUI2->melanin_ratio = m_materialsColor[n].Material2.melanin_ratio;
-                        materialGUI2->melanin_concentration_disparity = m_materialsColor[n].Material2.melanin_concentration_disparity;
-                        materialGUI2->melanin_ratio_disparity = m_materialsColor[n].Material2.melanin_ratio_disparity;
-                        materialGUI2->whitepercen = m_materialsColor[n].Material2.whitepercen;
-                        materialGUI2->scale_angle_deg = m_materialsColor[n].Material2.scale_angle_deg;
-                        materialGUI2->roughnessM = m_materialsColor[n].Material2.roughnessM;
-                        materialGUI2->roughnessN = m_materialsColor[n].Material2.roughnessN;
-                        materialGUI2->dyeNeutralHT = m_materialsColor[n].Material2.dyeNeutralHT;
-                        materialGUI2->dyeNeutralHT_Concentration = m_materialsColor[n].Material2.dyeNeutralHT_Concentration;
-                        materialGUI2->HT = m_materialsColor[n].Material2.HT;
-                        materialGUI2->int_VertRouge_Concentration = m_materialsColor[n].Material2.int_VertRouge_Concentration;
-                        materialGUI2->int_CendreCuivre_Concentration = m_materialsColor[n].Material2.int_CendreCuivre_Concentration;
-                        materialGUI2->int_IriseDore_Concentration = m_materialsColor[n].Material2.int_IriseDore_Concentration;
-                        materialGUI2->cendre = m_materialsColor[n].Material2.cendre;
-                        materialGUI2->acajou = m_materialsColor[n].Material2.acajou;
-                        materialGUI2->vert = m_materialsColor[n].Material2.vert;
-                        materialGUI2->red = m_materialsColor[n].Material2.red;
-                        materialGUI2->irise = m_materialsColor[n].Material2.irise;
-                        materialGUI2->cuivre = m_materialsColor[n].Material2.cuivre;
-                        materialGUI2->doree = m_materialsColor[n].Material2.doree;
-                        materialGUI2->concentrationCendre = m_materialsColor[n].Material2.concentrationCendre;
-                        materialGUI2->concentrationIrise = m_materialsColor[n].Material2.concentrationIrise;
-                        materialGUI2->concentrationDore = m_materialsColor[n].Material2.concentrationDore;
-                        materialGUI2->concentrationCuivre = m_materialsColor[n].Material2.concentrationCuivre;
-                        materialGUI2->concentrationAcajou = m_materialsColor[n].Material2.concentrationAcajou;
-                        materialGUI2->concentrationRouge = m_materialsColor[n].Material2.concentrationRouge;
-                        materialGUI2->concentrationVert = m_materialsColor[n].Material2.concentrationVert;
-                    }
-                    if (current_settings_value == NULL || m_materialsColor[n].SettingFile != current_settings_value)
-                    {
-                        for (int i = 0; i < m_settings.size(); i++)
-                        {
-                            if (m_materialsColor[n].SettingFile == m_settings[i].first)
-                            {
-                                chargeSettingsFromFile(m_settings[i].second);
-                                current_settings_value = m_settings[i].first.c_str();
-                            }
-                        }
-                    }
-                    changed = true;
-                }
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-                if (changed)
-                {
-                    int index = -1;
-                    for (int ij = 0; ij < m_materialsGUI.size(); ++ij)
-                    {
-                        if (m_materialsGUI.at(ij).indexBSDF == INDEX_BCSDF_HAIR)
-                        {
-                            index = ij;
-                            break;
-                        }
-                    }
-                    MY_ASSERT(index > 0);
-                    m_raytracer->updateMaterial(index, *materialGUI1);
-                    if (materialGUI1 != materialGUI2)
-                        m_raytracer->updateMaterial(index + 1, *materialGUI2);
-                    refresh = true;
-                }
-                // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
             }
+        }
             ImGui::EndCombo();
-        }
-        if (ImGui::BeginCombo("Settings", current_settings_value))
-        {
-            for (int n = 0; n < m_settings.size(); ++n)
-            {
-                bool is_selected;
-                if (current_settings_value != NULL)
-                    is_selected = strcmp(current_settings_value, m_settings[n].first.c_str());
-                else
-                    is_selected = false;
-                if (ImGui::Selectable(m_settings[n].first.c_str(), is_selected))
-                {
-                    current_settings_value = m_settings[n].first.c_str();
-                    chargeSettingsFromFile(m_settings[n].second);
-                    for (int i = 0; i < static_cast<int>(m_materialsGUI.size()); ++i)
-                    {
-                        MaterialGUI& materialGUI = m_materialsGUI[i];
-                        if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR)
-                        {
-                            if (materialGUI.shouldModify)
-                            {
-                                updateDYEinterface(materialGUI);
-                                updateDYE(materialGUI);
-                                updateDYEconcentration(materialGUI);
-                                updateHT(materialGUI);
-                                m_raytracer->updateMaterial(i, materialGUI);
-                                refresh = true;
-                            }
-                        }
-                    }
-                }
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-            ImGui::EndCombo();
-        }
-#endif
     }
-#if 0
-    if (ImGui::CollapsingHeader("Lighting", true))//if (ImGui::CollapsingHeader("Lighting", true))
-    {
-        static bool lightings[5] = { m_lightings_on[0], m_lightings_on[1], m_lightings_on[2], m_lightings_on[3], m_lightings_on[4] };
-        static int emissions[5] = { m_lighting_emission[0], m_lighting_emission[1], m_lighting_emission[2], m_lighting_emission[3], m_lighting_emission[4] };
-        bool geo_changed = false, emi_changed = false;
-        const std::string checkboxname[5] = { "Front Lighting","Back Lighting", "Left Side Lighting","Right Side Lighting", "Top Lighting" };
-        const std::string checkboxshortname[5] = { "FL","BL", "LSL","RSL", "TL" };
-        auto num_lights = m_lights.size();
-        size_t area_light_start = m_lights.at(0).type == LIGHT_PARALLELOGRAM ? 0 : 1;
-        for (size_t i = area_light_start; i < num_lights; ++i)
-        {
-            auto loc = static_cast<int>(m_lights.at(i).location);
-            ImGui::Checkbox(checkboxname[loc - 1].c_str(), &lightings[i - area_light_start]);
-            std::string slidername = "Emission " + checkboxshortname[loc - 1];
-            ImGui::SliderInt(slidername.c_str(), &emissions[i - area_light_start], 0, 100);
-            if (lightings[i - area_light_start] != m_lightings_on[i - area_light_start])
-            {
-                m_lightings_on[i - area_light_start] = lightings[i - area_light_start];
-                m_lights.at(i).lighting_activated = m_lightings_on[i - area_light_start];
-                m_scene->getChild(i - area_light_start)->set_activation(m_lightings_on[i - area_light_start]);
-                geo_changed = true;
-            }
-            if (emissions[i - area_light_start] != m_lighting_emission[i - area_light_start])
-            {
-                m_lighting_emission[i - area_light_start] = emissions[i - area_light_start];
-                m_lights.at(i).emission = make_float3(static_cast<float>(m_lighting_emission[i - area_light_start]));
-                emi_changed = true;
-            }
-            ImGui::Separator();
-            //ImGui::Spacing();
-        }
-        if (geo_changed || emi_changed) {
-            //m_raytracer->initMaterials(m_materialsGUI);
-            //m_raytracer->initScene(m_scene, m_idGeometry);
-            m_raytracer->initLights(m_lights);
-            m_raytracer->updateCamera(0, m_cameras[0]);
-            geo_changed = false;
-            emi_changed = false;
-        }
-    }
-    if (ImGui::CollapsingHeader("Object geometries", true))
-    {
-        const std::vector<std::string> checkboxname = {
-                                                       "Front Light",
-                                                       "Back Light",
-                                                       "Left Side Light",
-                                                       "Right Side Light",
-                                                       "Top Light",
-                                                       "Head"/*,
-                                                       "Left Hair",
-                                                       "Right Hair"*/ };
-        static bool geo_group[8] = { true,true,true,true,true,true,true,true };
-        bool geo_changed = false;
-        int area_light_start = -1;
-        for (int i = 0; i < m_lights.size(); ++i)
-        {
-            if (m_lights.at(i).type == LIGHT_PARALLELOGRAM)
-            {
-                area_light_start = i;
-                break;
-            }
-        }
-        int num_area_lights = 0;
-        if (area_light_start > -1)
-        {
-            num_area_lights = static_cast<int>(m_lights.size() - area_light_start);
-        }
 
-        int loc = 5;
-        for (int i = 0; i < m_scene->getNumChildren() - 2; ++i)
-        {
-            if (num_area_lights > 0 && i < num_area_lights)
-            {
-                loc = static_cast<int>(m_lights.at(i + area_light_start).location) - 1;
-            }
-            else loc = 5;
-            ImGui::Checkbox(checkboxname[loc].c_str(), &geo_group[loc]);
-            if (geo_group[loc] != m_geo_group[loc])
-            {
-                m_geo_group[loc] = geo_group[loc];
-                m_scene->getChild(i)->set_activation(m_geo_group[loc]);
-                geo_changed = true;
-            }
-            //if (loc >= 4)++loc;//in case there are other objects besides of head and hair
-        }
-
-        if (geo_changed)
-        {
-            m_raytracer->initScene(m_scene, m_idGeometry);
-            m_raytracer->initLights(m_lights);
-            m_raytracer->updateCamera(0, m_cameras[0]);
-            geo_changed = false;
-        }
     }
-    if (ImGui::CollapsingHeader("Window screen", true))
-    {
-        static int screen = 1;
-        int tmp = screen;
-        if (m_is_fullscreen)
-        {
-            screen = 0;
-        }
-        else
-        {
-            screen = 1;
-        }
-        ImGui::RadioButton("Fullscreen", &screen, 0);
-        ImGui::SameLine();
-        ImGui::RadioButton("Windowed", &screen, 1);
-
-        if (screen != tmp)
-        {
-            switch (screen)
-            {
-            case 0:
-                m_is_fullscreen = true;
-                glfwSetWindowMonitor(m_window, glfwGetPrimaryMonitor(), 0, 0, m_scr_w, m_scr_h, 0);
-                break;
-            case 1:
-                m_is_fullscreen = false;
-                glfwSetWindowMonitor(m_window, nullptr, 100, 100, m_scr_w, m_scr_h, 0);
-                break;
-            default:
-                break;
-            }
-            m_camera.markDirty();
-        }
-    }
-#endif
+        
     ImGui::PopItemWidth();
     ImGui::End();
 
@@ -4140,6 +3473,7 @@ void Application::customGuiUserWindow(bool* p_open)
         }
     }
 }
+
 void Application::updateHT(MaterialGUI& materialGUI)
 {
     float result = 0;
@@ -4454,7 +3788,7 @@ void Application::updateDYE(MaterialGUI& materialGUI)
     float3 moyenRGB = make_float3(cendre.x + irise.x + doree.x + cuivre.x + acajou.x + red.x + vert.x,
         cendre.y + irise.y + doree.y + cuivre.y + acajou.y + red.y + vert.y,
         cendre.z + irise.z + doree.z + cuivre.z + acajou.z + red.z + vert.z);
-
+   
     float coeffisient = (materialGUI.concentrationCendre +
         materialGUI.concentrationIrise +
         materialGUI.concentrationDore +
@@ -4462,19 +3796,21 @@ void Application::updateDYE(MaterialGUI& materialGUI)
         materialGUI.concentrationAcajou +
         materialGUI.concentrationRouge +
         materialGUI.concentrationVert);
+        
     printf("======================= coeffisient = %f ====================\n", coeffisient);
     float3 rgb;
     if (coeffisient != 0)
         rgb = make_float3(moyenRGB.x / coeffisient, moyenRGB.y / coeffisient, moyenRGB.z / coeffisient);
     else
         rgb = make_float3(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0);
-
+    
+    int r = 75;
+    int g = 225;
+    int b = 240;
+    rgb = make_float3(r / 255.0, g / 255.0, b/255.0);
     printf("======================= rgb.x = %f ====================\n", rgb.x);
     printf("======================= rgb.y = %f ====================\n", rgb.y);
     printf("======================= rgb.z = %f ====================\n", rgb.z);
-    rgb.x = 0.12;
-    rgb.y = 0.0456;
-    rgb.z = 0.780;
     materialGUI.dye = rgb;
 }
 

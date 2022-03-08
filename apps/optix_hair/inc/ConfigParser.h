@@ -6,11 +6,13 @@
 
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
 #include "rapidjson/prettywriter.h" // for stringify JSON
+#include "shaders/function_indices.h"
 
 #include <iostream>
 #include <string>
 #include <map>
 #include <vector>
+#include <algorithm>
 
 enum HairType
 {
@@ -18,7 +20,6 @@ enum HairType
   CURLY_HAIR,         // Curly hair.
   WAVY_HAIR           // Wavy hair.
 };
-
 struct View
 {
     std::string view_name;             // The name used in the scene description to identify this material instance.
@@ -45,6 +46,7 @@ public:
   int getColorL() const;
   int getColorA() const;
   int getColorB() const;
+  FunctionIndex getIndexBSDF() const;
   std::vector<View> getViews() const;
 
   static ConfigParser* getInstance();
@@ -54,6 +56,8 @@ protected:
 
 private:
   rapidjson::Document document;
+  std::vector<std::string> vecBSDF;
+  FunctionIndex indexBSDF;
   int hair_type;
   int hair1_HT;
   int hair2_HT;
@@ -66,10 +70,29 @@ private:
   int colorB;
 
 public:
-	bool collapsingHeader_camera;
-	bool collapsingHeader_material;
 	int view_index;
-	bool isConfigfinished;
+	bool isCamreaChanged;
+	bool isMaterialChanged;
+	bool isFirstBxDFTypeChanged;
+	bool isSecondBxDFTypeChanged;
+	bool isFirstHTChanged;
+	bool isSecondHTChanged;
+	bool isFirstHairColorChanged;
+	bool isSecondHairColorChanged;
+	bool isDynamicSettingsChanged;
+	bool isHairTypeChanged;
+	bool isDyeNeutralHTChanged;
+	bool isMaterialGUIVertChanged;
+	bool isVertRougeConcentrationChanged;
+	bool isMaterialGUIRedChanged;
+	bool isMaterialGUICendreChanged;
+	bool isCendreCuivreConcentrationChanged;
+	bool isMaterialGUICuivreChanged;
+	bool isMaterialGUIIriseChanged;
+	bool IriseDoreConcentrationChanged;
+	bool isMaterialGUIDoreeChanged;
+
+	bool isConfigFinished;
 	std::vector<View> camera_views;
 };
 

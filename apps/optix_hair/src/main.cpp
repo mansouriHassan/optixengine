@@ -61,14 +61,14 @@ void start_server()
 void change_view(int second)
 {
     while(true) {
-        if (config_parser != NULL && config_parser->isConfigfinished)
+        if (config_parser != NULL && config_parser->isConfigFinished)
         {
             int len = config_parser->camera_views.size();
             if (len > 0) {
                 for(int index = 0; index < len; index++) {
                     std::this_thread::sleep_for(std::chrono::seconds(second));
                     config_parser->view_index = index;
-                    config_parser->collapsingHeader_camera = true;
+                    config_parser->isCamreaChanged = true;
                 }
             }
         }
@@ -168,7 +168,7 @@ static int runApp(Options const& options)
             //g_app->guiWindow();             // This application's GUI window rendering commands.
             //g_app->guiUserWindow();           // This application's GUI window renderind commands for user expert color.
             g_app->customGuiUserWindow();
-            g_app->guiEventHandler();       // SPACE to toggle the GUI windows and all mouse tracking via GuiState.
+            //g_app->guiEventHandler();       // SPACE to toggle the GUI windows and all mouse tracking via GuiState.
             finish = g_app->render();       // OptiX rendering, returns true when benchmark is enabled and the samples per pixel have been rendered.
             g_app->display();               // OpenGL display always required to lay the background for the GUI.
             g_app->guiRender();             // Render all ImGUI elements at last.

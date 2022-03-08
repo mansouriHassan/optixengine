@@ -75,6 +75,9 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/LogStream.hpp>
 
+#include <iostream>
+#include <vector>
+#include <algorithm>
 #include <map>
 #include <memory>
 
