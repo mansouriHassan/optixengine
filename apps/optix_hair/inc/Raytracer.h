@@ -75,6 +75,7 @@ public:
   virtual void updateCamera(const int idCamera, CameraDefinition const& camera);
   virtual void updateLight(const int idLight, LightDefinition const& light);
   virtual void updateMaterial(const int idMaterial, MaterialGUI const& src);
+  virtual void updateCustomMaterial(const int idMaterial, MaterialGUI const& src);
   virtual void updateState(DeviceState const& state);
 
   // Abstract functions must be implemented by each derived Raytracer per strategy individually.

@@ -333,6 +333,7 @@ public:
   virtual void updateCamera(const int idCamera, CameraDefinition const& camera);
   virtual void updateLight(const int idLight, LightDefinition const& light);
   virtual void updateMaterial(const int idMaterial, MaterialGUI const& materialGUI);
+  virtual void updateCustomMaterial(const int idMaterial, MaterialGUI const& materialGUI);
   
   virtual void setState(DeviceState const& state);
   virtual void setVarianceCatching(const bool catchVariance);

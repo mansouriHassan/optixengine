@@ -199,6 +199,12 @@ private:
     void updateHT(MaterialGUI& materialGUI); //PSAN TEST update HT
     void updateDYEinterface(MaterialGUI& materialGUI);
 
+    /***************** custom method ********************/
+    void updateCustomDYE(MaterialGUI& materialGUI); //PSAN 
+    void updateCustomDYEconcentration(MaterialGUI& materialGUI); //PSAN
+    void updateCustomHT(MaterialGUI& materialGUI); //PSAN TEST update HT
+    void updateCustomDYEinterface(MaterialGUI& materialGUI);
+
     bool screenshot(const bool tonemap);
     bool screenshot(const bool tonemap, std::string name);
     bool screenshot360();

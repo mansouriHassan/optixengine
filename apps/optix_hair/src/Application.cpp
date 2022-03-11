@@ -3240,7 +3240,7 @@ void Application::customGuiUserWindow(bool* p_open)
                     ImGui::PushID("Vert-Rouge");
                     char* vertRougeIndex[] = { "70","77","7","07","","06","6","66","60" };
                     ImGui::PushItemWidth(250);
-                    if (ImGui::SliderInt("AAAAAAAA", &materialGUI.int_VertRouge_Concentration, 0, 8, vertRougeIndex[materialGUI.int_VertRouge_Concentration]))
+                    if (ImGui::SliderInt("", &materialGUI.int_VertRouge_Concentration, 0, 8, vertRougeIndex[materialGUI.int_VertRouge_Concentration]))
                     {
                         printf("================= VertRouge_Concentration : %d ==================\n", materialGUI.int_VertRouge_Concentration);
                         changed = true;
@@ -3319,10 +3319,10 @@ void Application::customGuiUserWindow(bool* p_open)
 
                 if (changed)
                 {
-                    //updateDYEinterface(materialGUI);
-                    updateDYE(materialGUI);
-                    //updateDYEconcentration(materialGUI);
-                    //updateHT(materialGUI);
+                    updateCustomDYEinterface(materialGUI);
+                    updateCustomDYE(materialGUI);
+                    updateCustomDYEconcentration(materialGUI);
+                    updateCustomHT(materialGUI);
 
                     m_raytracer->updateMaterial(i, materialGUI);
                     refresh = true;
@@ -3804,23 +3804,356 @@ void Application::updateDYE(MaterialGUI& materialGUI)
         materialGUI.concentrationRouge +
         materialGUI.concentrationVert);
         
+    float3 rgb;
+    if (coeffisient != 0)
+        rgb = make_float3(moyenRGB.x / coeffisient, moyenRGB.y / coeffisient, moyenRGB.z / coeffisient);
+    else
+        rgb = make_float3(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0);
+ 
+    materialGUI.dye = rgb;
+}
+
+/***************************** custm methods to update gui ***************************/
+void Application::updateCustomHT(MaterialGUI& materialGUI)
+{
+    float result = 0;
+
+    // hot color
+    materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
+
+    if (materialGUI.int_IriseDore_Concentration == 7 || materialGUI.int_IriseDore_Concentration == 8)
+    {
+        result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 2;
+    }
+    if (materialGUI.int_CendreCuivre_Concentration == 7 || materialGUI.int_CendreCuivre_Concentration == 8)
+    {
+        result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 4;
+    }
+    if (materialGUI.int_VertRouge_Concentration == 7 || materialGUI.int_VertRouge_Concentration == 8)
+    {
+        result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 4;
+    }
+
+    // ROUGE 
+    if (materialGUI.int_VertRouge_Concentration == 0 || materialGUI.int_VertRouge_Concentration == 1 || materialGUI.int_VertRouge_Concentration == 2)
+    {
+        result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 2;
+    }
+
+
+
+    // cold color
+// CENDER "10" IRISE "20"
+    if (materialGUI.int_CendreCuivre_Concentration == 0 || materialGUI.int_IriseDore_Concentration == 0)
+    {
+        result -= m_lightened_x10[materialGUI.HT - 1];
+    }
+
+    // CENDER "11" IRISER "22"  
+    else if (materialGUI.int_CendreCuivre_Concentration == 1 || materialGUI.int_IriseDore_Concentration == 1)
+    {
+        result -= m_lightened_x2[materialGUI.HT - 1];
+    }
+
+    //CENDER "1" IRISER "2"
+    else if (materialGUI.int_CendreCuivre_Concentration == 2 || materialGUI.int_IriseDore_Concentration == 2)
+    {
+        result -= m_lightened_x1[materialGUI.HT - 1];
+    }
+
+    // CENDER "01" IRISE "02" 
+    else if (materialGUI.int_CendreCuivre_Concentration == 3 || materialGUI.int_IriseDore_Concentration == 3)
+    {
+        result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 2;
+    }
+
+
+    //VERT "7" 
+    if (materialGUI.int_VertRouge_Concentration == 0 || materialGUI.int_VertRouge_Concentration == 1 || materialGUI.int_VertRouge_Concentration == 2)
+    {
+        result -= (m_melanineConcentration[materialGUI.HT - 2] - m_melanineConcentration[materialGUI.HT - 1]) / 2;
+    }
+
+
+    materialGUI.melanin_concentration += result;
+
+    return;
+}
+
+void Application::updateCustomDYEconcentration(MaterialGUI& materialGUI)
+{
+    float dyemoyenne;
+
+    if (materialGUI.dye_ConcentrationCendreCuivre >= materialGUI.dye_ConcentrationIriseDore && materialGUI.dye_ConcentrationCendreCuivre >= materialGUI.dye_ConcentrationVertRouge)
+    {
+        dyemoyenne = materialGUI.dye_ConcentrationCendreCuivre;
+    }
+
+    if (materialGUI.dye_ConcentrationIriseDore >= materialGUI.dye_ConcentrationCendreCuivre && materialGUI.dye_ConcentrationIriseDore >= materialGUI.dye_ConcentrationVertRouge)
+    {
+        dyemoyenne = materialGUI.dye_ConcentrationIriseDore;
+    }
+
+    if (materialGUI.dye_ConcentrationVertRouge >= materialGUI.dye_ConcentrationCendreCuivre && materialGUI.dye_ConcentrationVertRouge >= materialGUI.dye_ConcentrationIriseDore)
+    {
+        dyemoyenne = materialGUI.dye_ConcentrationVertRouge;
+    }
+
+    materialGUI.dye_concentration = dyemoyenne / m_factorColorantHT[materialGUI.HT - 1];
+
+}
+
+void Application::updateCustomDYEinterface(MaterialGUI& materialGUI)
+{
+    if (materialGUI.int_VertRouge_Concentration == 0)
+    {
+        materialGUI.concentrationVert = m_concentrationVert[3];
+        materialGUI.concentrationRouge = 0.f;
+        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[3];
+    }
+
+    if (materialGUI.int_VertRouge_Concentration == 1)
+    {
+        materialGUI.concentrationVert = m_concentrationVert[2];
+        materialGUI.concentrationRouge = 0.f;
+        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[2];
+    }
+
+    if (materialGUI.int_VertRouge_Concentration == 2)
+    {
+        materialGUI.concentrationVert = m_concentrationVert[1];
+        materialGUI.concentrationRouge = 0.f;
+        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[1];
+    }
+
+    if (materialGUI.int_VertRouge_Concentration == 3)
+    {
+        materialGUI.concentrationVert = m_concentrationVert[0];
+        materialGUI.concentrationRouge = 0.f;
+        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[0];
+    }
+    if (materialGUI.int_VertRouge_Concentration == 4)
+    {
+        materialGUI.concentrationVert = 0.f;
+        materialGUI.concentrationRouge = 0.f;
+        materialGUI.dye_ConcentrationVertRouge = 0.f;
+    }
+
+    if (materialGUI.int_VertRouge_Concentration == 5)
+    {
+        materialGUI.concentrationRouge = m_concentrationRouge[0];
+        materialGUI.concentrationVert = 0.f;
+        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[0];
+    }
+
+    if (materialGUI.int_VertRouge_Concentration == 6)
+    {
+        materialGUI.concentrationRouge = m_concentrationRouge[1];
+        materialGUI.concentrationVert = 0.f;
+        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[1];
+    }
+
+    if (materialGUI.int_VertRouge_Concentration == 7)
+    {
+        materialGUI.concentrationRouge = m_concentrationRouge[2];
+        materialGUI.concentrationVert = 0.f;
+        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[2];
+    }
+
+    if (materialGUI.int_VertRouge_Concentration == 8)
+    {
+        materialGUI.concentrationRouge = m_concentrationRouge[3];
+        materialGUI.concentrationVert = 0.f;
+        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[3];
+    }
+
+    if (materialGUI.int_CendreCuivre_Concentration == 0)
+    {
+        materialGUI.concentrationCendre = m_concentrationCendre[3];
+        materialGUI.concentrationCuivre = 0.f;
+        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[3];
+    }
+
+    if (materialGUI.int_CendreCuivre_Concentration == 1)
+    {
+        materialGUI.concentrationCendre = m_concentrationCendre[2];
+        materialGUI.concentrationCuivre = 0.f;
+
+        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[2];
+    }
+
+    if (materialGUI.int_CendreCuivre_Concentration == 2)
+    {
+        materialGUI.concentrationCendre = m_concentrationCendre[1];
+        materialGUI.concentrationCuivre = 0.f;
+
+        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[1];
+    }
+
+    if (materialGUI.int_CendreCuivre_Concentration == 3)
+    {
+        materialGUI.concentrationCendre = m_concentrationCendre[0];
+        materialGUI.concentrationCuivre = 0.f;
+
+        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[0];
+    }
+
+    // NEUTRE
+    if (materialGUI.int_CendreCuivre_Concentration == 4)
+    {
+        materialGUI.concentrationCendre = 0.f;
+        materialGUI.concentrationCuivre = 0.f;
+        materialGUI.dye_ConcentrationCendreCuivre = 0.0f;
+    }
+    // CUIVRE
+    if (materialGUI.int_CendreCuivre_Concentration == 5)
+    {
+        materialGUI.concentrationCuivre = m_concentrationCuivre[0];
+        materialGUI.concentrationCendre = 0.f;
+        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[0];
+    }
+
+    if (materialGUI.int_CendreCuivre_Concentration == 6)
+    {
+        materialGUI.concentrationCuivre = m_concentrationCuivre[1];
+        materialGUI.concentrationCendre = 0.f;
+        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[1];
+    }
+
+    if (materialGUI.int_CendreCuivre_Concentration == 7)
+    {
+        materialGUI.concentrationCuivre = m_concentrationCuivre[2];
+        materialGUI.concentrationCendre = 0.f;
+        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[2];
+    }
+
+    if (materialGUI.int_CendreCuivre_Concentration == 8)
+    {
+        materialGUI.concentrationCuivre = m_concentrationCuivre[3];
+        materialGUI.concentrationCendre = 0.f;
+        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[3];
+    }
+
+    // Irise
+    if (materialGUI.int_IriseDore_Concentration == 0)
+    {
+        materialGUI.concentrationIrise = m_concentrationIrise[3];
+        materialGUI.concentrationDore = 0.f;
+        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[3];
+    }
+    if (materialGUI.int_IriseDore_Concentration == 1)
+    {
+        materialGUI.concentrationIrise = m_concentrationIrise[2];
+        materialGUI.concentrationDore = 0.f;
+        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[2];
+    }
+
+    if (materialGUI.int_IriseDore_Concentration == 2)
+    {
+        materialGUI.concentrationIrise = m_concentrationIrise[1];
+        materialGUI.concentrationDore = 0.f;
+        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[1];
+    }
+
+    if (materialGUI.int_IriseDore_Concentration == 3)
+    {
+        materialGUI.concentrationIrise = m_concentrationIrise[0];
+        materialGUI.concentrationDore = 0.f;
+        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[0];
+    }
+    // neutre
+    if (materialGUI.int_IriseDore_Concentration == 4)
+    {
+        materialGUI.concentrationIrise = 0.f;
+        materialGUI.concentrationDore = 0.f;
+        materialGUI.dye_ConcentrationIriseDore = 0.f;
+    }
+    //Dore
+    if (materialGUI.int_IriseDore_Concentration == 5)
+    {
+        materialGUI.concentrationDore = m_concentrationDore[0];
+        materialGUI.concentrationIrise = 0.f;
+        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[0];
+    }
+    if (materialGUI.int_IriseDore_Concentration == 6)
+    {
+        materialGUI.concentrationDore = m_concentrationDore[1];
+        materialGUI.concentrationIrise = 0.f;
+        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[1];
+    }
+    if (materialGUI.int_IriseDore_Concentration == 7)
+    {
+        materialGUI.concentrationDore = m_concentrationDore[2];
+        materialGUI.concentrationIrise = 0.f;
+        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[2];
+    }
+    if (materialGUI.int_IriseDore_Concentration == 8)
+    {
+        materialGUI.concentrationDore = m_concentrationDore[3];
+        materialGUI.concentrationIrise = 0.f;
+        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[3];
+    }
+}
+
+void Application::updateCustomDYE(MaterialGUI& materialGUI)
+{
+    float3 cendre = make_float3(materialGUI.cendre.x * materialGUI.concentrationCendre,
+        materialGUI.cendre.y * materialGUI.concentrationCendre,
+        materialGUI.cendre.z * materialGUI.concentrationCendre);
+
+    float3 irise = make_float3(materialGUI.irise.x * materialGUI.concentrationIrise,
+        materialGUI.irise.y * materialGUI.concentrationIrise,
+        materialGUI.irise.z * materialGUI.concentrationIrise);
+
+    float3 doree = make_float3(materialGUI.doree.x * materialGUI.concentrationDore,
+        materialGUI.doree.y * materialGUI.concentrationDore,
+        materialGUI.doree.z * materialGUI.concentrationDore);
+
+    float3 cuivre = make_float3(materialGUI.cuivre.x * materialGUI.concentrationCuivre,
+        materialGUI.cuivre.y * materialGUI.concentrationCuivre,
+        materialGUI.cuivre.z * materialGUI.concentrationCuivre);
+
+    float3 acajou = make_float3(materialGUI.acajou.x * materialGUI.concentrationAcajou,
+        materialGUI.acajou.y * materialGUI.concentrationAcajou,
+        materialGUI.acajou.z * materialGUI.concentrationAcajou);
+
+    float3 red = make_float3(materialGUI.red.x * materialGUI.concentrationRouge,
+        materialGUI.red.y * materialGUI.concentrationRouge,
+        materialGUI.red.z * materialGUI.concentrationRouge);
+
+    float3 vert = make_float3(materialGUI.vert.x * materialGUI.concentrationVert,
+        materialGUI.vert.y * materialGUI.concentrationVert,
+        materialGUI.vert.z * materialGUI.concentrationVert);
+
+    float3 moyenRGB = make_float3(cendre.x + irise.x + doree.x + cuivre.x + acajou.x + red.x + vert.x,
+        cendre.y + irise.y + doree.y + cuivre.y + acajou.y + red.y + vert.y,
+        cendre.z + irise.z + doree.z + cuivre.z + acajou.z + red.z + vert.z);
+
+    float coeffisient = (materialGUI.concentrationCendre +
+        materialGUI.concentrationIrise +
+        materialGUI.concentrationDore +
+        materialGUI.concentrationCuivre +
+        materialGUI.concentrationAcajou +
+        materialGUI.concentrationRouge +
+        materialGUI.concentrationVert);
+
     printf("======================= coeffisient = %f ====================\n", coeffisient);
     float3 rgb;
     if (coeffisient != 0)
         rgb = make_float3(moyenRGB.x / coeffisient, moyenRGB.y / coeffisient, moyenRGB.z / coeffisient);
     else
         rgb = make_float3(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0);
-    
+
     int r = 75;
     int g = 225;
     int b = 240;
-    rgb = make_float3(r / 255.0, g / 255.0, b/255.0);
+    rgb = make_float3(r / 255.0, g / 255.0, b / 255.0);
     printf("======================= rgb.x = %f ====================\n", rgb.x);
     printf("======================= rgb.y = %f ====================\n", rgb.y);
     printf("======================= rgb.z = %f ====================\n", rgb.z);
     materialGUI.dye = rgb;
 }
-
+/************************************************************************************/
 void Application::guiRenderingIndicator(const bool isRendering)
 {
     // NVIDIA Green when rendering is complete.

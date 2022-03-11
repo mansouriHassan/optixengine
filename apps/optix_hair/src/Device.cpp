@@ -1276,7 +1276,103 @@ void Device::updateMaterial(const int idMaterial, MaterialGUI const& materialGUI
   }
 }
 
+/*************************************** update custom material **********************************/
+void Device::updateCustomMaterial(const int idMaterial, MaterialGUI const& materialGUI)
+{
+    activateContext();
+    synchronizeStream();
 
+    MY_ASSERT(idMaterial < m_materials.size());
+    MaterialDefinition& material = m_materials[idMaterial];  // MaterialDefinition on the host in device layout.
+
+    MY_ASSERT(m_textureEye != nullptr);
+    MY_ASSERT(m_textureHead != nullptr);
+    MY_ASSERT(m_textureAlbedo != nullptr);
+    MY_ASSERT(m_textureCutout != nullptr);
+
+    const bool changeShader = (material.textureHead != 0) != materialGUI.useHeadTexture; // Cutout state wil be toggled?
+    if (materialGUI.indexBSDF != INDEX_BCSDF_HAIR) {
+        material.textureEye = (materialGUI.useEyeTexture) ? m_textureEye->getTextureObject() : 0;
+        material.textureHead = (materialGUI.useHeadTexture) ? m_textureHead->getTextureObject() : 0;
+        material.textureAlbedo = (materialGUI.useAlbedoTexture) ? m_textureAlbedo->getTextureObject() : 0;
+        material.textureCutout = (materialGUI.useCutoutTexture) ? m_textureCutout->getTextureObject() : 0;
+        material.roughness = materialGUI.roughness;
+        material.indexBSDF = materialGUI.indexBSDF;
+        material.albedo = materialGUI.albedo;
+        material.absorption = make_float3(0.0f); // Null coefficient means no absorption active.
+        if (0.0f < materialGUI.absorptionScale)
+        {
+            // Calculate the effective absorption coefficient from the GUI parameters.
+            // The absorption coefficient components must all be > 0.0f if absorptionScale > 0.0f.
+            // Prevent logf(0.0f) which results in infinity.
+            const float x = -logf(fmax(0.0001f, materialGUI.absorptionColor.x));
+            const float y = -logf(fmax(0.0001f, materialGUI.absorptionColor.y));
+            const float z = -logf(fmax(0.0001f, materialGUI.absorptionColor.z));
+            material.absorption = make_float3(x, y, z) * materialGUI.absorptionScale;
+            //std::cout << "absorption = (" << material.absorption.x << ", " << material.absorption.y << ", " << material.absorption.z << ")\n";
+        }
+        material.ior = materialGUI.ior;
+        material.flags = (materialGUI.thinwalled) ? FLAG_THINWALLED : 0;
+    }
+    else {
+        material.flags = (materialGUI.thinwalled) ? FLAG_THINWALLED : 0;
+        material.textureEye = 0;
+        material.textureHead = 0;
+        material.textureAlbedo = 0;
+        material.textureCutout = 0;
+        material.whitepercen = materialGUI.whitepercen;
+        material.scale_angle_rad = materialGUI.scale_angle_deg * (M_PIf / 180.0f);
+        material.ior = materialGUI.ior;
+        material.indexBSDF = materialGUI.indexBSDF;
+        material.melanin_ratio = materialGUI.melanin_ratio;
+        material.melanin_concentration = materialGUI.melanin_concentration;
+        material.melanin_ratio_disparity = materialGUI.melanin_ratio_disparity;
+        material.melanin_concentration_disparity = materialGUI.melanin_concentration_disparity;
+        material.absorption = ((1.f - materialGUI.dyeNeutralHT) * materialGUI.dyeNeutralHT_Concentration + (1.f - materialGUI.dye) * materialGUI.dye_concentration); //PSAN Add Dye neutral melanine
+        material.betaM = materialGUI.roughnessM;
+        material.betaN = materialGUI.roughnessN;
+    }
+
+    // Copy only the one changed material. No need to trigger an update of the system data, because the m_systemData.materialDefinitions pointer itself didn't change.
+    CU_CHECK(cuMemcpyHtoDAsync(reinterpret_cast<CUdeviceptr>(&m_systemData.materialDefinitions[idMaterial]), &material, sizeof(MaterialDefinition), m_cudaStream));
+
+    if (changeShader)
+    {
+        const unsigned int numInstances = static_cast<unsigned int>(m_instances.size());
+
+        // PERF Maintain a list of instances per material ID.
+        // Or better completely change the SBT to be per material shader and use the instance ID to index the material parameters which defines the SBT material shader offset.
+        for (unsigned int inst = 0; inst < numInstances; ++inst)
+        {
+            if (idMaterial == m_instanceData[inst].idMaterial)
+            {
+                const unsigned int idx = inst * NUM_RAYTYPES;
+
+                if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR) {
+                    memcpy(m_sbtRecordGeometryInstanceData[idx].header, m_sbtRecordHitRadianceCurve.header, OPTIX_SBT_RECORD_HEADER_SIZE);
+                    memcpy(m_sbtRecordGeometryInstanceData[idx + 1].header, m_sbtRecordHitShadowCurve.header, OPTIX_SBT_RECORD_HEADER_SIZE);
+                }
+                else if (!materialGUI.useCutoutTexture)
+                {
+                    // Only update the header to switch the program hit group. The SBT record data field doesn't change. 
+                    memcpy(m_sbtRecordGeometryInstanceData[idx].header, m_sbtRecordHitRadiance.header, OPTIX_SBT_RECORD_HEADER_SIZE);
+                    memcpy(m_sbtRecordGeometryInstanceData[idx + 1].header, m_sbtRecordHitShadow.header, OPTIX_SBT_RECORD_HEADER_SIZE);
+                }
+                else
+                {
+                    memcpy(m_sbtRecordGeometryInstanceData[idx].header, m_sbtRecordHitRadianceCutout.header, OPTIX_SBT_RECORD_HEADER_SIZE);
+                    memcpy(m_sbtRecordGeometryInstanceData[idx + 1].header, m_sbtRecordHitShadowCutout.header, OPTIX_SBT_RECORD_HEADER_SIZE);
+                }
+                // PERF If the scene has many instances with few using the same material, this is faster. Otherwise the SBT can also be uploaded completely. See below.
+                // Only copy the two SBT entries which changed. 
+                CU_CHECK(cuMemcpyHtoDAsync(reinterpret_cast<CUdeviceptr>(&m_d_sbtRecordGeometryInstanceData[idx]), &m_sbtRecordGeometryInstanceData[idx], sizeof(SbtRecordGeometryInstanceData) * NUM_RAYTYPES, m_cudaStream));
+            }
+        }
+        // Upload the whole SBT.
+        //CU_CHECK( cuMemcpyHtoDAsync(reinterpret_cast<CUdeviceptr>(m_d_sbtRecordGeometryInstanceData), m_sbtRecordGeometryInstanceData.data(), sizeof(SbtRecordGeometryInstanceData) * NUM_RAYTYPES * numInstances, m_cudaStream) );
+    }
+}
+/************************************************************************************************/
 
 static int2 calculateTileShift(const int2 tileSize)
 {

@@ -355,6 +355,15 @@ void Raytracer::updateMaterial(const int idMaterial, MaterialGUI const& material
   m_iterationIndex = 0; // Restart accumulation.
 }
 
+void Raytracer::updateCustomMaterial(const int idMaterial, MaterialGUI const& materialGUI)
+{
+    for (size_t i = 0; i < m_activeDevices.size(); ++i)
+    {
+        m_activeDevices[i]->updateCustomMaterial(idMaterial, materialGUI);
+    }
+    m_iterationIndex = 0; // Restart accumulation.
+}
+
 void Raytracer::updateState(DeviceState const& state)
 {
   m_samplesPerPixel = (unsigned int)(state.samplesSqrt * state.samplesSqrt);
