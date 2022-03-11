@@ -3322,7 +3322,7 @@ void Application::customGuiUserWindow(bool* p_open)
                     updateCustomDYEinterface(materialGUI);
                     updateCustomDYE(materialGUI);
                     updateCustomDYEconcentration(materialGUI);
-                    updateCustomHT(materialGUI);
+                    //updateCustomHT(materialGUI);
 
                     m_raytracer->updateMaterial(i, materialGUI);
                     refresh = true;
@@ -4093,6 +4093,12 @@ void Application::updateCustomDYEinterface(MaterialGUI& materialGUI)
         materialGUI.concentrationIrise = 0.f;
         materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[3];
     }
+    /*
+    int r = 75;
+    int g = 225;
+    int b = 240;
+    rgb = make_float3(r / 255.0, g / 255.0, b / 255.0);
+    */
 }
 
 void Application::updateCustomDYE(MaterialGUI& materialGUI)
