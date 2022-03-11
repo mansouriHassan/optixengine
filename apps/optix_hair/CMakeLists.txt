@@ -96,6 +96,7 @@ set( HEADERS
   inc/DeviceMultiGPUZeroCopy.h
   inc/DeviceSingleGPU.h
   inc/MaterialGUI.h
+  inc/CustomMaterialGUI.h
   inc/MyAssert.h
   inc/Options.h
   inc/Parser.h
