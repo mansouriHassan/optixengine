@@ -137,14 +137,16 @@ enum KeywordScene
 
 struct ColorSwitch {
     std::string name;
-    /********************** MaterialGUI *************/
-#ifdef MaterialGUI
+
+#ifdef  MATERIAL_GUI
     MaterialGUI Material1;
     MaterialGUI Material2;
 #endif
 
+#ifdef CUSTOM_MATERIAL_GUI
     CustomMaterialGUI Material1;
     CustomMaterialGUI Material2;
+#endif
     std::string SettingFile;
 };
 

@@ -937,19 +937,25 @@ void Application::createCustomLights()
 
             const int indexMaterial = static_cast<int>(m_materialsGUI.size());
 
-            CustomMaterialGUI customMaterialGUI;
+#ifdef MATERIAL_GUI
+            MaterialGUI materialGUI;
+#endif
 
-            customMaterialGUI.name = reference;
-            customMaterialGUI.indexBSDF = INDEX_BRDF_SPECULAR;
-            customMaterialGUI.albedo = make_float3(0.0f); // Black
-            customMaterialGUI.roughness = make_float2(0.1f);
-            customMaterialGUI.absorptionColor = make_float3(1.0f); // White means no absorption.
-            customMaterialGUI.absorptionScale = 0.0f;              // 0.0f means no absoption.
-            customMaterialGUI.ior = 1.5f;
-            customMaterialGUI.thinwalled = true;
+#ifdef CUSTOM_MATERIAL_GUI
+            CustomMaterialGUI materialGUI;
+#endif
+
+            materialGUI.name = reference;
+            materialGUI.indexBSDF = INDEX_BRDF_SPECULAR;
+            materialGUI.albedo = make_float3(0.0f); // Black
+            materialGUI.roughness = make_float2(0.1f);
+            materialGUI.absorptionColor = make_float3(1.0f); // White means no absorption.
+            materialGUI.absorptionScale = 0.0f;              // 0.0f means no absoption.
+            materialGUI.ior = 1.5f;
+            materialGUI.thinwalled = true;
 
 
-            m_materialsGUI.push_back(customMaterialGUI); // at indexMaterial.
+            m_materialsGUI.push_back(materialGUI); // at indexMaterial.
 
             m_mapMaterialReferences[reference] = indexMaterial;
 
@@ -1673,7 +1679,7 @@ void Application::ShowAbsolueLayout(bool* p_open)
                             {
                                 changed = true;
                             }
-
+#ifdef MATERIAL_GUI
                             ImGui::PushID("Cendre");
                             ImGui::Text("Concentration Cendre");
                             ImGui::PushItemWidth(180);
@@ -1962,6 +1968,133 @@ void Application::ShowAbsolueLayout(bool* p_open)
                                 changed = true;
                             }
                             ImGui::PopID();
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                            
+                            ImGui::PushID("Rouge");
+                            ImGui::Text("Concentration Rouge");
+                            ImGui::PushItemWidth(180);
+                            if (ImGui::SliderFloat("6", &materialGUI.concentrationRed, 0.0, 5.0)) //tester la fonction clamp
+                            {
+                                changed = true;
+                            }
+                            ImGui::PopItemWidth();
+
+                            ImGui::SameLine();
+                            if (ImGui::Button("-", sz))
+                            {
+                                if (materialGUI.concentrationRed == 0.0f)
+                                {
+                                    materialGUI.concentrationRed = 0.0f;
+                                }
+                                else
+                                {
+                                    materialGUI.concentrationRed -= pasAffinage;
+                                }
+                            };
+                            ImGui::SameLine();
+
+                            if (ImGui::Button("+", sz))
+                            {
+                                if (materialGUI.concentrationRed == 5.0f)
+                                {
+                                    materialGUI.concentrationRed = 5.0f;
+                                }
+                                else
+                                {
+                                    materialGUI.concentrationRed += pasAffinage;
+                                }
+                            };
+                            ImGui::SameLine();
+
+                            if (ImGui::ColorEdit3("Rouge", (float*)&materialGUI.red, ImGuiColorEditFlags_NoInputs))
+                            {
+                                changed = true;
+                            }
+
+                            ImGui::PopID();
+
+                            ImGui::PushID("Vert");
+                            ImGui::Text("Concentration vert");
+                            ImGui::PushItemWidth(180);
+                            if (ImGui::SliderFloat("7", &materialGUI.concentrationGreen, 0.0, 5.0))
+                            {
+                                changed = true;
+                            }
+                            ImGui::PopItemWidth();
+
+                            ImGui::SameLine();
+                            if (ImGui::Button("-", sz))
+                            {
+                                if (materialGUI.concentrationGreen == 0.0f)
+                                {
+                                    materialGUI.concentrationGreen = 0.0f;
+                                }
+                                else
+                                {
+                                    materialGUI.concentrationGreen -= pasAffinage;
+                                }
+                            };
+                            ImGui::SameLine();
+                            if (ImGui::Button("+", sz))
+                            {
+                                if (materialGUI.concentrationGreen == 5.0f)
+                                {
+                                    materialGUI.concentrationGreen = 5.0f;
+                                }
+                                else
+                                {
+                                    materialGUI.concentrationGreen += pasAffinage;
+                                }
+                            };
+                            ImGui::SameLine();
+                            if (ImGui::ColorEdit3("Vert", (float*)&materialGUI.green, ImGuiColorEditFlags_NoInputs))
+                            {
+                                changed = true;
+                            }
+                            ImGui::PopID();
+
+                            ImGui::PushID("Bleu");
+                            ImGui::Text("Concentration Bleu");
+                            ImGui::PushItemWidth(180);
+                            if (ImGui::SliderFloat("7", &materialGUI.concentrationBlue, 0.0, 5.0))
+                            {
+                                changed = true;
+                            }
+                            ImGui::PopItemWidth();
+
+                            ImGui::SameLine();
+                            if (ImGui::Button("-", sz))
+                            {
+                                if (materialGUI.concentrationBlue == 0.0f)
+                                {
+                                    materialGUI.concentrationBlue = 0.0f;
+                                }
+                                else
+                                {
+                                    materialGUI.concentrationBlue -= pasAffinage;
+                                }
+                            };
+                            ImGui::SameLine();
+                            if (ImGui::Button("+", sz))
+                            {
+                                if (materialGUI.concentrationBlue == 5.0f)
+                                {
+                                    materialGUI.concentrationBlue = 5.0f;
+                                }
+                                else
+                                {
+                                    materialGUI.concentrationBlue += pasAffinage;
+                                }
+                            };
+                            ImGui::SameLine();
+                            if (ImGui::ColorEdit3("Bleu", (float*)&materialGUI.blue, ImGuiColorEditFlags_NoInputs))
+                            {
+                                changed = true;
+                            }
+                            ImGui::PopID();
+#endif
                         }
 
                         if (changed)
@@ -2495,7 +2628,7 @@ void Application::guiUserWindow(bool* p_open)
                         changed = true;
                     }
                     ImGui::PopID();
-
+#ifdef MATERIAL_GUI
                     //PSAN VERT ROUGE 
                     ImGui::Text("Vert - Rouge");
                     ImGui::PushID("Vert");
@@ -2584,6 +2717,7 @@ void Application::guiUserWindow(bool* p_open)
                         changed = true;
                     }
                     ImGui::PopID();
+#endif
                 }
 
                 if (changed)
@@ -2861,6 +2995,8 @@ void Application::guiUserWindow(bool* p_open)
                 i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_VertRouge_Concentration)) + "\n";
                 i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_CendreCuivre_Concentration)) + "\n";
                 i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_IriseDore_Concentration)) + "\n";
+
+#ifdef MATERIAL_GUI
                 i_writeCmd << roundFloat(new_element.Material1.cendre.x * 255.0f) + ";" + roundFloat(new_element.Material1.cendre.y * 255.0f) + ";" + roundFloat(new_element.Material1.cendre.z * 255.0f) + "\n";
                 i_writeCmd << roundFloat(new_element.Material1.irise.x * 255.0f) + ";" + roundFloat(new_element.Material1.irise.y * 255.0f) + ";" + roundFloat(new_element.Material1.irise.z * 255.0f) + "\n";
                 i_writeCmd << roundFloat(new_element.Material1.doree.x * 255.0f) + ";" + roundFloat(new_element.Material1.doree.y * 255.0f) + ";" + roundFloat(new_element.Material1.doree.z * 255.0f) + "\n";
@@ -2875,6 +3011,18 @@ void Application::guiUserWindow(bool* p_open)
                 i_writeCmd << roundFloat(new_element.Material1.concentrationAcajou) + "\n";
                 i_writeCmd << roundFloat(new_element.Material1.concentrationRouge) + "\n";
                 i_writeCmd << roundFloat(new_element.Material1.concentrationVert) + "\n";
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                
+                i_writeCmd << roundFloat(new_element.Material1.red.x * 255.0f) + ";" + roundFloat(new_element.Material1.red.y * 255.0f) + ";" + roundFloat(new_element.Material1.red.z * 255.0f) + "\n";
+                i_writeCmd << roundFloat(new_element.Material1.green.x * 255.0f) + ";" + roundFloat(new_element.Material1.green.y * 255.0f) + ";" + roundFloat(new_element.Material1.green.z * 255.0f) + "\n";
+                i_writeCmd << roundFloat(new_element.Material1.blue.x * 255.0f) + ";" + roundFloat(new_element.Material1.blue.y * 255.0f) + ";" + roundFloat(new_element.Material1.blue.z * 255.0f) + "\n";
+
+                i_writeCmd << roundFloat(new_element.Material1.concentrationRed) + "\n";
+                i_writeCmd << roundFloat(new_element.Material1.concentrationGreen) + "\n";
+                i_writeCmd << roundFloat(new_element.Material1.concentrationBlue) + "\n";
+#endif
 
                 i_writeCmd << roundFloat(new_element.Material2.dye.x * 255.0f) + ";" + roundFloat(new_element.Material2.dye.y * 255.0f) + ";" + roundFloat(new_element.Material2.dye.z * 255.0f) + "\n";
                 i_writeCmd << roundFloat(new_element.Material2.dye_concentration) + "\n";
@@ -2892,6 +3040,8 @@ void Application::guiUserWindow(bool* p_open)
                 i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_VertRouge_Concentration)) + "\n";
                 i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_CendreCuivre_Concentration)) + "\n";
                 i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_IriseDore_Concentration)) + "\n";
+                
+#ifdef MATERIAL_GUI
                 i_writeCmd << roundFloat(new_element.Material2.cendre.x * 255.0f) + ";" + roundFloat(new_element.Material2.cendre.y * 255.0f) + ";" + roundFloat(new_element.Material2.cendre.z * 255.0f) + "\n";
                 i_writeCmd << roundFloat(new_element.Material2.irise.x * 255.0f) + ";" + roundFloat(new_element.Material2.irise.y * 255.0f) + ";" + roundFloat(new_element.Material2.irise.z * 255.0f) + "\n";
                 i_writeCmd << roundFloat(new_element.Material2.doree.x * 255.0f) + ";" + roundFloat(new_element.Material2.doree.y * 255.0f) + ";" + roundFloat(new_element.Material2.doree.z * 255.0f) + "\n";
@@ -2906,6 +3056,19 @@ void Application::guiUserWindow(bool* p_open)
                 i_writeCmd << roundFloat(new_element.Material2.concentrationAcajou) + "\n";
                 i_writeCmd << roundFloat(new_element.Material2.concentrationRouge) + "\n";
                 i_writeCmd << roundFloat(new_element.Material2.concentrationVert) + "\n";
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                
+                i_writeCmd << roundFloat(new_element.Material2.red.x * 255.0f) + ";" + roundFloat(new_element.Material2.red.y * 255.0f) + ";" + roundFloat(new_element.Material2.red.z * 255.0f) + "\n";
+                i_writeCmd << roundFloat(new_element.Material2.green.x * 255.0f) + ";" + roundFloat(new_element.Material2.green.y * 255.0f) + ";" + roundFloat(new_element.Material2.green.z * 255.0f) + "\n";
+                i_writeCmd << roundFloat(new_element.Material2.blue.x * 255.0f) + ";" + roundFloat(new_element.Material2.blue.y * 255.0f) + ";" + roundFloat(new_element.Material2.blue.z * 255.0f) + "\n";
+
+                i_writeCmd << roundFloat(new_element.Material2.concentrationRed) + "\n";
+                i_writeCmd << roundFloat(new_element.Material2.concentrationGreen) + "\n";
+                i_writeCmd << roundFloat(new_element.Material2.concentrationBlue) + "\n";
+#endif
+
                 i_writeCmd << new_element.SettingFile << "\n";
                 i_writeCmd.close();
                 std::string newLine = "color " + new_element.name + " \"" + Path + "\"";
@@ -3101,6 +3264,8 @@ void Application::guiUserWindow(bool* p_open)
                     materialGUI1->int_VertRouge_Concentration = m_materialsColor[n].Material1.int_VertRouge_Concentration;
                     materialGUI1->int_CendreCuivre_Concentration = m_materialsColor[n].Material1.int_CendreCuivre_Concentration;
                     materialGUI1->int_IriseDore_Concentration = m_materialsColor[n].Material1.int_IriseDore_Concentration;
+
+#ifdef MATERIAL_GUI
                     materialGUI1->cendre = m_materialsColor[n].Material1.cendre;
                     materialGUI1->acajou = m_materialsColor[n].Material1.acajou;
                     materialGUI1->vert = m_materialsColor[n].Material1.vert;
@@ -3115,6 +3280,18 @@ void Application::guiUserWindow(bool* p_open)
                     materialGUI1->concentrationAcajou = m_materialsColor[n].Material1.concentrationAcajou;
                     materialGUI1->concentrationRouge = m_materialsColor[n].Material1.concentrationRouge;
                     materialGUI1->concentrationVert = m_materialsColor[n].Material1.concentrationVert;
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                    materialGUI1->red = m_materialsColor[n].Material1.red;
+                    materialGUI1->green = m_materialsColor[n].Material1.green;
+                    materialGUI1->blue = m_materialsColor[n].Material1.blue;
+
+                    materialGUI1->concentrationRed = m_materialsColor[n].Material1.concentrationRed;
+                    materialGUI1->concentrationGreen = m_materialsColor[n].Material1.concentrationGreen;
+                    materialGUI1->concentrationBlue = m_materialsColor[n].Material1.concentrationBlue;
+#endif
+                    
                     if (materialGUI1 != materialGUI2)
                     {
                         materialGUI2->dye = m_materialsColor[n].Material2.dye;
@@ -3133,6 +3310,8 @@ void Application::guiUserWindow(bool* p_open)
                         materialGUI2->int_VertRouge_Concentration = m_materialsColor[n].Material2.int_VertRouge_Concentration;
                         materialGUI2->int_CendreCuivre_Concentration = m_materialsColor[n].Material2.int_CendreCuivre_Concentration;
                         materialGUI2->int_IriseDore_Concentration = m_materialsColor[n].Material2.int_IriseDore_Concentration;
+                        
+#ifdef MATERIAL_GUI
                         materialGUI2->cendre = m_materialsColor[n].Material2.cendre;
                         materialGUI2->acajou = m_materialsColor[n].Material2.acajou;
                         materialGUI2->vert = m_materialsColor[n].Material2.vert;
@@ -3147,6 +3326,18 @@ void Application::guiUserWindow(bool* p_open)
                         materialGUI2->concentrationAcajou = m_materialsColor[n].Material2.concentrationAcajou;
                         materialGUI2->concentrationRouge = m_materialsColor[n].Material2.concentrationRouge;
                         materialGUI2->concentrationVert = m_materialsColor[n].Material2.concentrationVert;
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                        materialGUI2->red = m_materialsColor[n].Material2.red;
+                        materialGUI2->green = m_materialsColor[n].Material2.green;
+                        materialGUI2->blue = m_materialsColor[n].Material2.blue;
+
+                        materialGUI2->concentrationRed = m_materialsColor[n].Material2.concentrationRed;
+                        materialGUI2->concentrationGreen = m_materialsColor[n].Material2.concentrationGreen;
+                        materialGUI2->concentrationBlue = m_materialsColor[n].Material2.concentrationBlue;
+#endif
+
                     }
                     if (current_settings_value == NULL || m_materialsColor[n].SettingFile != current_settings_value)
                     {
@@ -3471,46 +3662,66 @@ void Application::customGuiUserWindow(bool* p_open)
         {
             bool changed = false;
 
-            CustomMaterialGUI& customMaterialGUI = m_materialsGUI[i];
-#if 0
-            if ((customMaterialGUI.name.find("default") != std::string::npos
-                || customMaterialGUI.name.find("Hair") != std::string::npos)
-                && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_customMaterialsGUI[i].name.c_str()))
+#ifdef MATERIAL_GUI
+            MaterialGUI& materialGUI = m_materialsGUI[i];
 #endif
-                if ((customMaterialGUI.name.find("Hair") != std::string::npos)
+
+#ifdef CUSTOM_MATERIAL_GUI
+            CustomMaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
+        
+#if 0
+            if ((materialGUI.name.find("default") != std::string::npos
+                || materialGUI.name.find("Hair") != std::string::npos)
+                && ImGui::TreeNode((void*)(intptr_t)i, "%s", materialsGUI[i].name.c_str()))
+#endif
+                if ((materialGUI.name.find("Hair") != std::string::npos)
                     && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_materialsGUI[i].name.c_str()))
                 {
-                    if (ImGui::Combo("BxDF Type", (int*)&customMaterialGUI.indexBSDF, "BRDF Diffuse\0BRDF Specular\0BSDF Specular\0BRDF GGX Smith\0BSDF GGX Smith\0BSDF Hair\0\0"))
+                    if (ImGui::Combo("BxDF Type", (int*)&materialGUI.indexBSDF, "BRDF Diffuse\0BRDF Specular\0BSDF Specular\0BRDF GGX Smith\0BSDF GGX Smith\0BSDF Hair\0\0"))
                     {
                         changed = true;
                     }
-                    customMaterialGUI.indexBSDF = config_parser->getIndexBSDF();
-                    if (customMaterialGUI.indexBSDF == INDEX_BCSDF_HAIR)
+                    materialGUI.indexBSDF = config_parser->getIndexBSDF();
+                    if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR)
                     {
                         float pasAffinage(0.25f);
                         ImVec2 sz(20, 20);// size button + -   
 
                         ImGui::PushID("HT");
-                        if (ImGui::SliderInt("HT", &customMaterialGUI.HT, 1, 10))
+                        if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
                         {
-                            customMaterialGUI.melanin_concentration = m_melanineConcentration[customMaterialGUI.HT - 1];
-                            customMaterialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[customMaterialGUI.HT - 1];
-                            customMaterialGUI.dyeNeutralHT = m_dyeNeutralHT[customMaterialGUI.HT - 1];
-                            customMaterialGUI.melanin_ratio = m_melanineRatio[customMaterialGUI.HT - 1];
+                            materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
+                            materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
+                            materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
+                            materialGUI.melanin_ratio = m_melanineRatio[materialGUI.HT - 1];
                             changed = true;
                         }
                         ImGui::SameLine();
 
-                        if (ImGui::ColorEdit3("", (float*)&customMaterialGUI.dyeNeutralHT, ImGuiColorEditFlags_NoInputs))
+                        if (ImGui::ColorEdit3("", (float*)&materialGUI.dyeNeutralHT, ImGuiColorEditFlags_NoInputs))
                         {
                             changed = true;
                         }
                         ImGui::PopID();
 
-                        //PSAN VERT ROUGE 
+#ifdef CUSTOM_MATERIAL_GUI
+
+                        ImGui::Text("Hair Color");
+                        ImGui::PushID("Color");
+                        if (ImGui::ColorEdit3("", (float*)&materialGUI.Color))
+                        {
+                            printf("============= materialGUI.Color[0] : %f ==============\n", materialGUI.Color[0]);
+                            printf("============= materialGUI.Color[1] : %f ==============\n", materialGUI.Color[1]);
+                            printf("============= materialGUI.Color[2] : %f ==============\n", materialGUI.Color[2]);
+                            changed = true;
+                        }
+                        ImGui::PopID();
+#if 0
+                        //PSAN VERT ROUGE
                         ImGui::Text("Vert - Rouge");
                         ImGui::PushID("Vert");
-                        if (ImGui::ColorEdit3("", (float*)&customMaterialGUI.vert, ImGuiColorEditFlags_NoInputs))
+                        if (ImGui::ColorEdit3("", (float*)&materialGUI.green, ImGuiColorEditFlags_NoInputs))
                         {
                             changed = true;
                         }
@@ -3520,9 +3731,8 @@ void Application::customGuiUserWindow(bool* p_open)
                         ImGui::PushID("Vert-Rouge");
                         char* vertRougeIndex[] = { "70","77","7","07","","06","6","66","60" };
                         ImGui::PushItemWidth(250);
-                        if (ImGui::SliderInt("", &customMaterialGUI.int_VertRouge_Concentration, 0, 8, vertRougeIndex[customMaterialGUI.int_VertRouge_Concentration]))
+                        if (ImGui::SliderInt("", &materialGUI.int_VertRouge_Concentration, 0, 8, vertRougeIndex[materialGUI.int_VertRouge_Concentration]))
                         {
-                            printf("================= VertRouge_Concentration : %d ==================\n", customMaterialGUI.int_VertRouge_Concentration);
                             changed = true;
                         }
                         ImGui::PopItemWidth();
@@ -3530,81 +3740,48 @@ void Application::customGuiUserWindow(bool* p_open)
 
                         ImGui::PushID("Rouge");
                         ImGui::SameLine();
-                        if (ImGui::ColorEdit3("", (float*)&customMaterialGUI.red, ImGuiColorEditFlags_NoInputs))
+                        if (ImGui::ColorEdit3("", (float*)&materialGUI.red, ImGuiColorEditFlags_NoInputs))
                         {
                             changed = true;
                         }
                         ImGui::PopID();
 
                         // PSAN CENDRE CUIVRE
-                        ImGui::Text("Cendre - Cuivre");
+                        ImGui::Text("Bleu - Cuivre");
                         ImGui::PushID("Bleu");
-                        if (ImGui::ColorEdit3("", (float*)&customMaterialGUI.cendre, ImGuiColorEditFlags_NoInputs))
+                        if (ImGui::ColorEdit3("", (float*)&materialGUI.blue, ImGuiColorEditFlags_NoInputs))
                         {
                             changed = true;
                         }
                         ImGui::PopID();
                         ImGui::SameLine();
-                        ImGui::PushID("Cendre-Cuivre");
+                        ImGui::PushID("Bleu-Cuivre");
                         ImGui::PushItemWidth(250);
 
                         char* CendreCuivreIndex[] = { "10","11","1","01","","04","4","44","40" };
-                        if (ImGui::SliderInt("", &customMaterialGUI.int_CendreCuivre_Concentration, 0, 8, CendreCuivreIndex[customMaterialGUI.int_CendreCuivre_Concentration]))
+                        if (ImGui::SliderInt("", &materialGUI.int_CendreCuivre_Concentration, 0, 8, CendreCuivreIndex[materialGUI.int_CendreCuivre_Concentration]))
                         {
-                            printf("================= CendreCuivre_Concentration : %d ==================\n", customMaterialGUI.int_CendreCuivre_Concentration);
                             changed = true;
 
                         }
                         ImGui::PopItemWidth();
                         ImGui::PopID();
-
-
-                        ImGui::PushID("Cuivre");
-                        ImGui::SameLine();
-                        if (ImGui::ColorEdit3("", (float*)&customMaterialGUI.cuivre, ImGuiColorEditFlags_NoInputs))
-                        {
-                            changed = true;
-                        }
-                        ImGui::PopID();
-
-                        // PSAN IRISE DORE
-                        ImGui::Text("Irise - Dore");
-                        ImGui::PushID("Irise");
-                        if (ImGui::ColorEdit3("", (float*)&customMaterialGUI.irise, ImGuiColorEditFlags_NoInputs))
-                        {
-                            changed = true;
-                        }
-                        ImGui::PopID();
-
-                        ImGui::SameLine();
-                        ImGui::PushID("Irise-Dore");
-                        char* IriseDoreIndex[] = { "20","22","2","02","","03","3","33","30" };
-                        ImGui::PushItemWidth(250);
-                        if (ImGui::SliderInt("", &customMaterialGUI.int_IriseDore_Concentration, 0, 8, IriseDoreIndex[customMaterialGUI.int_IriseDore_Concentration]))
-                        {
-                            printf("================= IriseDore_Concentration : %d ==================\n", customMaterialGUI.int_IriseDore_Concentration);
-                            changed = true;
-                        }
-                        ImGui::PopItemWidth();
-                        ImGui::PopID();
-
-                        ImGui::PushID("Dore");
-                        ImGui::SameLine();
-                        if (ImGui::ColorEdit3("", (float*)&customMaterialGUI.doree, ImGuiColorEditFlags_NoInputs))
-                        {
-                            changed = true;
-                        }
-                        ImGui::PopID();
+#endif
+         
+#endif
                     }
 
                     if (changed)
                     {
-                        updateCustomDYEinterface(customMaterialGUI);
-                        updateCustomDYE(customMaterialGUI);
-                        updateCustomDYEconcentration(customMaterialGUI);
-                        updateCustomHT(customMaterialGUI);
 
-                        m_raytracer->updateMaterial(i, customMaterialGUI);
+#ifdef CUSTOM_MATERIAL_GUI
+                        updateCustomDYEinterface(materialGUI);
+                        updateCustomDYE(materialGUI);
+                        updateCustomDYEconcentration(materialGUI);
+                        updateCustomHT(materialGUI);
+#endif
+
+                        m_raytracer->updateMaterial(i, materialGUI);
                         refresh = true;
                     }
                     ImGui::TreePop();
@@ -4190,192 +4367,66 @@ void Application::updateCustomDYEinterface(CustomMaterialGUI& customMaterialGUI)
 {
     if (customMaterialGUI.int_VertRouge_Concentration == 0)
     {
-        customMaterialGUI.concentrationVert = m_concentrationVert[3];
-        customMaterialGUI.concentrationRouge = 0.f;
+        customMaterialGUI.concentrationGreen = m_concentrationVert[3];
+        customMaterialGUI.concentrationRed = 0.f;
         customMaterialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[3];
     }
 
     if (customMaterialGUI.int_VertRouge_Concentration == 1)
     {
-        customMaterialGUI.concentrationVert = m_concentrationVert[2];
-        customMaterialGUI.concentrationRouge = 0.f;
+        customMaterialGUI.concentrationGreen = m_concentrationVert[2];
+        customMaterialGUI.concentrationRed = 0.f;
         customMaterialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[2];
     }
 
     if (customMaterialGUI.int_VertRouge_Concentration == 2)
     {
-        customMaterialGUI.concentrationVert = m_concentrationVert[1];
-        customMaterialGUI.concentrationRouge = 0.f;
+        customMaterialGUI.concentrationGreen = m_concentrationVert[1];
+        customMaterialGUI.concentrationRed = 0.f;
         customMaterialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[1];
     }
 
     if (customMaterialGUI.int_VertRouge_Concentration == 3)
     {
-        customMaterialGUI.concentrationVert = m_concentrationVert[0];
-        customMaterialGUI.concentrationRouge = 0.f;
+        customMaterialGUI.concentrationGreen = m_concentrationVert[0];
+        customMaterialGUI.concentrationRed = 0.f;
         customMaterialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[0];
     }
     if (customMaterialGUI.int_VertRouge_Concentration == 4)
     {
-        customMaterialGUI.concentrationVert = 0.f;
-        customMaterialGUI.concentrationRouge = 0.f;
+        customMaterialGUI.concentrationGreen = 0.f;
+        customMaterialGUI.concentrationRed = 0.f;
         customMaterialGUI.dye_ConcentrationVertRouge = 0.f;
     }
 
     if (customMaterialGUI.int_VertRouge_Concentration == 5)
     {
-        customMaterialGUI.concentrationRouge = m_concentrationRouge[0];
-        customMaterialGUI.concentrationVert = 0.f;
+        customMaterialGUI.concentrationRed = m_concentrationRouge[0];
+        customMaterialGUI.concentrationGreen = 0.f;
         customMaterialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[0];
     }
 
     if (customMaterialGUI.int_VertRouge_Concentration == 6)
     {
-        customMaterialGUI.concentrationRouge = m_concentrationRouge[1];
-        customMaterialGUI.concentrationVert = 0.f;
+        customMaterialGUI.concentrationRed = m_concentrationRouge[1];
+        customMaterialGUI.concentrationGreen = 0.f;
         customMaterialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[1];
     }
 
     if (customMaterialGUI.int_VertRouge_Concentration == 7)
     {
-        customMaterialGUI.concentrationRouge = m_concentrationRouge[2];
-        customMaterialGUI.concentrationVert = 0.f;
+        customMaterialGUI.concentrationRed = m_concentrationRouge[2];
+        customMaterialGUI.concentrationGreen = 0.f;
         customMaterialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[2];
     }
 
     if (customMaterialGUI.int_VertRouge_Concentration == 8)
     {
-        customMaterialGUI.concentrationRouge = m_concentrationRouge[3];
-        customMaterialGUI.concentrationVert = 0.f;
+        customMaterialGUI.concentrationRed = m_concentrationRouge[3];
+        customMaterialGUI.concentrationGreen = 0.f;
         customMaterialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[3];
     }
 
-    if (customMaterialGUI.int_CendreCuivre_Concentration == 0)
-    {
-        customMaterialGUI.concentrationCendre = m_concentrationCendre[3];
-        customMaterialGUI.concentrationCuivre = 0.f;
-        customMaterialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[3];
-    }
-
-    if (customMaterialGUI.int_CendreCuivre_Concentration == 1)
-    {
-        customMaterialGUI.concentrationCendre = m_concentrationCendre[2];
-        customMaterialGUI.concentrationCuivre = 0.f;
-
-        customMaterialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[2];
-    }
-
-    if (customMaterialGUI.int_CendreCuivre_Concentration == 2)
-    {
-        customMaterialGUI.concentrationCendre = m_concentrationCendre[1];
-        customMaterialGUI.concentrationCuivre = 0.f;
-
-        customMaterialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[1];
-    }
-
-    if (customMaterialGUI.int_CendreCuivre_Concentration == 3)
-    {
-        customMaterialGUI.concentrationCendre = m_concentrationCendre[0];
-        customMaterialGUI.concentrationCuivre = 0.f;
-
-        customMaterialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[0];
-    }
-
-    // NEUTRE
-    if (customMaterialGUI.int_CendreCuivre_Concentration == 4)
-    {
-        customMaterialGUI.concentrationCendre = 0.f;
-        customMaterialGUI.concentrationCuivre = 0.f;
-        customMaterialGUI.dye_ConcentrationCendreCuivre = 0.0f;
-    }
-    // CUIVRE
-    if (customMaterialGUI.int_CendreCuivre_Concentration == 5)
-    {
-        customMaterialGUI.concentrationCuivre = m_concentrationCuivre[0];
-        customMaterialGUI.concentrationCendre = 0.f;
-        customMaterialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[0];
-    }
-
-    if (customMaterialGUI.int_CendreCuivre_Concentration == 6)
-    {
-        customMaterialGUI.concentrationCuivre = m_concentrationCuivre[1];
-        customMaterialGUI.concentrationCendre = 0.f;
-        customMaterialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[1];
-    }
-
-    if (customMaterialGUI.int_CendreCuivre_Concentration == 7)
-    {
-        customMaterialGUI.concentrationCuivre = m_concentrationCuivre[2];
-        customMaterialGUI.concentrationCendre = 0.f;
-        customMaterialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[2];
-    }
-
-    if (customMaterialGUI.int_CendreCuivre_Concentration == 8)
-    {
-        customMaterialGUI.concentrationCuivre = m_concentrationCuivre[3];
-        customMaterialGUI.concentrationCendre = 0.f;
-        customMaterialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[3];
-    }
-
-    // Irise
-    if (customMaterialGUI.int_IriseDore_Concentration == 0)
-    {
-        customMaterialGUI.concentrationIrise = m_concentrationIrise[3];
-        customMaterialGUI.concentrationDore = 0.f;
-        customMaterialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[3];
-    }
-    if (customMaterialGUI.int_IriseDore_Concentration == 1)
-    {
-        customMaterialGUI.concentrationIrise = m_concentrationIrise[2];
-        customMaterialGUI.concentrationDore = 0.f;
-        customMaterialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[2];
-    }
-
-    if (customMaterialGUI.int_IriseDore_Concentration == 2)
-    {
-        customMaterialGUI.concentrationIrise = m_concentrationIrise[1];
-        customMaterialGUI.concentrationDore = 0.f;
-        customMaterialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[1];
-    }
-
-    if (customMaterialGUI.int_IriseDore_Concentration == 3)
-    {
-        customMaterialGUI.concentrationIrise = m_concentrationIrise[0];
-        customMaterialGUI.concentrationDore = 0.f;
-        customMaterialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[0];
-    }
-    // neutre
-    if (customMaterialGUI.int_IriseDore_Concentration == 4)
-    {
-        customMaterialGUI.concentrationIrise = 0.f;
-        customMaterialGUI.concentrationDore = 0.f;
-        customMaterialGUI.dye_ConcentrationIriseDore = 0.f;
-    }
-    //Dore
-    if (customMaterialGUI.int_IriseDore_Concentration == 5)
-    {
-        customMaterialGUI.concentrationDore = m_concentrationDore[0];
-        customMaterialGUI.concentrationIrise = 0.f;
-        customMaterialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[0];
-    }
-    if (customMaterialGUI.int_IriseDore_Concentration == 6)
-    {
-        customMaterialGUI.concentrationDore = m_concentrationDore[1];
-        customMaterialGUI.concentrationIrise = 0.f;
-        customMaterialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[1];
-    }
-    if (customMaterialGUI.int_IriseDore_Concentration == 7)
-    {
-        customMaterialGUI.concentrationDore = m_concentrationDore[2];
-        customMaterialGUI.concentrationIrise = 0.f;
-        customMaterialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[2];
-    }
-    if (customMaterialGUI.int_IriseDore_Concentration == 8)
-    {
-        customMaterialGUI.concentrationDore = m_concentrationDore[3];
-        customMaterialGUI.concentrationIrise = 0.f;
-        customMaterialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[3];
-    }
     /*
     int r = 75;
     int g = 225;
@@ -4386,45 +4437,27 @@ void Application::updateCustomDYEinterface(CustomMaterialGUI& customMaterialGUI)
 
 void Application::updateCustomDYE(CustomMaterialGUI& customMaterialGUI)
 {
-    float3 cendre = make_float3(customMaterialGUI.cendre.x * customMaterialGUI.concentrationCendre,
-        customMaterialGUI.cendre.y * customMaterialGUI.concentrationCendre,
-        customMaterialGUI.cendre.z * customMaterialGUI.concentrationCendre);
+   
+    float3 red = make_float3(customMaterialGUI.red.x * customMaterialGUI.concentrationRed,
+        customMaterialGUI.red.y * customMaterialGUI.concentrationRed,
+        customMaterialGUI.red.z * customMaterialGUI.concentrationRed);
 
-    float3 irise = make_float3(customMaterialGUI.irise.x * customMaterialGUI.concentrationIrise,
-        customMaterialGUI.irise.y * customMaterialGUI.concentrationIrise,
-        customMaterialGUI.irise.z * customMaterialGUI.concentrationIrise);
+    float3 green = make_float3(customMaterialGUI.green.x * customMaterialGUI.concentrationGreen,
+        customMaterialGUI.green.y * customMaterialGUI.concentrationGreen,
+        customMaterialGUI.green.z * customMaterialGUI.concentrationGreen);
 
-    float3 doree = make_float3(customMaterialGUI.doree.x * customMaterialGUI.concentrationDore,
-        customMaterialGUI.doree.y * customMaterialGUI.concentrationDore,
-        customMaterialGUI.doree.z * customMaterialGUI.concentrationDore);
+    float3 blue = make_float3(customMaterialGUI.blue.x * customMaterialGUI.concentrationBlue,
+        customMaterialGUI.blue.y * customMaterialGUI.concentrationBlue,
+        customMaterialGUI.blue.z * customMaterialGUI.concentrationBlue);
 
-    float3 cuivre = make_float3(customMaterialGUI.cuivre.x * customMaterialGUI.concentrationCuivre,
-        customMaterialGUI.cuivre.y * customMaterialGUI.concentrationCuivre,
-        customMaterialGUI.cuivre.z * customMaterialGUI.concentrationCuivre);
+    float3 moyenRGB = make_float3(red.x + green.x + blue.x,
+        red.y + green.y + blue.y,
+        red.z + green.z + blue.z);
 
-    float3 acajou = make_float3(customMaterialGUI.acajou.x * customMaterialGUI.concentrationAcajou,
-        customMaterialGUI.acajou.y * customMaterialGUI.concentrationAcajou,
-        customMaterialGUI.acajou.z * customMaterialGUI.concentrationAcajou);
-
-    float3 red = make_float3(customMaterialGUI.red.x * customMaterialGUI.concentrationRouge,
-        customMaterialGUI.red.y * customMaterialGUI.concentrationRouge,
-        customMaterialGUI.red.z * customMaterialGUI.concentrationRouge);
-
-    float3 vert = make_float3(customMaterialGUI.vert.x * customMaterialGUI.concentrationVert,
-        customMaterialGUI.vert.y * customMaterialGUI.concentrationVert,
-        customMaterialGUI.vert.z * customMaterialGUI.concentrationVert);
-
-    float3 moyenRGB = make_float3(cendre.x + irise.x + doree.x + cuivre.x + acajou.x + red.x + vert.x,
-        cendre.y + irise.y + doree.y + cuivre.y + acajou.y + red.y + vert.y,
-        cendre.z + irise.z + doree.z + cuivre.z + acajou.z + red.z + vert.z);
-
-    float coeffisient = (customMaterialGUI.concentrationCendre +
-        customMaterialGUI.concentrationIrise +
-        customMaterialGUI.concentrationDore +
-        customMaterialGUI.concentrationCuivre +
-        customMaterialGUI.concentrationAcajou +
-        customMaterialGUI.concentrationRouge +
-        customMaterialGUI.concentrationVert);
+    float coeffisient = (
+        customMaterialGUI.concentrationRed +
+        customMaterialGUI.concentrationGreen + 
+        customMaterialGUI.concentrationBlue);
 
     printf("======================= coeffisient = %f ====================\n", coeffisient);
     float3 rgb;
@@ -4432,11 +4465,13 @@ void Application::updateCustomDYE(CustomMaterialGUI& customMaterialGUI)
         rgb = make_float3(moyenRGB.x / coeffisient, moyenRGB.y / coeffisient, moyenRGB.z / coeffisient);
     else
         rgb = make_float3(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0);
-
+    /*
     int r = 75;
     int g = 225;
     int b = 240;
     rgb = make_float3(r / 255.0, g / 255.0, b / 255.0);
+    */
+    rgb = make_float3(customMaterialGUI.Color[0], customMaterialGUI.Color[1], customMaterialGUI.Color[2]);
     printf("======================= rgb.x = %f ====================\n", rgb.x);
     printf("======================= rgb.y = %f ====================\n", rgb.y);
     printf("======================= rgb.z = %f ====================\n", rgb.z);
@@ -4927,6 +4962,10 @@ bool Application::loadSceneDescription(std::string const& filename)
     float curconcentrationRouge = 0.0f;
     float curConcentrationVert = 0.0f;
 
+    float curconcentrationRed = 0.0f;
+    float curconcentrationGreen = 0.0f;
+    float curConcentrationBlue = 0.0f;
+
     float curConcentrationBleuOrange = 0.0f;
     float curConcentrationVertRouge = 0.0f;
     float curConcentrationVioletJaune = 0.0f;
@@ -5178,6 +5217,7 @@ bool Application::loadSceneDescription(std::string const& filename)
                 materialGUI.HT = curHT;
                 materialGUI.f_HT = curf_HT;
                 //materialGUI.quart = curQuart;
+#ifdef MATERIAL_GUI
                 materialGUI.concentrationCendre = curConcentrationCendre;
                 materialGUI.concentrationIrise = curConcentrationIrise;
                 materialGUI.concentrationDore = curConcentrationDore;
@@ -5185,6 +5225,13 @@ bool Application::loadSceneDescription(std::string const& filename)
                 materialGUI.concentrationAcajou = curConcentrationAcajou;
                 materialGUI.concentrationRouge = curconcentrationRouge;
                 materialGUI.concentrationVert = curConcentrationVert;
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                materialGUI.concentrationRed = curconcentrationRed;
+                materialGUI.concentrationGreen = curconcentrationGreen;
+                materialGUI.concentrationBlue = curConcentrationBlue;
+#endif
 
                 materialGUI.concentrationBleuOrange = curConcentrationBleuOrange;
                 materialGUI.concentrationVertRouge = curConcentrationVertRouge;
@@ -5318,6 +5365,7 @@ bool Application::loadSceneDescription(std::string const& filename)
                         std::getline(file, line);
                         materials.Material1.int_IriseDore_Concentration = std::stoi(line);
 
+#ifdef MATERIAL_GUI
                         std::getline(file, line);
                         dotposition = 0;
                         previousdotposition = 0;
@@ -5407,7 +5455,7 @@ bool Application::loadSceneDescription(std::string const& filename)
                             }
                         }
                         materials.Material1.acajou = make_float3(x, y, z);
-
+#endif
                         std::getline(file, line);
                         dotposition = 0;
                         previousdotposition = 0;
@@ -5425,7 +5473,7 @@ bool Application::loadSceneDescription(std::string const& filename)
                             }
                         }
                         materials.Material1.red = make_float3(x, y, z);
-
+#ifdef MATERIAL_GUI
                         std::getline(file, line);
                         dotposition = 0;
                         previousdotposition = 0;
@@ -5464,6 +5512,36 @@ bool Application::loadSceneDescription(std::string const& filename)
 
                         std::getline(file, line);
                         materials.Material1.concentrationVert = std::stof(line);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                        std::getline(file, line);
+                        dotposition = 0;
+                        previousdotposition = 0;
+                        dotposition = line.find_first_of(";", 0);
+                        if (dotposition != std::string::npos)
+                        {
+                            x = std::stof(line.substr(0, dotposition)) / 255.0f;
+                            previousdotposition = dotposition + 1;
+                            dotposition = line.find_first_of(";", previousdotposition);
+                            if (dotposition != std::string::npos)
+                            {
+                                y = std::stof(line.substr(previousdotposition, dotposition)) / 255.0f;
+                                previousdotposition = dotposition + 1;
+                                z = std::stof(line.substr(previousdotposition, std::string::npos)) / 255.0f;
+                            }
+                        }
+                        materials.Material1.green = make_float3(x, y, z);
+
+                        std::getline(file, line);
+                        materials.Material1.concentrationRed = std::stof(line);
+
+                        std::getline(file, line);
+                        materials.Material1.concentrationGreen = std::stof(line);
+
+                        std::getline(file, line);
+                        materials.Material1.concentrationBlue = std::stof(line);
+#endif
 
                         std::getline(file, line);
 
@@ -5543,6 +5621,7 @@ bool Application::loadSceneDescription(std::string const& filename)
                         std::getline(file, line);
                         materials.Material2.int_CendreCuivre_Concentration = std::stoi(line);
 
+#ifdef MATERIAL_GUI
                         std::getline(file, line);
                         materials.Material2.int_IriseDore_Concentration = std::stoi(line);
                         std::getline(file, line);
@@ -5633,8 +5712,8 @@ bool Application::loadSceneDescription(std::string const& filename)
                                 z = std::stof(line.substr(previousdotposition, std::string::npos)) / 255.0f;
                             }
                         }
+                        
                         materials.Material2.acajou = make_float3(x, y, z);
-
                         std::getline(file, line);
                         dotposition = 0;
                         previousdotposition = 0;
@@ -5691,6 +5770,72 @@ bool Application::loadSceneDescription(std::string const& filename)
 
                         std::getline(file, line);
                         materials.Material2.concentrationVert = std::stof(line);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                        std::getline(file, line);
+                        dotposition = 0;
+                        previousdotposition = 0;
+                        dotposition = line.find_first_of(";", 0);
+                        if (dotposition != std::string::npos)
+                        {
+                            x = std::stof(line.substr(0, dotposition)) / 255.0f;
+                            previousdotposition = dotposition + 1;
+                            dotposition = line.find_first_of(";", previousdotposition);
+                            if (dotposition != std::string::npos)
+                            {
+                                y = std::stof(line.substr(previousdotposition, dotposition)) / 255.0f;
+                                previousdotposition = dotposition + 1;
+                                z = std::stof(line.substr(previousdotposition, std::string::npos)) / 255.0f;
+                            }
+                        }
+                        materials.Material2.red = make_float3(x, y, z);
+
+                        std::getline(file, line);
+                        dotposition = 0;
+                        previousdotposition = 0;
+                        dotposition = line.find_first_of(";", 0);
+                        if (dotposition != std::string::npos)
+                        {
+                            x = std::stof(line.substr(0, dotposition)) / 255.0f;
+                            previousdotposition = dotposition + 1;
+                            dotposition = line.find_first_of(";", previousdotposition);
+                            if (dotposition != std::string::npos)
+                            {
+                                y = std::stof(line.substr(previousdotposition, dotposition)) / 255.0f;
+                                previousdotposition = dotposition + 1;
+                                z = std::stof(line.substr(previousdotposition, std::string::npos)) / 255.0f;
+                            }
+                        }
+                        materials.Material2.green = make_float3(x, y, z);
+
+                        std::getline(file, line);
+                        dotposition = 0;
+                        previousdotposition = 0;
+                        dotposition = line.find_first_of(";", 0);
+                        if (dotposition != std::string::npos)
+                        {
+                            x = std::stof(line.substr(0, dotposition)) / 255.0f;
+                            previousdotposition = dotposition + 1;
+                            dotposition = line.find_first_of(";", previousdotposition);
+                            if (dotposition != std::string::npos)
+                            {
+                                y = std::stof(line.substr(previousdotposition, dotposition)) / 255.0f;
+                                previousdotposition = dotposition + 1;
+                                z = std::stof(line.substr(previousdotposition, std::string::npos)) / 255.0f;
+                            }
+                        }
+                        materials.Material2.blue = make_float3(x, y, z);
+
+                        std::getline(file, line);
+                        materials.Material2.concentrationRed = std::stof(line);
+
+                        std::getline(file, line);
+                        materials.Material2.concentrationGreen = std::stof(line);
+
+                        std::getline(file, line);
+                        materials.Material2.concentrationBlue = std::stof(line);
+#endif
 
                         std::getline(file, line);
                         materials.SettingFile = line;

@@ -35,8 +35,8 @@
 
 #include <string>
 
+ //#define MATERIAL_GUI
 #define CUSTOM_MATERIAL_GUI
-//#define MATERIAL_GUI
 
  // Host side GUI material parameters 
 struct MaterialGUI
@@ -130,23 +130,31 @@ struct CustomMaterialGUI
 	float			melanin_ratio_disparity; // Melanin ratio
 
 	//Hair expert color
+	/*
 	float3 cendre = make_float3(136.0f / 255.0f, 136.0f / 255.0f, 255.0f / 255.0f);
 	float3 irise = make_float3(95.0f / 255.0f, 25.0f / 255.0f, 120.0f / 255.0f);
 	float3 doree = make_float3(200.0f / 255.0f, 150.0f / 255.0f, 0.0f / 255.0f);
 	float3 cuivre = make_float3(229.0f / 255.0f, 54.0f / 255.0f, 5.0f / 255.0f);
 	float3 acajou = make_float3(64.0f / 255.0f, 6.0f / 255.0f, 31.0f / 255.0f);
+	*/
 	float3 red = make_float3(255.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f);
-	float3 vert = make_float3(0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f);
+	float3 green = make_float3(0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f);
+	float3 blue = make_float3(0.0f / 255.0f, 0.0f / 255.0f, 255.0f / 255.0f);
+
+	float Color[3] = { 0.0f, 0.0f, 0.0f};
 
 	int HT; //PSAN
 	float f_HT;
+	/*
 	float concentrationCendre;
 	float concentrationIrise;
 	float concentrationDore;
 	float concentrationCuivre;
 	float concentrationAcajou;
-	float concentrationRouge;
-	float concentrationVert;
+	*/
+	float concentrationRed;
+	float concentrationGreen;
+	float concentrationBlue;
 
 	//PSAN Interface GUI color neutral
 	float concentrationBleuOrange;
