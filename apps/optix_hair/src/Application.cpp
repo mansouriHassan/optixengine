@@ -2993,8 +2993,8 @@ void Application::guiUserWindow(bool* p_open)
                 i_writeCmd << roundFloat(new_element.Material1.dyeNeutralHT_Concentration) + "\n";
                 i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.HT)) + "\n";
                 i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_VertRouge_Concentration)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_CendreCuivre_Concentration)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_IriseDore_Concentration)) + "\n";
+                //i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_CendreCuivre_Concentration)) + "\n";
+                //i_writeCmd << roundFloat(static_cast<float>(new_element.Material1.int_IriseDore_Concentration)) + "\n";
 
 #ifdef MATERIAL_GUI
                 i_writeCmd << roundFloat(new_element.Material1.cendre.x * 255.0f) + ";" + roundFloat(new_element.Material1.cendre.y * 255.0f) + ";" + roundFloat(new_element.Material1.cendre.z * 255.0f) + "\n";
@@ -3037,11 +3037,11 @@ void Application::guiUserWindow(bool* p_open)
                 i_writeCmd << roundFloat(new_element.Material2.dyeNeutralHT.x * 255.0f) + ";" + roundFloat(new_element.Material2.dyeNeutralHT.y * 255.0f) + ";" + roundFloat(new_element.Material2.dyeNeutralHT.z * 255.0f) + "\n";
                 i_writeCmd << roundFloat(new_element.Material2.dyeNeutralHT_Concentration) + "\n";
                 i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.HT)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_VertRouge_Concentration)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_CendreCuivre_Concentration)) + "\n";
-                i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_IriseDore_Concentration)) + "\n";
+                i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_VertRouge_Concentration)) + "\n";               
                 
 #ifdef MATERIAL_GUI
+                i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_CendreCuivre_Concentration)) + "\n";
+                i_writeCmd << roundFloat(static_cast<float>(new_element.Material2.int_IriseDore_Concentration)) + "\n";
                 i_writeCmd << roundFloat(new_element.Material2.cendre.x * 255.0f) + ";" + roundFloat(new_element.Material2.cendre.y * 255.0f) + ";" + roundFloat(new_element.Material2.cendre.z * 255.0f) + "\n";
                 i_writeCmd << roundFloat(new_element.Material2.irise.x * 255.0f) + ";" + roundFloat(new_element.Material2.irise.y * 255.0f) + ";" + roundFloat(new_element.Material2.irise.z * 255.0f) + "\n";
                 i_writeCmd << roundFloat(new_element.Material2.doree.x * 255.0f) + ";" + roundFloat(new_element.Material2.doree.y * 255.0f) + ";" + roundFloat(new_element.Material2.doree.z * 255.0f) + "\n";
@@ -3262,8 +3262,8 @@ void Application::guiUserWindow(bool* p_open)
                     materialGUI1->dyeNeutralHT_Concentration = m_materialsColor[n].Material1.dyeNeutralHT_Concentration;
                     materialGUI1->HT = m_materialsColor[n].Material1.HT;
                     materialGUI1->int_VertRouge_Concentration = m_materialsColor[n].Material1.int_VertRouge_Concentration;
-                    materialGUI1->int_CendreCuivre_Concentration = m_materialsColor[n].Material1.int_CendreCuivre_Concentration;
-                    materialGUI1->int_IriseDore_Concentration = m_materialsColor[n].Material1.int_IriseDore_Concentration;
+                    //materialGUI1->int_CendreCuivre_Concentration = m_materialsColor[n].Material1.int_CendreCuivre_Concentration;
+                    //materialGUI1->int_IriseDore_Concentration = m_materialsColor[n].Material1.int_IriseDore_Concentration;
 
 #ifdef MATERIAL_GUI
                     materialGUI1->cendre = m_materialsColor[n].Material1.cendre;
@@ -3308,8 +3308,8 @@ void Application::guiUserWindow(bool* p_open)
                         materialGUI2->dyeNeutralHT_Concentration = m_materialsColor[n].Material2.dyeNeutralHT_Concentration;
                         materialGUI2->HT = m_materialsColor[n].Material2.HT;
                         materialGUI2->int_VertRouge_Concentration = m_materialsColor[n].Material2.int_VertRouge_Concentration;
-                        materialGUI2->int_CendreCuivre_Concentration = m_materialsColor[n].Material2.int_CendreCuivre_Concentration;
-                        materialGUI2->int_IriseDore_Concentration = m_materialsColor[n].Material2.int_IriseDore_Concentration;
+                        //materialGUI2->int_CendreCuivre_Concentration = m_materialsColor[n].Material2.int_CendreCuivre_Concentration;
+                        //materialGUI2->int_IriseDore_Concentration = m_materialsColor[n].Material2.int_IriseDore_Concentration;
                         
 #ifdef MATERIAL_GUI
                         materialGUI2->cendre = m_materialsColor[n].Material2.cendre;
@@ -3695,16 +3695,22 @@ void Application::customGuiUserWindow(bool* p_open)
                             materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
                             materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
                             materialGUI.melanin_ratio = m_melanineRatio[materialGUI.HT - 1];
+
                             changed = true;
                         }
+                        /*
                         ImGui::SameLine();
 
                         if (ImGui::ColorEdit3("", (float*)&materialGUI.dyeNeutralHT, ImGuiColorEditFlags_NoInputs))
                         {
+                            printf("==================== dyeNeutralHT.x : %f ==================\n", materialGUI.dyeNeutralHT.x);
+                            printf("==================== dyeNeutralHT.y : %f ==================\n", materialGUI.dyeNeutralHT.y);
+                            printf("==================== dyeNeutralHT.z : %f ==================\n", materialGUI.dyeNeutralHT.z);
                             changed = true;
                         }
+                        */
                         ImGui::PopID();
-
+                        
 #ifdef CUSTOM_MATERIAL_GUI
 
                         ImGui::Text("Hair Color");
@@ -4280,7 +4286,7 @@ void Application::updateCustomHT(CustomMaterialGUI& customMaterialGUI)
 
     // hot color
     customMaterialGUI.melanin_concentration = m_melanineConcentration[customMaterialGUI.HT - 1];
-
+    /*
     if (customMaterialGUI.int_IriseDore_Concentration == 7 || customMaterialGUI.int_IriseDore_Concentration == 8)
     {
         result -= (m_melanineConcentration[customMaterialGUI.HT - 1] - m_melanineConcentration[customMaterialGUI.HT]) / 2;
@@ -4289,6 +4295,7 @@ void Application::updateCustomHT(CustomMaterialGUI& customMaterialGUI)
     {
         result -= (m_melanineConcentration[customMaterialGUI.HT - 1] - m_melanineConcentration[customMaterialGUI.HT]) / 4;
     }
+    */
     if (customMaterialGUI.int_VertRouge_Concentration == 7 || customMaterialGUI.int_VertRouge_Concentration == 8)
     {
         result -= (m_melanineConcentration[customMaterialGUI.HT - 1] - m_melanineConcentration[customMaterialGUI.HT]) / 4;
@@ -4304,6 +4311,7 @@ void Application::updateCustomHT(CustomMaterialGUI& customMaterialGUI)
 
     // cold color
 // CENDER "10" IRISE "20"
+    /*
     if (customMaterialGUI.int_CendreCuivre_Concentration == 0 || customMaterialGUI.int_IriseDore_Concentration == 0)
     {
         result -= m_lightened_x10[customMaterialGUI.HT - 1];
@@ -4326,7 +4334,7 @@ void Application::updateCustomHT(CustomMaterialGUI& customMaterialGUI)
     {
         result -= (m_melanineConcentration[customMaterialGUI.HT - 1] - m_melanineConcentration[customMaterialGUI.HT]) / 2;
     }
-
+    */
 
     //VERT "7" 
     if (customMaterialGUI.int_VertRouge_Concentration == 0 || customMaterialGUI.int_VertRouge_Concentration == 1 || customMaterialGUI.int_VertRouge_Concentration == 2)
@@ -4336,6 +4344,7 @@ void Application::updateCustomHT(CustomMaterialGUI& customMaterialGUI)
 
 
     customMaterialGUI.melanin_concentration += result;
+    //customMaterialGUI.melanin_concentration = 1.0f;
 
     return;
 }
@@ -4343,7 +4352,7 @@ void Application::updateCustomHT(CustomMaterialGUI& customMaterialGUI)
 void Application::updateCustomDYEconcentration(CustomMaterialGUI& customMaterialGUI)
 {
     float dyemoyenne;
-
+    /*
     if (customMaterialGUI.dye_ConcentrationCendreCuivre >= customMaterialGUI.dye_ConcentrationIriseDore && customMaterialGUI.dye_ConcentrationCendreCuivre >= customMaterialGUI.dye_ConcentrationVertRouge)
     {
         dyemoyenne = customMaterialGUI.dye_ConcentrationCendreCuivre;
@@ -4358,13 +4367,19 @@ void Application::updateCustomDYEconcentration(CustomMaterialGUI& customMaterial
     {
         dyemoyenne = customMaterialGUI.dye_ConcentrationVertRouge;
     }
-
-    customMaterialGUI.dye_concentration = dyemoyenne / m_factorColorantHT[customMaterialGUI.HT - 1];
+    */
+    //customMaterialGUI.dye_concentration = dyemoyenne / m_factorColorantHT[customMaterialGUI.HT - 1];
+    customMaterialGUI.dye_concentration = 10.0f;
 
 }
 
 void Application::updateCustomDYEinterface(CustomMaterialGUI& customMaterialGUI)
 {
+    customMaterialGUI.concentrationRed = customMaterialGUI.Color[0];
+    customMaterialGUI.concentrationGreen = customMaterialGUI.Color[1];
+    customMaterialGUI.concentrationBlue = customMaterialGUI.Color[2];
+    /*
+    customMaterialGUI.int_VertRouge_Concentration = 0;
     if (customMaterialGUI.int_VertRouge_Concentration == 0)
     {
         customMaterialGUI.concentrationGreen = m_concentrationVert[3];
@@ -4426,7 +4441,7 @@ void Application::updateCustomDYEinterface(CustomMaterialGUI& customMaterialGUI)
         customMaterialGUI.concentrationGreen = 0.f;
         customMaterialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[3];
     }
-
+    */
     /*
     int r = 75;
     int g = 225;
@@ -5225,16 +5240,9 @@ bool Application::loadSceneDescription(std::string const& filename)
                 materialGUI.concentrationAcajou = curConcentrationAcajou;
                 materialGUI.concentrationRouge = curconcentrationRouge;
                 materialGUI.concentrationVert = curConcentrationVert;
-#endif
 
-#ifdef CUSTOM_MATERIAL_GUI
-                materialGUI.concentrationRed = curconcentrationRed;
-                materialGUI.concentrationGreen = curconcentrationGreen;
-                materialGUI.concentrationBlue = curConcentrationBlue;
-#endif
-
-                materialGUI.concentrationBleuOrange = curConcentrationBleuOrange;
                 materialGUI.concentrationVertRouge = curConcentrationVertRouge;
+                materialGUI.concentrationBleuOrange = curConcentrationBleuOrange;
                 materialGUI.concentrationVioletJaune = curConcentrationVioletJaune;
 
                 materialGUI.int_VertRouge_Concentration = curIntConcentrationVertRouge;
@@ -5244,7 +5252,25 @@ bool Application::loadSceneDescription(std::string const& filename)
                 materialGUI.dye_ConcentrationVertRouge = curDYE_ConcentrationVertRouge;
                 materialGUI.dye_ConcentrationCendreCuivre = curDYE_ConcentrationCendreCuivre;
                 materialGUI.dye_ConcentrationIriseDore = curDYE_ConcentrationIriseDore;
+#endif
 
+#ifdef CUSTOM_MATERIAL_GUI
+                materialGUI.concentrationRed = curconcentrationRed;
+                materialGUI.concentrationGreen = curconcentrationGreen;
+                materialGUI.concentrationBlue = curConcentrationBlue;
+
+                materialGUI.concentrationVertRouge = curConcentrationVertRouge;
+                //materialGUI.concentrationBleuOrange = curConcentrationBleuOrange;
+                //materialGUI.concentrationVioletJaune = curConcentrationVioletJaune;
+
+                materialGUI.int_VertRouge_Concentration = curIntConcentrationVertRouge;
+                //materialGUI.int_CendreCuivre_Concentration = curIntConcentrationCendreCuivre;
+                //materialGUI.int_IriseDore_Concentration = curIntConcentrationIriseDore;
+
+                materialGUI.dye_ConcentrationVertRouge = curDYE_ConcentrationVertRouge;
+                //materialGUI.dye_ConcentrationCendreCuivre = curDYE_ConcentrationCendreCuivre;
+                //materialGUI.dye_ConcentrationIriseDore = curDYE_ConcentrationIriseDore;
+#endif
                 //materialGUI.dyeNeutralHT_Concentration = curdyeNeutralHT_Concentration;
                 if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR)            materialGUI.shouldModify = true;
                 m_materialsGUI.push_back(materialGUI); // at indexMaterial.
@@ -5359,13 +5385,13 @@ bool Application::loadSceneDescription(std::string const& filename)
                         std::getline(file, line);
                         materials.Material1.int_VertRouge_Concentration = static_cast<int>(std::stof(line));
 
+#ifdef MATERIAL_GUI
                         std::getline(file, line);
                         materials.Material1.int_CendreCuivre_Concentration = std::stoi(line);
 
                         std::getline(file, line);
                         materials.Material1.int_IriseDore_Concentration = std::stoi(line);
 
-#ifdef MATERIAL_GUI
                         std::getline(file, line);
                         dotposition = 0;
                         previousdotposition = 0;
@@ -5617,11 +5643,11 @@ bool Application::loadSceneDescription(std::string const& filename)
 
                         std::getline(file, line);
                         materials.Material2.int_VertRouge_Concentration = static_cast<int>(std::stof(line));
-
+                       
+#ifdef MATERIAL_GUI
                         std::getline(file, line);
                         materials.Material2.int_CendreCuivre_Concentration = std::stoi(line);
 
-#ifdef MATERIAL_GUI
                         std::getline(file, line);
                         materials.Material2.int_IriseDore_Concentration = std::stoi(line);
                         std::getline(file, line);

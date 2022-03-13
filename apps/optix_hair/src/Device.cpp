@@ -1403,7 +1403,7 @@ void Device::updateMaterial(const int idMaterial, CustomMaterialGUI const& mater
             const float y = -logf(fmax(0.0001f, materialGUI.absorptionColor.y));
             const float z = -logf(fmax(0.0001f, materialGUI.absorptionColor.z));
             material.absorption = make_float3(x, y, z) * materialGUI.absorptionScale;
-            std::cout << "absorption = (" << material.absorption.x << ", " << material.absorption.y << ", " << material.absorption.z << ")\n";
+            //std::cout << "absorption = (" << material.absorption.x << ", " << material.absorption.y << ", " << material.absorption.z << ")\n";
         }
         material.ior = materialGUI.ior;
         material.flags = (materialGUI.thinwalled) ? FLAG_THINWALLED : 0;

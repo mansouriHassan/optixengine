@@ -105,22 +105,22 @@ struct MaterialGUI
 
 struct CustomMaterialGUI
 {
-	std::string   name;             // The name used in the scene description to identify this material instance.
-	FunctionIndex indexBSDF;        // BSDF index to use in the closest hit program.
-	float3        albedo;           // Tint, throughput change for specular materials.
-	float3        absorptionColor;  // absorptionColor and absorptionScale together build the absorption coefficient
-	float         absorptionScale;
-	float2        roughness;        // Anisotropic roughness for microfacet distributions.
-	float         ior;              // Index of Refraction.
-	bool          thinwalled;
-	bool          useEyeTexture = false; // FIXME Implement materials which can have different textures. 
-	bool          useHeadTexture = false;
+	std::string		name;             // The name used in the scene description to identify this material instance.
+	FunctionIndex	indexBSDF;        // BSDF index to use in the closest hit program.
+	float3			albedo;           // Tint, throughput change for specular materials.
+	float3			absorptionColor;  // absorptionColor and absorptionScale together build the absorption coefficient
+	float			absorptionScale;
+	float2			roughness;        // Anisotropic roughness for microfacet distributions.
+	float			ior;              // Index of Refraction.
+	bool			thinwalled;
+	bool			useEyeTexture = false; // FIXME Implement materials which can have different textures. 
+	bool			useHeadTexture = false;
 	bool			useAlbedoTexture;
 	bool			useCutoutTexture;
 
 	// Hair parameters
 	float			whitepercen;
-	float3		dye;
+	float3			dye;
 	float			dye_concentration;
 	float			scale_angle_deg;		// Cuticle tilt angle
 	float			roughnessM, roughnessN; // Roughness
@@ -157,17 +157,17 @@ struct CustomMaterialGUI
 	float concentrationBlue;
 
 	//PSAN Interface GUI color neutral
-	float concentrationBleuOrange;
 	float concentrationVertRouge;
-	float concentrationVioletJaune;
+	//float concentrationBleuOrange;
+	//float concentrationVioletJaune;
 
 	int int_VertRouge_Concentration;
-	int int_CendreCuivre_Concentration;
-	int int_IriseDore_Concentration;
+	//int int_CendreCuivre_Concentration;
+	//int int_IriseDore_Concentration;
 
 	float dye_ConcentrationVertRouge;
-	float dye_ConcentrationCendreCuivre;
-	float dye_ConcentrationIriseDore;
+	//float dye_ConcentrationCendreCuivre;
+	//float dye_ConcentrationIriseDore;
 
 	float dyeNeutralHT_Concentration;
 	float3 dyeNeutralHT;
