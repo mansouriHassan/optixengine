@@ -3686,7 +3686,7 @@ void Application::customGuiUserWindow(bool* p_open)
                     if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR)
                     {
                         float pasAffinage(0.25f);
-                        ImVec2 sz(20, 20);// size button + -   
+                        ImVec2 sz(20, 20);// size button + -
 
                         ImGui::PushID("HT");
                         if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
@@ -4367,9 +4367,12 @@ void Application::updateCustomDYEconcentration(CustomMaterialGUI& customMaterial
     {
         dyemoyenne = customMaterialGUI.dye_ConcentrationVertRouge;
     }
+    customMaterialGUI.dye_concentration = dyemoyenne / m_factorColorantHT[customMaterialGUI.HT - 1];
     */
-    //customMaterialGUI.dye_concentration = dyemoyenne / m_factorColorantHT[customMaterialGUI.HT - 1];
-    customMaterialGUI.dye_concentration = 10.0f;
+    customMaterialGUI.HT = 10;
+    dyemoyenne = customMaterialGUI.concentrationRed + customMaterialGUI.concentrationGreen + customMaterialGUI.concentrationBlue;
+    customMaterialGUI.dye_concentration = dyemoyenne;
+    //customMaterialGUI.dye_concentration = 10.0f;
 
 }
 
@@ -4378,6 +4381,7 @@ void Application::updateCustomDYEinterface(CustomMaterialGUI& customMaterialGUI)
     customMaterialGUI.concentrationRed = customMaterialGUI.Color[0];
     customMaterialGUI.concentrationGreen = customMaterialGUI.Color[1];
     customMaterialGUI.concentrationBlue = customMaterialGUI.Color[2];
+
     /*
     customMaterialGUI.int_VertRouge_Concentration = 0;
     if (customMaterialGUI.int_VertRouge_Concentration == 0)
@@ -4442,12 +4446,6 @@ void Application::updateCustomDYEinterface(CustomMaterialGUI& customMaterialGUI)
         customMaterialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[3];
     }
     */
-    /*
-    int r = 75;
-    int g = 225;
-    int b = 240;
-    rgb = make_float3(r / 255.0, g / 255.0, b / 255.0);
-    */
 }
 
 void Application::updateCustomDYE(CustomMaterialGUI& customMaterialGUI)
@@ -4474,18 +4472,12 @@ void Application::updateCustomDYE(CustomMaterialGUI& customMaterialGUI)
         customMaterialGUI.concentrationGreen + 
         customMaterialGUI.concentrationBlue);
 
-    printf("======================= coeffisient = %f ====================\n", coeffisient);
     float3 rgb;
     if (coeffisient != 0)
         rgb = make_float3(moyenRGB.x / coeffisient, moyenRGB.y / coeffisient, moyenRGB.z / coeffisient);
     else
         rgb = make_float3(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0);
-    /*
-    int r = 75;
-    int g = 225;
-    int b = 240;
-    rgb = make_float3(r / 255.0, g / 255.0, b / 255.0);
-    */
+
     rgb = make_float3(customMaterialGUI.Color[0], customMaterialGUI.Color[1], customMaterialGUI.Color[2]);
     printf("======================= rgb.x = %f ====================\n", rgb.x);
     printf("======================= rgb.y = %f ====================\n", rgb.y);

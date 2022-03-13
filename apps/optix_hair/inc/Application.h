@@ -309,7 +309,7 @@ private:
 
     float m_melanineRatio[10] = { 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f }; // ratio by HT fondamental
 
-    float m_factorColorantHT[10] = { 1.f, 1.f, 1.f, 1.7f, 3.f, 2.5f, 4.5f, 10.f, 16.f, 17.f }; //colorant 
+    float m_factorColorantHT[10] = { 1.f, 1.f, 1.f, 1.7f, 3.f, 2.5f, 4.5f, 10.f, 16.f, 17.f }; //colorant
 
     float m_dyeNeutralHT_Concentration[10] = { 0.f, 0.15f, 0.13f, 0.13f, 0.33f, 0.f, 0.f, 0.f, 0.f, 0.f };
 
