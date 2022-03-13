@@ -309,6 +309,14 @@ void Raytracer::initMaterials(std::vector<MaterialGUI> const& materialsGUI)
   }
 }
 
+void Raytracer::initCustomMaterials(std::vector<CustomMaterialGUI> const& customMaterialsGUI)
+{
+    for (size_t i = 0; i < m_activeDevices.size(); ++i)
+    {
+        m_activeDevices[i]->initCustomMaterials(customMaterialsGUI);
+    }
+}
+
 // Traverse the SceneGraph and store Groups, Instances and Triangles nodes in the raytracer representation.
 void Raytracer::initScene(std::shared_ptr<sg::Group> root, const unsigned int numGeometries)
 {
@@ -355,11 +363,11 @@ void Raytracer::updateMaterial(const int idMaterial, MaterialGUI const& material
   m_iterationIndex = 0; // Restart accumulation.
 }
 
-void Raytracer::updateCustomMaterial(const int idMaterial, MaterialGUI const& materialGUI)
+void Raytracer::updateCustomMaterial(const int idMaterial, CustomMaterialGUI const& customMaterialGUI)
 {
     for (size_t i = 0; i < m_activeDevices.size(); ++i)
     {
-        m_activeDevices[i]->updateCustomMaterial(idMaterial, materialGUI);
+        m_activeDevices[i]->updateCustomMaterial(idMaterial, customMaterialGUI);
     }
     m_iterationIndex = 0; // Restart accumulation.
 }

@@ -200,10 +200,10 @@ private:
     void updateDYEinterface(MaterialGUI& materialGUI);
 
     /***************** custom method ********************/
-    void updateCustomDYE(MaterialGUI& materialGUI); //PSAN 
-    void updateCustomDYEconcentration(MaterialGUI& materialGUI); //PSAN
-    void updateCustomHT(MaterialGUI& materialGUI); //PSAN TEST update HT
-    void updateCustomDYEinterface(MaterialGUI& materialGUI);
+    void updateCustomDYE(CustomMaterialGUI& materialGUI); //PSAN 
+    void updateCustomDYEconcentration(CustomMaterialGUI& materialGUI); //PSAN
+    void updateCustomHT(CustomMaterialGUI& materialGUI); //PSAN TEST update HT
+    void updateCustomDYEinterface(CustomMaterialGUI& materialGUI);
 
     bool screenshot(const bool tonemap);
     bool screenshot(const bool tonemap, std::string name);
@@ -373,6 +373,7 @@ private:
     std::vector<CameraDefinition> m_cameras;
     std::vector<LightDefinition>  m_lights;
     std::vector<MaterialGUI>      m_materialsGUI;
+    std::vector<CustomMaterialGUI>      m_customMaterialsGUI;
     std::vector<ColorSwitch>      m_materialsColor;
     std::vector<ModelSwitch>      m_models;
     std::vector<Camera> m_camera_pov;

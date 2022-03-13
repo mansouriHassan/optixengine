@@ -66,6 +66,7 @@ public:
   virtual void initCameras(std::vector<CameraDefinition> const& cameras);
   virtual void initLights(std::vector<LightDefinition> const& lights);
   virtual void initMaterials(std::vector<MaterialGUI> const& materialsGUI);
+  virtual void initCustomMaterials(std::vector<CustomMaterialGUI> const& customMaterialsGUI);
   virtual void initScene(std::shared_ptr<sg::Group> root, const unsigned int numGeometries);
   virtual void initState(DeviceState const& state);
   virtual void initVarianceCatching(const bool catchVariance);
@@ -75,7 +76,7 @@ public:
   virtual void updateCamera(const int idCamera, CameraDefinition const& camera);
   virtual void updateLight(const int idLight, LightDefinition const& light);
   virtual void updateMaterial(const int idMaterial, MaterialGUI const& src);
-  virtual void updateCustomMaterial(const int idMaterial, MaterialGUI const& src);
+  virtual void updateCustomMaterial(const int idMaterial, CustomMaterialGUI const& src);
   virtual void updateState(DeviceState const& state);
 
   // Abstract functions must be implemented by each derived Raytracer per strategy individually.
