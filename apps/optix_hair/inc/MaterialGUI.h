@@ -39,7 +39,7 @@
 //#define MATERIAL_GUI
 
  // Host side GUI material parameters 
-struct SMaterialGUI
+struct MaterialGUI
 {
   std::string   name;             // The name used in the scene description to identify this material instance.
   FunctionIndex indexBSDF;        // BSDF index to use in the closest hit program.
