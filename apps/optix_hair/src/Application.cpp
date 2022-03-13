@@ -343,6 +343,8 @@ Application::Application(GLFWwindow* window, Options const& options)
         createCameras();
         createLights();
 
+        createCustomLights();
+
         // Load the scene description file and generate the host side scene.
         std::string filenameScene = options.getScene();
         if (filenameScene.empty()) {
@@ -778,7 +780,13 @@ void Application::createLights()
 
             const int indexMaterial = static_cast<int>(m_materialsGUI.size());
 
+#ifdef MATERIAL_GUI
             MaterialGUI materialGUI;
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+            CustomMaterialGUI materialGUI;
+#endif
 
             materialGUI.name = reference;
             materialGUI.indexBSDF = INDEX_BRDF_SPECULAR;
@@ -791,6 +799,157 @@ void Application::createLights()
 
 
             m_materialsGUI.push_back(materialGUI); // at indexMaterial.
+
+            m_mapMaterialReferences[reference] = indexMaterial;
+
+            // Create the Triangles for this parallelogram light.
+            m_mapGeometries[reference] = m_idGeometry;
+
+            std::shared_ptr<sg::Triangles> geometry(new sg::Triangles(m_idGeometry++));
+            geometry->createParallelogram(light.position, light.vecU, light.vecV, light.normal);
+
+            m_geometries.push_back(geometry);
+
+            std::shared_ptr<sg::Instance> instance(new sg::Instance(m_idInstance++));
+            // instance->setTransform(trafo); // Instance default matrix is identity.
+            instance->setChild(geometry);
+            instance->setMaterial(indexMaterial);
+            instance->setLight(indexLight);
+            instance->set_activation(true);
+            m_scene->addChild(instance);
+        }
+    }
+}
+
+void Application::createCustomLights()
+{
+    LightDefinition light;
+
+    // Unused in environment lights. 
+    light.position = make_float3(0.0f, 0.0f, 0.0f);
+    light.vecU = make_float3(1.0f, 0.0f, 0.0f);
+    light.vecV = make_float3(0.0f, 1.0f, 0.0f);
+    light.normal = make_float3(0.0f, 0.0f, 1.0f);
+    light.area = 1.0f;
+    light.emission = make_float3(1.0f, 1.0f, 1.0f);
+    light.lighting_activated = 1;
+
+    // The environment light is expected in sysData.lightDefinitions[0], but since there is only one, 
+    // the sysData struct contains the data for the spherical HDR environment light when enabled.
+    // All other lights are indexed by their position inside the array.
+    switch (m_miss)
+    {
+    case 0: // No environment light at all. Faster than a zero emission constant environment!
+    default:
+        break;
+
+    case 1: // Constant environment light.
+    case 2: // HDR Environment mapping with loaded texture. Texture handling happens in the Raytracer::initTextures().
+        light.type = LIGHT_ENVIRONMENT;
+        light.area = 4.0f * M_PIf; // Unused.
+
+        m_lights.push_back(light); // The environment light is always in m_lights[0].
+        break;
+    }
+
+    const int indexLight = static_cast<int>(m_lights.size());
+    float3 normal;
+    for (int i = 0; i < m_area_light.size(); ++i)
+    {
+        auto area_light = m_area_light.at(i);
+        switch (area_light)
+        {
+        case 0: // No area light.
+        default:
+            break;
+
+        case 1: // Add a 1x1 square area light over the scene objects at y = 1.95 to fit into a 2x2x2 box.
+            light.type = LIGHT_PARALLELOGRAM;              // A geometric area light with diffuse emission distribution function.
+            light.location = float(area_light);//front
+            light.position = make_float3(-6.f, 15.f, 25.f); // Corner position.
+            light.vecU = make_float3(0.0f, 8.0f, -8.0f);    // To the right.
+            light.vecV = make_float3(sqrtf(128), 0.0f, 0.0f);    // To the front. 
+            normal = cross(light.vecU, light.vecV);   // Length of the cross product is the area.
+            light.area = length(normal);                  // Calculate the world space area of that rectangle, unit is [m^2]
+            light.normal = normal / light.area;             // Normalized normal
+            light.emission = make_float3(12.0f);              // Radiant exitance in Watt/m^2.
+            m_lights.push_back(light);
+            break;
+
+        case 2:
+            light.type = LIGHT_PARALLELOGRAM;              // A geometric area light with diffuse emission distribution function.
+            light.location = float(area_light);//back
+            light.position = make_float3(3.f, 10.f, -15.f); // Corner position.
+            light.vecU = make_float3(0.0f, 4.0f, 4.0f);    // To the right.
+            light.vecV = make_float3(-5.657f, 0.0f, 0.0f);    // To the front. 
+            normal = cross(light.vecU, light.vecV);   // Length of the cross product is the area.
+            light.area = length(normal);                  // Calculate the world space area of that rectangle, unit is [m^2]
+            light.normal = normal / light.area;             // Normalized normal
+            light.emission = make_float3(12.0f);              // Radiant exitance in Watt/m^2.
+            m_lights.push_back(light);
+            break;
+
+        case 3: // Add a 1x1 square area light over the scene objects at y = 1.95 to fit into a 2x2x2 box.
+            light.type = LIGHT_PARALLELOGRAM;              // A geometric area light with diffuse emission distribution function.
+            light.location = float(area_light);//left
+            light.position = make_float3(18.f, 8.f, -5.f); // Corner position.
+            light.vecU = make_float3(-4.0f, 4.0f, 0.0f);    // To the right.
+            light.vecV = make_float3(0.0f, 0.0f, -5.657f);    // To the front. 
+            normal = cross(light.vecU, light.vecV);   // Length of the cross product is the area.
+            light.area = length(normal);                  // Calculate the world space area of that rectangle, unit is [m^2]
+            light.normal = normal / light.area;             // Normalized normal
+            light.emission = make_float3(12.0f);              // Radiant exitance in Watt/m^2.
+            m_lights.push_back(light);
+            break;
+
+        case 4: // Add a 4x4 square area light over the scene objects at y = 4.0.
+            light.type = LIGHT_PARALLELOGRAM;             // A geometric area light with diffuse emission distribution function.
+            light.location = float(area_light);//right
+            light.position = make_float3(-18.0f, 8.0f, -10.657f); // Corner position.
+            light.vecU = make_float3(4.0f, 4.0f, 0.0f);   // To the right.
+            light.vecV = make_float3(0.0f, 0.0f, 5.657f);   // To the front. 
+            normal = cross(light.vecU, light.vecV);   // Length of the cross product is the area.
+            light.area = length(normal);                  // Calculate the world space area of that rectangle, unit is [m^2]
+            light.normal = normal / light.area;             // Normalized normal
+            light.emission = make_float3(12.0f);              // Radiant exitance in Watt/m^2.
+            m_lights.push_back(light);
+            break;
+
+        case 5: // Add a 4x4 square area light over the scene objects at y = 4.0.
+            light.type = LIGHT_PARALLELOGRAM;             // A geometric area light with diffuse emission distribution function.
+            light.location = float(area_light); //top
+            light.position = make_float3(-2.0f, 15.0f, -2.0f); // Corner position.
+            light.vecU = make_float3(4.0f, 0.0f, 0.0f);   // To the right.
+            light.vecV = make_float3(0.0f, 0.0f, 4.0f);   // To the front. 
+            normal = cross(light.vecU, light.vecV);   // Length of the cross product is the area.
+            light.area = length(normal);                  // Calculate the world space area of that rectangle, unit is [m^2]
+            light.normal = normal / light.area;             // Normalized normal
+            light.emission = make_float3(12.0f);              // Radiant exitance in Watt/m^2.
+            m_lights.push_back(light);
+            break;
+        }
+
+        if (0 < area_light) // If there is an area light in the scene
+        {
+
+            // Create a material for this light.
+            std::string reference = "optix_hair_area_light_" + std::to_string(i);
+
+            const int indexMaterial = static_cast<int>(m_materialsGUI.size());
+
+            CustomMaterialGUI customMaterialGUI;
+
+            customMaterialGUI.name = reference;
+            customMaterialGUI.indexBSDF = INDEX_BRDF_SPECULAR;
+            customMaterialGUI.albedo = make_float3(0.0f); // Black
+            customMaterialGUI.roughness = make_float2(0.1f);
+            customMaterialGUI.absorptionColor = make_float3(1.0f); // White means no absorption.
+            customMaterialGUI.absorptionScale = 0.0f;              // 0.0f means no absoption.
+            customMaterialGUI.ior = 1.5f;
+            customMaterialGUI.thinwalled = true;
+
+
+            m_materialsGUI.push_back(customMaterialGUI); // at indexMaterial.
 
             m_mapMaterialReferences[reference] = indexMaterial;
 
@@ -1094,8 +1253,14 @@ void Application::ShowOptionLayout(bool* p_open)
             for (int i = 0; i < static_cast<int>(m_materialsGUI.size()); ++i)
             {
                 bool changed = false;
-
+#ifdef MATERIAL_GUI
                 MaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                CustomMaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
+                
 
                 if (ImGui::TreeNode((void*)(intptr_t)i, "%s", m_materialsGUI[i].name.c_str()))
                 {
@@ -1472,7 +1637,13 @@ void Application::ShowAbsolueLayout(bool* p_open)
             {
                 bool changed = false;
 
+#ifdef MATERIAL_GUI
                 MaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                CustomMaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
                 if (materialGUI.name.find("default") != std::string::npos
                     || materialGUI.name.find("Hair") != std::string::npos)
                 {
@@ -1795,7 +1966,14 @@ void Application::ShowAbsolueLayout(bool* p_open)
 
                         if (changed)
                         {
+                            
+#ifdef MATERIAL_GUI
                             updateDYE(materialGUI);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                            updateCustomDYE(materialGUI);
+#endif
                             m_raytracer->updateMaterial(i, materialGUI);
                             refresh = true;
                         }
@@ -2011,13 +2189,29 @@ void Application::ShowAbsolueLayout(bool* p_open)
             {
                 for (int i = 0; i < static_cast<int>(m_materialsGUI.size()); ++i)
                 {
+               
+#ifdef MATERIAL_GUI
                     MaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                    CustomMaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
                     if (materialGUI.shouldModify)
                     {
                         hasChanged = true;
+#ifdef MATERIAL_GUI
                         updateDYE(materialGUI);
                         updateDYEconcentration(materialGUI);
-                        //updateHT(materialGUI);
+                        updateHT(materialGUI);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                        updateCustomDYE(materialGUI);
+                        updateCustomDYEconcentration(materialGUI);
+                        updateCustomHT(materialGUI);
+#endif
+                        
                         m_raytracer->updateMaterial(i, materialGUI);
                         refresh = true;
                     }
@@ -2169,11 +2363,26 @@ void Application::guiUserWindow(bool* p_open)
     bool clicked = false;
     static const char* current_item_colorswatch_value = "";
     ColorSwitch* current_item_colorswatch = NULL;
+
+#ifdef MATERIAL_GUI
     MaterialGUI* materialGUI1 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material1Name)->second);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+    CustomMaterialGUI* materialGUI1 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material1Name)->second);
+#endif
+
     static int materialGUI1ID = m_mapMaterialReferences.find(current_item_model->material1Name)->second;
     static int materialGUI2ID = materialGUI1ID;
 
+#ifdef MATERIAL_GUI
     MaterialGUI* materialGUI2 = materialGUI1;
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+    CustomMaterialGUI* materialGUI2 = materialGUI1;
+#endif
+
     if (current_item_model->material1Name != current_item_model->material2Name)
         materialGUI2 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
 
@@ -2249,7 +2458,13 @@ void Application::guiUserWindow(bool* p_open)
         {
             bool changed = false;
 
+#ifdef MATERIAL_GUI
             MaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+            CustomMaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
 
             if ((materialGUI.name.find("default") != std::string::npos
                 || materialGUI.name.find("Hair") != std::string::npos)
@@ -2373,12 +2588,23 @@ void Application::guiUserWindow(bool* p_open)
 
                 if (changed)
                 {
+#ifdef MATERIAL_GUI
                     updateDYEinterface(materialGUI);
                     updateDYE(materialGUI);
                     updateDYEconcentration(materialGUI);
                     updateHT(materialGUI);
 
                     m_raytracer->updateMaterial(i, materialGUI);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                    updateCustomDYEinterface(materialGUI);
+                    updateCustomDYE(materialGUI);
+                    updateCustomDYEconcentration(materialGUI);
+                    updateCustomHT(materialGUI);
+
+                    m_raytracer->updateMaterial(i, materialGUI);
+#endif
                     refresh = true;
                 }
                 ImGui::TreePop();
@@ -2388,8 +2614,17 @@ void Application::guiUserWindow(bool* p_open)
         {
             static std::string current_Material1_value;
             static std::string current_Material2_value;
+
+#ifdef MATERIAL_GUI
             static MaterialGUI* current_Material1;
             static MaterialGUI* current_Material2;
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+            static CustomMaterialGUI* current_Material1;
+            static CustomMaterialGUI* current_Material2;
+#endif
+            
             for (auto& mat : m_materialsGUI)
             {
                 if (mat.name.find("default") != std::string::npos)
@@ -2449,7 +2684,15 @@ void Application::guiUserWindow(bool* p_open)
                 {
                     std::string tmp = current_Material1->name;
                     std::string tmp2 = current_Material2->name;
+
+#ifdef MATERIAL_GUI
                     MaterialGUI tmpMaterial = *current_Material2;
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                    CustomMaterialGUI tmpMaterial = *current_Material2;
+#endif
+
                     *current_Material2 = *current_Material1;
                     current_Material2->name = tmp2;
                     *current_Material1 = tmpMaterial;
@@ -2536,7 +2779,14 @@ void Application::guiUserWindow(bool* p_open)
                 }
                 if (nbQuickSaveValue < 5)
                     nbQuickSaveValue++;
+
+#ifdef MATERIAL_GUI
                 std::pair<MaterialGUI, MaterialGUI>* value = new std::pair<MaterialGUI, MaterialGUI>();
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                std::pair<CustomMaterialGUI, CustomMaterialGUI>* value = new std::pair<CustomMaterialGUI, CustomMaterialGUI>();
+#endif
                 value->first = *materialGUI1;
                 value->second = *materialGUI2;
                 QuickSaveValue[nbQuickSaveValue - 1] = value;
@@ -2949,15 +3199,31 @@ void Application::guiUserWindow(bool* p_open)
                     chargeSettingsFromFile(m_settings[n].second);
                     for (int i = 0; i < static_cast<int>(m_materialsGUI.size()); ++i)
                     {
+ 
+#ifdef MATERIAL_GUI
                         MaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                        CustomMaterialGUI& materialGUI = m_materialsGUI[i];
+#endif
                         if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR)
                         {
                             if (materialGUI.shouldModify)
                             {
+#ifdef MATERIAL_GUI
                                 updateDYEinterface(materialGUI);
                                 updateDYE(materialGUI);
                                 updateDYEconcentration(materialGUI);
                                 updateHT(materialGUI);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                                updateCustomDYEinterface(materialGUI);
+                                updateCustomDYE(materialGUI);
+                                updateCustomDYEconcentration(materialGUI);
+                                updateCustomHT(materialGUI);
+#endif
                                 m_raytracer->updateMaterial(i, materialGUI);
                                 refresh = true;
                             }
@@ -3155,13 +3421,27 @@ void Application::customGuiUserWindow(bool* p_open)
     bool clicked = false;
     static const char* current_item_colorswatch_value = "";
     ColorSwitch* current_item_colorswatch = NULL;
-    CustomMaterialGUI* customMaterialGUI1 = &m_customMaterialsGUI.at(m_mapMaterialReferences.find(current_item_model->material1Name)->second);
+
+#ifdef MATERIAL_GUI
+    MaterialGUI* materialGUI1 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material1Name)->second);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+    CustomMaterialGUI* materialGUI1 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material1Name)->second);
+#endif
+
     static int customMaterialGUI1ID = m_mapMaterialReferences.find(current_item_model->material1Name)->second;
     static int customMaterialGUI2ID = customMaterialGUI1ID;
 
-    CustomMaterialGUI* customMaterialGUI2 = customMaterialGUI1;
+#ifdef MATERIAL_GUI
+    MaterialGUI* materialGUI2 = materialGUI1;
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+    CustomMaterialGUI* materialGUI2 = materialGUI1;
+#endif
     if (current_item_model->material1Name != current_item_model->material2Name)
-        customMaterialGUI2 = &m_customMaterialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
+        materialGUI2 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
     /*
     printf("==================== m_camera.m_phi : %f ===============\n", m_camera.m_phi);
     printf("==================== m_camera.m_theta : %f =============\n", m_camera.m_theta);
@@ -3187,18 +3467,18 @@ void Application::customGuiUserWindow(bool* p_open)
     if (ImGui::CollapsingHeader("Material", true))
     {
         int i = 0;
-        for (; i < static_cast<int>(m_customMaterialsGUI.size()); ++i)
+        for (; i < static_cast<int>(m_materialsGUI.size()); ++i)
         {
             bool changed = false;
 
-            CustomMaterialGUI& customMaterialGUI = m_customMaterialsGUI[i];
+            CustomMaterialGUI& customMaterialGUI = m_materialsGUI[i];
 #if 0
             if ((customMaterialGUI.name.find("default") != std::string::npos
                 || customMaterialGUI.name.find("Hair") != std::string::npos)
                 && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_customMaterialsGUI[i].name.c_str()))
 #endif
                 if ((customMaterialGUI.name.find("Hair") != std::string::npos)
-                    && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_customMaterialsGUI[i].name.c_str()))
+                    && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_materialsGUI[i].name.c_str()))
                 {
                     if (ImGui::Combo("BxDF Type", (int*)&customMaterialGUI.indexBSDF, "BRDF Diffuse\0BRDF Specular\0BSDF Specular\0BRDF GGX Smith\0BSDF GGX Smith\0BSDF Hair\0\0"))
                     {
@@ -3324,7 +3604,7 @@ void Application::customGuiUserWindow(bool* p_open)
                         updateCustomDYEconcentration(customMaterialGUI);
                         updateCustomHT(customMaterialGUI);
 
-                        m_raytracer->updateCustomMaterial(i, customMaterialGUI);
+                        m_raytracer->updateMaterial(i, customMaterialGUI);
                         refresh = true;
                     }
                     ImGui::TreePop();
@@ -3347,7 +3627,7 @@ void Application::customGuiUserWindow(bool* p_open)
             }
         }
         if (current_item_model->material1Name != current_item_model->material2Name)
-            customMaterialGUI2 = &m_customMaterialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
+            materialGUI2 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
 
         if (ImGui::BeginCombo("Hair type", current_item_model_value))
         {
@@ -3418,8 +3698,8 @@ void Application::customGuiUserWindow(bool* p_open)
                             keyGeometry2 << current_item_model->map_identifier << "_half_2";
                         }
 
-                        customMaterialGUI1 = &(m_customMaterialsGUI.at(m_mapMaterialReferences.find(current_item_model->material1Name)->second));
-                        customMaterialGUI2 = &(m_customMaterialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second));
+                        materialGUI1 = &(m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material1Name)->second));
+                        materialGUI2 = &(m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second));
 
                         std::shared_ptr<sg::Curves> geometry_left;
                         std::map<std::string, unsigned int>::const_iterator itg1 = m_mapGeometries.find(keyGeometry1.str());
@@ -3454,7 +3734,7 @@ void Application::customGuiUserWindow(bool* p_open)
                                 geometry_right = std::dynamic_pointer_cast<sg::Curves>(m_geometries[itg2->second]);
                             appendInstance(m_scene, geometry_right, curMatrix, current_item_model->material2Name, m_idInstance);
                         }
-                        m_raytracer->initCustomMaterials(m_customMaterialsGUI);
+                        m_raytracer->initMaterials(m_materialsGUI);
                         m_raytracer->initScene(m_scene, m_idGeometry); // m_idGeometry is the number of geometries in the scene
                         refresh = true;
                         m_isValid = true;
@@ -3480,7 +3760,8 @@ void Application::customGuiUserWindow(bool* p_open)
         }
     }
 }
-
+/****************************************** MaterialGUI *******************************************************/
+#ifdef MATERIAL_GUI
 void Application::updateHT(MaterialGUI& materialGUI)
 {
     float result = 0;
@@ -3812,7 +4093,9 @@ void Application::updateDYE(MaterialGUI& materialGUI)
  
     materialGUI.dye = rgb;
 }
+#endif
 
+#ifdef CUSTOM_MATERIAL_GUI
 /***************************** custm methods to update gui ***************************/
 void Application::updateCustomHT(CustomMaterialGUI& customMaterialGUI)
 {
@@ -4159,7 +4442,7 @@ void Application::updateCustomDYE(CustomMaterialGUI& customMaterialGUI)
     printf("======================= rgb.z = %f ====================\n", rgb.z);
     customMaterialGUI.dye = rgb;
 }
-
+#endif
 /************************************************************************************/
 void Application::guiRenderingIndicator(const bool isRendering)
 {
@@ -4816,7 +5099,13 @@ bool Application::loadSceneDescription(std::string const& filename)
                 // Create this material in the GUI.
                 const int indexMaterial = static_cast<int>(m_materialsGUI.size());
 
+#ifdef MATERIAL_GUI
                 MaterialGUI materialGUI;
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+                CustomMaterialGUI materialGUI;
+#endif
 
                 materialGUI.name = nameMaterialReference;
 

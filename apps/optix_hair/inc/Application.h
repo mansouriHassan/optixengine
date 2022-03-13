@@ -137,8 +137,14 @@ enum KeywordScene
 
 struct ColorSwitch {
     std::string name;
+    /********************** MaterialGUI *************/
+#ifdef MaterialGUI
     MaterialGUI Material1;
     MaterialGUI Material2;
+#endif
+
+    CustomMaterialGUI Material1;
+    CustomMaterialGUI Material2;
     std::string SettingFile;
 };
 
@@ -193,17 +199,21 @@ private:
     bool loadSceneDescription(std::string const& filename);
 
     void restartRendering();
-
+    /************************************* materialGUI *****************************/
+#ifdef MATERIAL_GUI
     void updateDYE(MaterialGUI& materialGUI); //PSAN 
     void updateDYEconcentration(MaterialGUI& materialGUI); //PSAN
     void updateHT(MaterialGUI& materialGUI); //PSAN TEST update HT
     void updateDYEinterface(MaterialGUI& materialGUI);
-
+#endif
+    /*******************************************************************************/
     /***************** custom method ********************/
+#ifdef CUSTOM_MATERIAL_GUI
     void updateCustomDYE(CustomMaterialGUI& materialGUI); //PSAN 
     void updateCustomDYEconcentration(CustomMaterialGUI& materialGUI); //PSAN
     void updateCustomHT(CustomMaterialGUI& materialGUI); //PSAN TEST update HT
     void updateCustomDYEinterface(CustomMaterialGUI& materialGUI);
+#endif
 
     bool screenshot(const bool tonemap);
     bool screenshot(const bool tonemap, std::string name);
@@ -215,6 +225,8 @@ private:
     void createCameras();
     void createLights();
     void createPictures();
+
+    void createCustomLights();
 
     void appendInstance(std::shared_ptr<sg::Group>& group,
         std::shared_ptr<sg::Node> geometry,
@@ -336,7 +348,13 @@ private:
     float m_dye_ConcentrationAsh[4] = { 1.f, 2.f, 2.5f, 2.f };
     float m_dye_ConcentrationGold[4] = { 1.f, 2.f, 3.5f, 4.f };
 
+#ifdef MATERIAL_GUI
     std::pair<MaterialGUI, MaterialGUI>* QuickSaveValue[5];
+#endif
+#ifdef CUSTOM_MATERIAL_GUI
+    std::pair<CustomMaterialGUI, CustomMaterialGUI>* QuickSaveValue[5];
+#endif
+
     int nbQuickSaveValue;
 
 
@@ -372,8 +390,14 @@ private:
 
     std::vector<CameraDefinition> m_cameras;
     std::vector<LightDefinition>  m_lights;
+#ifdef MATERIAL_GUI
     std::vector<MaterialGUI>      m_materialsGUI;
-    std::vector<CustomMaterialGUI>      m_customMaterialsGUI;
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+    std::vector<CustomMaterialGUI>      m_materialsGUI;
+#endif
+
     std::vector<ColorSwitch>      m_materialsColor;
     std::vector<ModelSwitch>      m_models;
     std::vector<Camera> m_camera_pov;

@@ -327,15 +327,26 @@ public:
   virtual void initTextures(std::map<std::string, Picture*> const& mapOfPictures);
   virtual void initCameras(std::vector<CameraDefinition> const& cameras);
   virtual void initLights(std::vector<LightDefinition> const& lights);
+#ifdef MATERIAL_GUI
   virtual void initMaterials(std::vector<MaterialGUI> const& materialsGUI);
-  virtual void initCustomMaterials(std::vector<CustomMaterialGUI> const& customMaterialsGUI);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+  virtual void initMaterials(std::vector<CustomMaterialGUI> const& customMaterialsGUI);
+#endif
+
   virtual void initScene(std::shared_ptr<sg::Group> root, const unsigned int numGeometries);
   
   virtual void updateCamera(const int idCamera, CameraDefinition const& camera);
   virtual void updateLight(const int idLight, LightDefinition const& light);
+#ifdef MATERIAL_GUI
   virtual void updateMaterial(const int idMaterial, MaterialGUI const& materialGUI);
-  virtual void updateCustomMaterial(const int idMaterial, CustomMaterialGUI const& customMaterialGUI);
-  
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+  virtual void updateMaterial(const int idMaterial, CustomMaterialGUI const& materialGUI);
+#endif
+
   virtual void setState(DeviceState const& state);
   virtual void setVarianceCatching(const bool catchVariance);
   virtual void compositor(Device* other);

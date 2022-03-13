@@ -65,8 +65,14 @@ public:
   virtual void initTextures(std::map<std::string, Picture*> const& mapOfPictures);
   virtual void initCameras(std::vector<CameraDefinition> const& cameras);
   virtual void initLights(std::vector<LightDefinition> const& lights);
+#ifdef MATERIAL_GUI
   virtual void initMaterials(std::vector<MaterialGUI> const& materialsGUI);
-  virtual void initCustomMaterials(std::vector<CustomMaterialGUI> const& customMaterialsGUI);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+  virtual void initMaterials(std::vector<CustomMaterialGUI> const& materialsGUI);
+#endif
+
   virtual void initScene(std::shared_ptr<sg::Group> root, const unsigned int numGeometries);
   virtual void initState(DeviceState const& state);
   virtual void initVarianceCatching(const bool catchVariance);
@@ -75,8 +81,13 @@ public:
   // Update functions should be replaced with NOP functions in a derived batch renderer because the device functions are fully asynchronous then.
   virtual void updateCamera(const int idCamera, CameraDefinition const& camera);
   virtual void updateLight(const int idLight, LightDefinition const& light);
+#ifdef MATERIAL_GUI
   virtual void updateMaterial(const int idMaterial, MaterialGUI const& src);
-  virtual void updateCustomMaterial(const int idMaterial, CustomMaterialGUI const& src);
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+  virtual void updateMaterial(const int idMaterial, CustomMaterialGUI const& src);
+#endif
   virtual void updateState(DeviceState const& state);
 
   // Abstract functions must be implemented by each derived Raytracer per strategy individually.

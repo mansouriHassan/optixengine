@@ -300,7 +300,7 @@ void Raytracer::initLights(std::vector<LightDefinition> const& lights)
     m_activeDevices[i]->initLights(lights);
   }
 }
-
+#ifdef MATERIAL_GUI
 void Raytracer::initMaterials(std::vector<MaterialGUI> const& materialsGUI)
 {
   for (size_t i = 0; i < m_activeDevices.size(); ++i)
@@ -308,14 +308,17 @@ void Raytracer::initMaterials(std::vector<MaterialGUI> const& materialsGUI)
     m_activeDevices[i]->initMaterials(materialsGUI);
   }
 }
+#endif
 
-void Raytracer::initCustomMaterials(std::vector<CustomMaterialGUI> const& customMaterialsGUI)
+#ifdef CUSTOM_MATERIAL_GUI
+void Raytracer::initMaterials(std::vector<CustomMaterialGUI> const& materialsGUI)
 {
     for (size_t i = 0; i < m_activeDevices.size(); ++i)
     {
-        m_activeDevices[i]->initCustomMaterials(customMaterialsGUI);
+        m_activeDevices[i]->initMaterials(materialsGUI);
     }
 }
+#endif
 
 // Traverse the SceneGraph and store Groups, Instances and Triangles nodes in the raytracer representation.
 void Raytracer::initScene(std::shared_ptr<sg::Group> root, const unsigned int numGeometries)
@@ -354,6 +357,7 @@ void Raytracer::updateLight(const int idLight, LightDefinition const& light)
   m_iterationIndex = 0; // Restart accumulation.
 }
 
+#ifdef MATERIAL_GUI
 void Raytracer::updateMaterial(const int idMaterial, MaterialGUI const& materialGUI)
 {
   for (size_t i = 0; i < m_activeDevices.size(); ++i)
@@ -362,15 +366,18 @@ void Raytracer::updateMaterial(const int idMaterial, MaterialGUI const& material
   }
   m_iterationIndex = 0; // Restart accumulation.
 }
+#endif
 
-void Raytracer::updateCustomMaterial(const int idMaterial, CustomMaterialGUI const& customMaterialGUI)
+#ifdef CUSTOM_MATERIAL_GUI
+void Raytracer::updateMaterial(const int idMaterial, CustomMaterialGUI const& materialGUI)
 {
     for (size_t i = 0; i < m_activeDevices.size(); ++i)
     {
-        m_activeDevices[i]->updateCustomMaterial(idMaterial, customMaterialGUI);
+        m_activeDevices[i]->updateMaterial(idMaterial, materialGUI);
     }
     m_iterationIndex = 0; // Restart accumulation.
 }
+#endif
 
 void Raytracer::updateState(DeviceState const& state)
 {

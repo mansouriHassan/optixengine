@@ -1045,6 +1045,7 @@ void Device::initLights(std::vector<LightDefinition> const& lights)
   m_isDirtySystemData = true;  // Trigger full update of the device system data on the next launch.
 }
 
+#ifdef MATERIAL_GUI
 void Device::initMaterials(std::vector<MaterialGUI> const& materialsGUI)
 {
   activateContext();
@@ -1126,33 +1127,43 @@ void Device::initMaterials(std::vector<MaterialGUI> const& materialsGUI)
 
   m_isDirtySystemData = true;  // Trigger full update of the device system data on the next launch.
 }
+#endif
 
-void Device::initCustomMaterials(std::vector<CustomMaterialGUI> const& customMaterialsGUI)
+#ifdef CUSTOM_MATERIAL_GUI
+
+void Device::initMaterials(std::vector<CustomMaterialGUI> const& materialsGUI)
 {
     activateContext();
     synchronizeStream();
 
     MY_ASSERT((sizeof(MaterialDefinition) & 15) == 0); // Verify float4 alignment.
 
-    const int numCustomMaterials = static_cast<int>(customMaterialsGUI.size());
-    MY_ASSERT(0 < numCustomMaterials); // There must be at least one material or the hit shaders won't work.
+    const int numMaterials = static_cast<int>(materialsGUI.size());
+    MY_ASSERT(0 < numMaterials); // There must be at least one material or the hit shaders won't work.
 
     // The default initialization of numMaterials is 0.
-    if (m_systemData.numMaterials != numCustomMaterials) // FIXME Could grow only with additional capacity tracker.
+    if (m_systemData.numMaterials != numMaterials) // FIXME Could grow only with additional capacity tracker.
     {
         if (m_systemData.materialDefinitions != nullptr) // No need to call free on first time initialization.
         {
             CU_CHECK(cuMemFree(reinterpret_cast<CUdeviceptr>(m_systemData.materialDefinitions)));
         }
-        CU_CHECK(cuMemAlloc(reinterpret_cast<CUdeviceptr*>(&m_systemData.materialDefinitions), sizeof(MaterialDefinition) * numCustomMaterials));
+        CU_CHECK(cuMemAlloc(reinterpret_cast<CUdeviceptr*>(&m_systemData.materialDefinitions), sizeof(MaterialDefinition) * numMaterials));
 
-        m_materials.resize(numCustomMaterials);
+        m_materials.resize(numMaterials);
     }
 
     // FIXME This could be made faster on GUI interactions on scenes with very many materials when really only copying the changed values.
-    for (int i = 0; i < numCustomMaterials; ++i)
+    for (int i = 0; i < numMaterials; ++i)
     {
-        CustomMaterialGUI const& customMaterialGUI = customMaterialsGUI[i];      // Material UI data in the host.
+#ifdef MATERIAL_GUI
+        MaterialGUI const& materialGUI = materialsGUI[i];      // Material UI data in the host.
+#endif
+
+#ifdef CUSTOM_MATERIAL_GUI
+        CustomMaterialGUI const& materialGUI = materialsGUI[i];      // Material UI data in the host.
+#endif
+
         MaterialDefinition& material = m_materials[i]; // MaterialDefinition data on the host in device layout.
 
         MY_ASSERT(m_textureEye != nullptr);
@@ -1160,28 +1171,28 @@ void Device::initCustomMaterials(std::vector<CustomMaterialGUI> const& customMat
         MY_ASSERT(m_textureAlbedo != nullptr);
         MY_ASSERT(m_textureCutout != nullptr);
 
-        if (customMaterialGUI.indexBSDF != INDEX_BCSDF_HAIR) {
-            material.textureEye = (customMaterialGUI.useEyeTexture) ? m_textureEye->getTextureObject() : 0;
-            material.textureHead = (customMaterialGUI.useHeadTexture) ? m_textureHead->getTextureObject() : 0;
-            material.textureAlbedo = (customMaterialGUI.useAlbedoTexture) ? m_textureAlbedo->getTextureObject() : 0;
-            material.textureCutout = (customMaterialGUI.useCutoutTexture) ? m_textureCutout->getTextureObject() : 0;
-            material.roughness = customMaterialGUI.roughness;
-            material.indexBSDF = customMaterialGUI.indexBSDF;
-            material.albedo = customMaterialGUI.albedo;
+        if (materialGUI.indexBSDF != INDEX_BCSDF_HAIR) {
+            material.textureEye = (materialGUI.useEyeTexture) ? m_textureEye->getTextureObject() : 0;
+            material.textureHead = (materialGUI.useHeadTexture) ? m_textureHead->getTextureObject() : 0;
+            material.textureAlbedo = (materialGUI.useAlbedoTexture) ? m_textureAlbedo->getTextureObject() : 0;
+            material.textureCutout = (materialGUI.useCutoutTexture) ? m_textureCutout->getTextureObject() : 0;
+            material.roughness = materialGUI.roughness;
+            material.indexBSDF = materialGUI.indexBSDF;
+            material.albedo = materialGUI.albedo;
             material.absorption = make_float3(0.0f); // Null coefficient means no absorption active.
-            if (0.0f < customMaterialGUI.absorptionScale)
+            if (0.0f < materialGUI.absorptionScale)
             {
                 // Calculate the effective absorption coefficient from the GUI parameters.
                 // The absorption coefficient components must all be > 0.0f if absorptionScale > 0.0f.
                 // Prevent logf(0.0f) which results in infinity.
-                const float x = -logf(fmax(0.0001f, customMaterialGUI.absorptionColor.x));
-                const float y = -logf(fmax(0.0001f, customMaterialGUI.absorptionColor.y));
-                const float z = -logf(fmax(0.0001f, customMaterialGUI.absorptionColor.z));
-                material.absorption = make_float3(x, y, z) * customMaterialGUI.absorptionScale;
+                const float x = -logf(fmax(0.0001f, materialGUI.absorptionColor.x));
+                const float y = -logf(fmax(0.0001f, materialGUI.absorptionColor.y));
+                const float z = -logf(fmax(0.0001f, materialGUI.absorptionColor.z));
+                material.absorption = make_float3(x, y, z) * materialGUI.absorptionScale;
                 //std::cout << "absorption = (" << material.absorption.x << ", " << material.absorption.y << ", " << material.absorption.z << ")\n";
             }
-            material.ior = customMaterialGUI.ior;
-            material.flags = (customMaterialGUI.thinwalled) ? FLAG_THINWALLED : 0;
+            material.ior = materialGUI.ior;
+            material.flags = (materialGUI.thinwalled) ? FLAG_THINWALLED : 0;
         }
         else {
             material.flags = FLAG_THINWALLED;
@@ -1189,25 +1200,26 @@ void Device::initCustomMaterials(std::vector<CustomMaterialGUI> const& customMat
             material.textureHead = 0;
             material.textureAlbedo = 0;
             material.textureCutout = 0;
-            material.whitepercen = customMaterialGUI.whitepercen;
-            material.scale_angle_rad = customMaterialGUI.scale_angle_deg * (M_PIf / 180.0f);
-            material.ior = customMaterialGUI.ior;
-            material.indexBSDF = customMaterialGUI.indexBSDF;
-            material.melanin_ratio = customMaterialGUI.melanin_ratio;
-            material.melanin_concentration = customMaterialGUI.melanin_concentration;
-            material.melanin_ratio_disparity = customMaterialGUI.melanin_ratio_disparity;
-            material.melanin_concentration_disparity = customMaterialGUI.melanin_concentration_disparity;
-            material.absorption = (1.f - customMaterialGUI.dye) * customMaterialGUI.dye_concentration;
-            material.betaM = customMaterialGUI.roughnessM;
-            material.betaN = customMaterialGUI.roughnessN;
+            material.whitepercen = materialGUI.whitepercen;
+            material.scale_angle_rad = materialGUI.scale_angle_deg * (M_PIf / 180.0f);
+            material.ior = materialGUI.ior;
+            material.indexBSDF = materialGUI.indexBSDF;
+            material.melanin_ratio = materialGUI.melanin_ratio;
+            material.melanin_concentration = materialGUI.melanin_concentration;
+            material.melanin_ratio_disparity = materialGUI.melanin_ratio_disparity;
+            material.melanin_concentration_disparity = materialGUI.melanin_concentration_disparity;
+            material.absorption = (1.f - materialGUI.dye) * materialGUI.dye_concentration;
+            material.betaM = materialGUI.roughnessM;
+            material.betaN = materialGUI.roughnessN;
 
         }
     }
 
-    CU_CHECK(cuMemcpyHtoDAsync(reinterpret_cast<CUdeviceptr>(m_systemData.materialDefinitions), m_materials.data(), sizeof(MaterialDefinition) * numCustomMaterials, m_cudaStream));
+    CU_CHECK(cuMemcpyHtoDAsync(reinterpret_cast<CUdeviceptr>(m_systemData.materialDefinitions), m_materials.data(), sizeof(MaterialDefinition) * numMaterials, m_cudaStream));
 
     m_isDirtySystemData = true;  // Trigger full update of the device system data on the next launch.
 }
+#endif
 
 void Device::initScene(std::shared_ptr<sg::Group> root, const unsigned int numGeometries)
 {
@@ -1242,8 +1254,6 @@ void Device::initScene(std::shared_ptr<sg::Group> root, const unsigned int numGe
   createHitGroupRecords();
 }
 
-
-
 void Device::updateCamera(const int idCamera, CameraDefinition const& camera)
 {
   activateContext();
@@ -1262,6 +1272,7 @@ void Device::updateLight(const int idLight, LightDefinition const& light)
   CU_CHECK( cuMemcpyHtoDAsync(reinterpret_cast<CUdeviceptr>(&m_systemData.lightDefinitions[idLight]), &light, sizeof(LightDefinition), m_cudaStream) );
 }
 
+#ifdef MATERIAL_GUI
 void Device::updateMaterial(const int idMaterial, MaterialGUI const& materialGUI)
 {
   activateContext();
@@ -1357,9 +1368,10 @@ void Device::updateMaterial(const int idMaterial, MaterialGUI const& materialGUI
     //CU_CHECK( cuMemcpyHtoDAsync(reinterpret_cast<CUdeviceptr>(m_d_sbtRecordGeometryInstanceData), m_sbtRecordGeometryInstanceData.data(), sizeof(SbtRecordGeometryInstanceData) * NUM_RAYTYPES * numInstances, m_cudaStream) );
   }
 }
+#endif
 
-/*************************************** update custom material **********************************/
-void Device::updateCustomMaterial(const int idMaterial, CustomMaterialGUI const& customMaterialGUI)
+#ifdef CUSTOM_MATERIAL_GUI
+void Device::updateMaterial(const int idMaterial, CustomMaterialGUI const& materialGUI)
 {
     activateContext();
     synchronizeStream();
@@ -1372,47 +1384,47 @@ void Device::updateCustomMaterial(const int idMaterial, CustomMaterialGUI const&
     MY_ASSERT(m_textureAlbedo != nullptr);
     MY_ASSERT(m_textureCutout != nullptr);
 
-    const bool changeShader = (material.textureHead != 0) != customMaterialGUI.useHeadTexture; // Cutout state wil be toggled?
-    if (customMaterialGUI.indexBSDF != INDEX_BCSDF_HAIR) {
-        material.textureEye = (customMaterialGUI.useEyeTexture) ? m_textureEye->getTextureObject() : 0;
-        material.textureHead = (customMaterialGUI.useHeadTexture) ? m_textureHead->getTextureObject() : 0;
-        material.textureAlbedo = (customMaterialGUI.useAlbedoTexture) ? m_textureAlbedo->getTextureObject() : 0;
-        material.textureCutout = (customMaterialGUI.useCutoutTexture) ? m_textureCutout->getTextureObject() : 0;
-        material.roughness = customMaterialGUI.roughness;
-        material.indexBSDF = customMaterialGUI.indexBSDF;
-        material.albedo = customMaterialGUI.albedo;
+    const bool changeShader = (material.textureHead != 0) != materialGUI.useHeadTexture; // Cutout state wil be toggled?
+    if (materialGUI.indexBSDF != INDEX_BCSDF_HAIR) {
+        material.textureEye = (materialGUI.useEyeTexture) ? m_textureEye->getTextureObject() : 0;
+        material.textureHead = (materialGUI.useHeadTexture) ? m_textureHead->getTextureObject() : 0;
+        material.textureAlbedo = (materialGUI.useAlbedoTexture) ? m_textureAlbedo->getTextureObject() : 0;
+        material.textureCutout = (materialGUI.useCutoutTexture) ? m_textureCutout->getTextureObject() : 0;
+        material.roughness = materialGUI.roughness;
+        material.indexBSDF = materialGUI.indexBSDF;
+        material.albedo = materialGUI.albedo;
         material.absorption = make_float3(0.0f); // Null coefficient means no absorption active.
-        if (0.0f < customMaterialGUI.absorptionScale)
+        if (0.0f < materialGUI.absorptionScale)
         {
             // Calculate the effective absorption coefficient from the GUI parameters.
             // The absorption coefficient components must all be > 0.0f if absorptionScale > 0.0f.
             // Prevent logf(0.0f) which results in infinity.
-            const float x = -logf(fmax(0.0001f, customMaterialGUI.absorptionColor.x));
-            const float y = -logf(fmax(0.0001f, customMaterialGUI.absorptionColor.y));
-            const float z = -logf(fmax(0.0001f, customMaterialGUI.absorptionColor.z));
-            material.absorption = make_float3(x, y, z) * customMaterialGUI.absorptionScale;
+            const float x = -logf(fmax(0.0001f, materialGUI.absorptionColor.x));
+            const float y = -logf(fmax(0.0001f, materialGUI.absorptionColor.y));
+            const float z = -logf(fmax(0.0001f, materialGUI.absorptionColor.z));
+            material.absorption = make_float3(x, y, z) * materialGUI.absorptionScale;
             //std::cout << "absorption = (" << material.absorption.x << ", " << material.absorption.y << ", " << material.absorption.z << ")\n";
         }
-        material.ior = customMaterialGUI.ior;
-        material.flags = (customMaterialGUI.thinwalled) ? FLAG_THINWALLED : 0;
+        material.ior = materialGUI.ior;
+        material.flags = (materialGUI.thinwalled) ? FLAG_THINWALLED : 0;
     }
     else {
-        material.flags = (customMaterialGUI.thinwalled) ? FLAG_THINWALLED : 0;
+        material.flags = (materialGUI.thinwalled) ? FLAG_THINWALLED : 0;
         material.textureEye = 0;
         material.textureHead = 0;
         material.textureAlbedo = 0;
         material.textureCutout = 0;
-        material.whitepercen = customMaterialGUI.whitepercen;
-        material.scale_angle_rad = customMaterialGUI.scale_angle_deg * (M_PIf / 180.0f);
-        material.ior = customMaterialGUI.ior;
-        material.indexBSDF = customMaterialGUI.indexBSDF;
-        material.melanin_ratio = customMaterialGUI.melanin_ratio;
-        material.melanin_concentration = customMaterialGUI.melanin_concentration;
-        material.melanin_ratio_disparity = customMaterialGUI.melanin_ratio_disparity;
-        material.melanin_concentration_disparity = customMaterialGUI.melanin_concentration_disparity;
-        material.absorption = ((1.f - customMaterialGUI.dyeNeutralHT) * customMaterialGUI.dyeNeutralHT_Concentration + (1.f - customMaterialGUI.dye) * customMaterialGUI.dye_concentration); //PSAN Add Dye neutral melanine
-        material.betaM = customMaterialGUI.roughnessM;
-        material.betaN = customMaterialGUI.roughnessN;
+        material.whitepercen = materialGUI.whitepercen;
+        material.scale_angle_rad = materialGUI.scale_angle_deg * (M_PIf / 180.0f);
+        material.ior = materialGUI.ior;
+        material.indexBSDF = materialGUI.indexBSDF;
+        material.melanin_ratio = materialGUI.melanin_ratio;
+        material.melanin_concentration = materialGUI.melanin_concentration;
+        material.melanin_ratio_disparity = materialGUI.melanin_ratio_disparity;
+        material.melanin_concentration_disparity = materialGUI.melanin_concentration_disparity;
+        material.absorption = ((1.f - materialGUI.dyeNeutralHT) * materialGUI.dyeNeutralHT_Concentration + (1.f - materialGUI.dye) * materialGUI.dye_concentration); //PSAN Add Dye neutral melanine
+        material.betaM = materialGUI.roughnessM;
+        material.betaN = materialGUI.roughnessN;
     }
 
     // Copy only the one changed material. No need to trigger an update of the system data, because the m_systemData.materialDefinitions pointer itself didn't change.
@@ -1430,11 +1442,11 @@ void Device::updateCustomMaterial(const int idMaterial, CustomMaterialGUI const&
             {
                 const unsigned int idx = inst * NUM_RAYTYPES;
 
-                if (customMaterialGUI.indexBSDF == INDEX_BCSDF_HAIR) {
+                if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR) {
                     memcpy(m_sbtRecordGeometryInstanceData[idx].header, m_sbtRecordHitRadianceCurve.header, OPTIX_SBT_RECORD_HEADER_SIZE);
                     memcpy(m_sbtRecordGeometryInstanceData[idx + 1].header, m_sbtRecordHitShadowCurve.header, OPTIX_SBT_RECORD_HEADER_SIZE);
                 }
-                else if (!customMaterialGUI.useCutoutTexture)
+                else if (!materialGUI.useCutoutTexture)
                 {
                     // Only update the header to switch the program hit group. The SBT record data field doesn't change. 
                     memcpy(m_sbtRecordGeometryInstanceData[idx].header, m_sbtRecordHitRadiance.header, OPTIX_SBT_RECORD_HEADER_SIZE);
@@ -1454,7 +1466,7 @@ void Device::updateCustomMaterial(const int idMaterial, CustomMaterialGUI const&
         //CU_CHECK( cuMemcpyHtoDAsync(reinterpret_cast<CUdeviceptr>(m_d_sbtRecordGeometryInstanceData), m_sbtRecordGeometryInstanceData.data(), sizeof(SbtRecordGeometryInstanceData) * NUM_RAYTYPES * numInstances, m_cudaStream) );
     }
 }
-/************************************************************************************************/
+#endif
 
 static int2 calculateTileShift(const int2 tileSize)
 {
