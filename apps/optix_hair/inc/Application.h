@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (c) 2013-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,15 +75,11 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/LogStream.hpp>
 
-#include <iostream>
-#include <vector>
-#include <algorithm>
 #include <map>
 #include <memory>
 
 #include "inc/ConvertImage.h"
 #include "inc/Socket.h"
-#include "inc/ConfigParser.h"
 
 #define APP_EXIT_SUCCESS          0
 
@@ -137,16 +133,8 @@ enum KeywordScene
 
 struct ColorSwitch {
     std::string name;
-
-#ifdef  MATERIAL_GUI
     MaterialGUI Material1;
     MaterialGUI Material2;
-#endif
-
-#ifdef CUSTOM_MATERIAL_GUI
-    CustomMaterialGUI Material1;
-    CustomMaterialGUI Material2;
-#endif
     std::string SettingFile;
 };
 
@@ -183,9 +171,6 @@ public:
     void guiReferenceManual(); // The ImGui "programming manual" in form of a live window.
     void guiRender();
 
-    void customGuiUserWindow(bool* p_open = NULL); //PSAN user ui
-    void parseConfigData();
-
     void guiUserWindow(bool* p_open = NULL); //PSAN user ui
     void ShowOptionLayout(bool* p_open); // Here old version material interface and others settings
     void ShowAbsolueLayout(bool* p_open); // Test interface with 7 dye colors
@@ -201,21 +186,11 @@ private:
     bool loadSceneDescription(std::string const& filename);
 
     void restartRendering();
-    /************************************* materialGUI *****************************/
-#ifdef MATERIAL_GUI
+
     void updateDYE(MaterialGUI& materialGUI); //PSAN 
     void updateDYEconcentration(MaterialGUI& materialGUI); //PSAN
     void updateHT(MaterialGUI& materialGUI); //PSAN TEST update HT
     void updateDYEinterface(MaterialGUI& materialGUI);
-#endif
-    /*******************************************************************************/
-    /***************** custom method ********************/
-#ifdef CUSTOM_MATERIAL_GUI
-    void updateCustomDYE(CustomMaterialGUI& materialGUI); //PSAN 
-    void updateCustomDYEconcentration(CustomMaterialGUI& materialGUI); //PSAN
-    void updateCustomHT(CustomMaterialGUI& materialGUI); //PSAN TEST update HT
-    void updateCustomDYEinterface(CustomMaterialGUI& materialGUI);
-#endif
 
     bool screenshot(const bool tonemap);
     bool screenshot(const bool tonemap, std::string name);
@@ -227,8 +202,6 @@ private:
     void createCameras();
     void createLights();
     void createPictures();
-
-    void createCustomLights();
 
     void appendInstance(std::shared_ptr<sg::Group>& group,
         std::shared_ptr<sg::Node> geometry,
@@ -271,7 +244,7 @@ private:
     std::vector<int>         m_area_light;       // "light"
     int         m_miss;        // "miss"
     std::string m_environment; // "envMap"
-    int         m_interop;     // "interop"´// 0 = none all through host, 1 = register texture image, 2 = register pixel buffer
+    int         m_interop;     // "interop"ï¿½// 0 = none all through host, 1 = register texture image, 2 = register pixel buffer
     bool        m_present;     // "present"
     bool        m_catchVariance;     // 0 = no variance calculation, 1 = variance calculation
 
@@ -309,7 +282,7 @@ private:
 
     float m_melanineRatio[10] = { 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f }; // ratio by HT fondamental
 
-    float m_factorColorantHT[10] = { 1.f, 1.f, 1.f, 1.7f, 3.f, 2.5f, 4.5f, 10.f, 16.f, 17.f }; //colorant
+    float m_factorColorantHT[10] = { 1.f, 1.f, 1.f, 1.7f, 3.f, 2.5f, 4.5f, 10.f, 16.f, 17.f }; //colorant 
 
     float m_dyeNeutralHT_Concentration[10] = { 0.f, 0.15f, 0.13f, 0.13f, 0.33f, 0.f, 0.f, 0.f, 0.f, 0.f };
 
@@ -350,13 +323,7 @@ private:
     float m_dye_ConcentrationAsh[4] = { 1.f, 2.f, 2.5f, 2.f };
     float m_dye_ConcentrationGold[4] = { 1.f, 2.f, 3.5f, 4.f };
 
-#ifdef MATERIAL_GUI
     std::pair<MaterialGUI, MaterialGUI>* QuickSaveValue[5];
-#endif
-#ifdef CUSTOM_MATERIAL_GUI
-    std::pair<CustomMaterialGUI, CustomMaterialGUI>* QuickSaveValue[5];
-#endif
-
     int nbQuickSaveValue;
 
 
@@ -392,14 +359,7 @@ private:
 
     std::vector<CameraDefinition> m_cameras;
     std::vector<LightDefinition>  m_lights;
-#ifdef MATERIAL_GUI
     std::vector<MaterialGUI>      m_materialsGUI;
-#endif
-
-#ifdef CUSTOM_MATERIAL_GUI
-    std::vector<CustomMaterialGUI>      m_materialsGUI;
-#endif
-
     std::vector<ColorSwitch>      m_materialsColor;
     std::vector<ModelSwitch>      m_models;
     std::vector<Camera> m_camera_pov;
@@ -425,7 +385,6 @@ private:
     int m_lighting_emission[5] = { 12,12,12,12,12 };
     ImagemConverter* imageConverter;
     Socket* socket_server;
-    ConfigParser* config_parser;
 };
 
 #endif // APPLICATION_H

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2013-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,75 +35,8 @@
 
 #include <string>
 
- //#define MATERIAL_GUI
-#define CUSTOM_MATERIAL_GUI
-
  // Host side GUI material parameters 
 struct MaterialGUI
-{
-  std::string   name;             // The name used in the scene description to identify this material instance.
-  FunctionIndex indexBSDF;        // BSDF index to use in the closest hit program.
-  float3        albedo;           // Tint, throughput change for specular materials.
-  float3        absorptionColor;  // absorptionColor and absorptionScale together build the absorption coefficient
-  float         absorptionScale;  
-  float2        roughness;        // Anisotropic roughness for microfacet distributions.
-  float         ior;              // Index of Refraction.
-  bool          thinwalled;
-  bool          useEyeTexture= false; // FIXME Implement materials which can have different textures. 
-  bool          useHeadTexture = false;
-  bool			useAlbedoTexture;
-  bool			useCutoutTexture;
-
-  // Hair parameters
-  float			whitepercen;
-  float3		dye;
-  float			dye_concentration;
-  float			scale_angle_deg;		// Cuticle tilt angle
-  float			roughnessM, roughnessN; // Roughness
-  float			melanin_concentration;	// Melanin concentration
-  float			melanin_ratio;			// Melanin ratio
-  float			melanin_concentration_disparity; // Melanin ratio
-  float			melanin_ratio_disparity; // Melanin ratio
-
-  //Hair expert color
-  float3 cendre = make_float3(136.0f/255.0f, 136.0f/255.0f, 255.0f/255.0f); 
-  float3 irise = make_float3(95.0f/255.0f, 25.0f/255.0f, 120.0f/255.0f);
-  float3 doree = make_float3(200.0f/255.0f, 150.0f/255.0f, 0.0f/255.0f);
-  float3 cuivre = make_float3(229.0f/255.0f, 54.0f/255.0f, 5.0f/255.0f);
-  float3 acajou = make_float3(64.0f/255.0f, 6.0f/255.0f, 31.0f/255.0f);
-  float3 red = make_float3(255.0f/255.0f, 0.0f/255.0f, 0.0f/255.0f);
-  float3 vert = make_float3(0.0f/255.0f, 255.0f/255.0f, 0.0f/255.0f);
-
-   int HT; //PSAN
-   float f_HT;
-   float concentrationCendre;
-   float concentrationIrise;
-   float concentrationDore;
-   float concentrationCuivre;
-   float concentrationAcajou;
-   float concentrationRouge;
-   float concentrationVert;
-
-   //PSAN Interface GUI color neutral
-   float concentrationBleuOrange;
-   float concentrationVertRouge;
-   float concentrationVioletJaune;
-
-   int int_VertRouge_Concentration;
-   int int_CendreCuivre_Concentration;
-   int int_IriseDore_Concentration;
-
-   float dye_ConcentrationVertRouge;
-   float dye_ConcentrationCendreCuivre;   
-   float dye_ConcentrationIriseDore;
-
-   float dyeNeutralHT_Concentration;  
-   float3 dyeNeutralHT;
-
-   bool shouldModify{ false };
-};
-
-struct CustomMaterialGUI
 {
 	std::string		name;             // The name used in the scene description to identify this material instance.
 	FunctionIndex	indexBSDF;        // BSDF index to use in the closest hit program.
@@ -141,7 +74,7 @@ struct CustomMaterialGUI
 	float3 green = make_float3(0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f);
 	float3 blue = make_float3(0.0f / 255.0f, 0.0f / 255.0f, 255.0f / 255.0f);
 
-	float Color[3] = { 0.0f, 0.0f, 0.0f};
+	float Color[3] = {0.5f, 0.5f, 0.5f};
 
 	int HT; //PSAN
 	float f_HT;
@@ -151,24 +84,28 @@ struct CustomMaterialGUI
 	float concentrationDore;
 	float concentrationCuivre;
 	float concentrationAcajou;
+	float concentrationRouge;
+	float concentrationVert;
 	*/
+
 	float concentrationRed;
 	float concentrationGreen;
 	float concentrationBlue;
 
 	//PSAN Interface GUI color neutral
+	/*
+	float concentrationBleuOrange;
 	float concentrationVertRouge;
-	//float concentrationBleuOrange;
-	//float concentrationVioletJaune;
+	float concentrationVioletJaune;
 
 	int int_VertRouge_Concentration;
-	//int int_CendreCuivre_Concentration;
-	//int int_IriseDore_Concentration;
+	int int_CendreCuivre_Concentration;
+	int int_IriseDore_Concentration;
 
 	float dye_ConcentrationVertRouge;
-	//float dye_ConcentrationCendreCuivre;
-	//float dye_ConcentrationIriseDore;
-
+	float dye_ConcentrationCendreCuivre;
+	float dye_ConcentrationIriseDore;
+	*/
 	float dyeNeutralHT_Concentration;
 	float3 dyeNeutralHT;
 

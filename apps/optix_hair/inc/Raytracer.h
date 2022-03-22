@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
  */
 
 #pragma once
- 
+
 #ifndef RAYTRACER_H
 #define RAYTRACER_H
 
@@ -44,76 +44,63 @@
 #include <vector>
 
 
-// Virtual Raytracer base class for all derived Raytracer rendering strategies.
-// The default behaviour of the implemented base class functions is to pass-through all calls to all devices.
+ // Virtual Raytracer base class for all derived Raytracer rendering strategies.
+ // The default behaviour of the implemented base class functions is to pass-through all calls to all devices.
 
 class Raytracer
 {
 public:
-  Raytracer(RendererStrategy strategy,
-            const int interop,
-            const unsigned int tex, 
-            const unsigned int pbo);
-  virtual ~Raytracer();
+    Raytracer(RendererStrategy strategy,
+        const int interop,
+        const unsigned int tex,
+        const unsigned int pbo);
+    virtual ~Raytracer();
 
-  int matchUUID(const char* uuid);
-  int matchLUID(const char* luid, const unsigned int nodeMask);
-  bool enablePeerAccess();   // Calculates peer-to-peer access bit matrix in m_peerConnections and the m_peerIslands. Returns false when more than one island is found!
-  void disablePeerAccess();  // Clear the peer-to-peer islands. Afterwards each device is its own island.
-  void synchronize();        // Needed for the benchmark to wait for all asynchronous rendering to have finished.
+    int matchUUID(const char* uuid);
+    int matchLUID(const char* luid, const unsigned int nodeMask);
+    bool enablePeerAccess();   // Calculates peer-to-peer access bit matrix in m_peerConnections and the m_peerIslands. Returns false when more than one island is found!
+    void disablePeerAccess();  // Clear the peer-to-peer islands. Afterwards each device is its own island.
+    void synchronize();        // Needed for the benchmark to wait for all asynchronous rendering to have finished.
 
-  virtual void initTextures(std::map<std::string, Picture*> const& mapOfPictures);
-  virtual void initCameras(std::vector<CameraDefinition> const& cameras);
-  virtual void initLights(std::vector<LightDefinition> const& lights);
-#ifdef MATERIAL_GUI
-  virtual void initMaterials(std::vector<MaterialGUI> const& materialsGUI);
-#endif
-
-#ifdef CUSTOM_MATERIAL_GUI
-  virtual void initMaterials(std::vector<CustomMaterialGUI> const& materialsGUI);
-#endif
-
-  virtual void initScene(std::shared_ptr<sg::Group> root, const unsigned int numGeometries);
-  virtual void initState(DeviceState const& state);
-  virtual void initVarianceCatching(const bool catchVariance);
+    virtual void initTextures(std::map<std::string, Picture*> const& mapOfPictures);
+    virtual void initCameras(std::vector<CameraDefinition> const& cameras);
+    virtual void initLights(std::vector<LightDefinition> const& lights);
+    virtual void initMaterials(std::vector<MaterialGUI> const& materialsGUI);
+    virtual void initScene(std::shared_ptr<sg::Group> root, const unsigned int numGeometries);
+    virtual void initState(DeviceState const& state);
+    virtual void initVarianceCatching(const bool catchVariance);
 
 
-  // Update functions should be replaced with NOP functions in a derived batch renderer because the device functions are fully asynchronous then.
-  virtual void updateCamera(const int idCamera, CameraDefinition const& camera);
-  virtual void updateLight(const int idLight, LightDefinition const& light);
-#ifdef MATERIAL_GUI
-  virtual void updateMaterial(const int idMaterial, MaterialGUI const& src);
-#endif
+    // Update functions should be replaced with NOP functions in a derived batch renderer because the device functions are fully asynchronous then.
+    virtual void updateCamera(const int idCamera, CameraDefinition const& camera);
+    virtual void updateLight(const int idLight, LightDefinition const& light);
+    virtual void updateMaterial(const int idMaterial, MaterialGUI const& src);
+    virtual void updateState(DeviceState const& state);
 
-#ifdef CUSTOM_MATERIAL_GUI
-  virtual void updateMaterial(const int idMaterial, CustomMaterialGUI const& src);
-#endif
-  virtual void updateState(DeviceState const& state);
-
-  // Abstract functions must be implemented by each derived Raytracer per strategy individually.
-  virtual unsigned int render() = 0;
-  virtual void updateDisplayTexture() = 0;
-  virtual const void* getOutputBufferHost() = 0;
-  virtual const void* getOutputVarBufferHost() = 0;
+    // Abstract functions must be implemented by each derived Raytracer per strategy individually.
+    virtual unsigned int render() = 0;
+    virtual void updateDisplayTexture() = 0;
+    virtual const void* getOutputBufferHost() = 0;
+    virtual const void* getOutputVarBufferHost() = 0;
 
 public:
-  RendererStrategy m_strategy;  // Constructor arguments
-  int              m_interop;
-  unsigned int     m_tex;
-  unsigned int     m_pbo;
+    RendererStrategy m_strategy;  // Constructor arguments
+    int              m_interop;
+    unsigned int     m_tex;
+    unsigned int     m_pbo;
 
-  bool m_isValid;
+    bool m_isValid;
 
-  int                  m_visibleDevices;    // The number of visible CUDA devices. (What you can control via the CUDA_VISIBLE_DEVICES environment variable.)
-  int                  m_deviceOGL;         // The first device which matches with the OpenGL LUID and node mask. -1 when there was no match.
-  unsigned int         m_activeDevicesMask; // The bitmask marking the actually enabled devices.
-  std::vector<Device*> m_activeDevices;
+    int                  m_visibleDevices;    // The number of visible CUDA devices. (What you can control via the CUDA_VISIBLE_DEVICES environment variable.)
+    int                  m_deviceOGL;         // The first device which matches with the OpenGL LUID and node mask. -1 when there was no match.
+    unsigned int         m_activeDevicesMask; // The bitmask marking the actually enabled devices.
+    std::vector<Device*> m_activeDevices;
 
-  unsigned int m_iterationIndex;  // Tracks which frame is currently raytraced.
-  unsigned int m_samplesPerPixel; // This is samplesSqrt squared. Rendering end-condition is: m_iterationIndex == m_samplesPerPixel.
+    unsigned int m_iterationIndex;  // Tracks which frame is currently raytraced.
+    unsigned int m_samplesPerPixel; // This is samplesSqrt squared. Rendering end-condition is: m_iterationIndex == m_samplesPerPixel.
 
-  std::vector<unsigned int>       m_peerConnections; // Bitfield indicating peer-to-peer access between devices. Indexing is m_peerConnections[i] & (1 << j) with i the home and j the peer device.
-  std::vector< std::vector<int> > m_peerIslands;     // Vector with vector of device indices building a peer-to-peer island.
+    std::vector<unsigned int>       m_peerConnections; // Bitfield indicating peer-to-peer access between devices. Indexing is m_peerConnections[i] & (1 << j) with i the home and j the peer device.
+    std::vector< std::vector<int> > m_peerIslands;     // Vector with vector of device indices building a peer-to-peer island.
 };
 
 #endif // RAYTRACER_H

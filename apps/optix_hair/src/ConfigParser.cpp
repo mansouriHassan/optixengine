@@ -199,8 +199,6 @@ void ConfigParser::parseConfigData(const std::string& json_data)
             isSecondHairColorChanged = true;
             isDynamicSettingsChanged = true;
             isHairTypeChanged = true;
-
-            isConfigFinished = true;
             
         }
         /************************************************************************/
