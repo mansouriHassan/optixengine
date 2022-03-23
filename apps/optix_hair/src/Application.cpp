@@ -1997,7 +1997,7 @@ void Application::guiUserWindow(bool* p_open)
     }
 
     //ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);    // 2/3 of the space for widget and 1/3 for labels
-    ImGui::PushItemWidth(-140);                                 // Right align, keep 140 pixels for labels
+    //ImGui::PushItemWidth(-140);                                 // Right align, keep 140 pixels for labels
 
 
     bool clicked = false;
@@ -2014,6 +2014,16 @@ void Application::guiUserWindow(bool* p_open)
     Shade* shade = &(config_parser->colorShade);
     float Color[3];
 
+    /*
+        ImGui::RadioButton("Center", &(m_camera.pov), 0);
+        ImGui::SameLine();
+        ImGui::RadioButton("Zoomed Center", &m_camera.pov, 1);
+        ImGui::SameLine();
+        ImGui::RadioButton("Top Front", &(m_camera.pov), 4);
+        ImGui::RadioButton("Left", &(m_camera.pov), 2);
+        ImGui::SameLine();
+        ImGui::RadioButton("Right", &(m_camera.pov), 3);
+    */
     //if (ImGui::CollapsingHeader("Camera", true))
     if (config_parser->isCamreaChanged == true)
     {
@@ -2037,6 +2047,7 @@ void Application::guiUserWindow(bool* p_open)
             bool changed = false;
 
             MaterialGUI& materialGUI = m_materialsGUI[i];
+
             /*
             if ((materialGUI.name.find("Hair") != std::string::npos)
                 && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_materialsGUI[i].name.c_str()))
@@ -2054,13 +2065,14 @@ void Application::guiUserWindow(bool* p_open)
                 if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR)
                 {
                     float pasAffinage(0.25f);
-                    ImVec2 sz(20, 20);// size button + -   
+                    ImVec2 sz(20, 20);// size button + -
 
                     //ImGui::PushID("HT");
                     //if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
                     if(config_parser->isHTChanged)
                     {
                         materialGUI.HT = shade->shadeHT;
+                        materialGUI.HT = 10;
                         materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
@@ -2078,20 +2090,25 @@ void Application::guiUserWindow(bool* p_open)
                     }
                     //ImGui::PopID();
 
-                    //RGB Color
+                    // RGB Color
                     //ImGui::Text("Color");
                     //ImGui::PushID("Color");
                     //if (ImGui::ColorEdit3("", (float*)&materialGUI.Color))
                     if(config_parser->isHairColorChanged)
                     {
+                        /*
                         materialGUI.Color[0] = shade->shadeColorRed / 255.0;
                         materialGUI.Color[1] = shade->shadeColorGreen / 255.0;
                         materialGUI.Color[2] = shade->shadeColorBlue / 255.0;
-                        config_parser->isHairColorChanged = false;
+                        */
+                        materialGUI.colorRed = shade->shadeColorRed;
+                        materialGUI.colorGreen = shade->shadeColorGreen;
+                        materialGUI.colorBlue = shade->shadeColorBlue;
+
                         changed = true;
+                        config_parser->isHairColorChanged = false;
                     }
                     //ImGui::PopID();
-                    config_parser->isMaterialChanged = false;
                 }
 
                 if (changed)
@@ -2108,6 +2125,7 @@ void Application::guiUserWindow(bool* p_open)
             }
             config_parser->isHairSelected = false;
         }
+        config_parser->isMaterialChanged = false;
     }
     //if (ImGui::CollapsingHeader("Dynamic settings"))
     if(config_parser->isDynamicSettingsChanged)
@@ -2131,10 +2149,14 @@ void Application::guiUserWindow(bool* p_open)
         //if (ImGui::BeginCombo("Hair type", current_item_model_value))
         if(config_parser->isHairTypeChanged)
         {
-            for (int n = 0; n < m_models.size(); n++)
+            current_item_model_value = shade->hairType.c_str();
+            int n = config_parser->getHairType();
+            //for (int n = 0; n < m_models.size(); n++)
             {
                 bool is_selected = (current_item_model == &m_models[n]); // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(m_models[n].name.c_str(), is_selected))
+                is_selected = true;
+                //if (ImGui::Selectable(m_models[n].name.c_str(), is_selected))
+                if(is_selected)
                 {
                     if (current_item_model != &m_models[n])
                     {
@@ -2241,13 +2263,14 @@ void Application::guiUserWindow(bool* p_open)
                         m_raytracer->updateCamera(0, m_cameras[0]);
                     }
                 }
+                config_parser->isHairSelected = false;
             }
             //ImGui::EndCombo();
         }
         config_parser->isDynamicSettingsChanged = false;
     }
 
-    ImGui::PopItemWidth();
+    //ImGui::PopItemWidth();
     ImGui::End();
 
     if (refresh)
@@ -2264,18 +2287,10 @@ void Application::guiUserWindow(bool* p_open)
 void Application::updateHT(MaterialGUI& materialGUI)
 {
     float result = 0;
-    /*
+
     // hot color
     materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
-
-    if (materialGUI.int_IriseDore_Concentration == 7 || materialGUI.int_IriseDore_Concentration == 8)
-    {
-        result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 2;
-    }
-    if (materialGUI.int_CendreCuivre_Concentration == 7 || materialGUI.int_CendreCuivre_Concentration == 8)
-    {
-        result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 4;
-    }
+    /*
     if (materialGUI.int_VertRouge_Concentration == 7 || materialGUI.int_VertRouge_Concentration == 8)
     {
         result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 4;
@@ -2295,25 +2310,6 @@ void Application::updateHT(MaterialGUI& materialGUI)
     {
         result -= m_lightened_x10[materialGUI.HT - 1];
     }
-
-    // CENDER "11" IRISER "22"  
-    else if (materialGUI.int_CendreCuivre_Concentration == 1 || materialGUI.int_IriseDore_Concentration == 1)
-    {
-        result -= m_lightened_x2[materialGUI.HT - 1];
-    }
-
-    //CENDER "1" IRISER "2"
-    else if (materialGUI.int_CendreCuivre_Concentration == 2 || materialGUI.int_IriseDore_Concentration == 2)
-    {
-        result -= m_lightened_x1[materialGUI.HT - 1];
-    }
-
-    // CENDER "01" IRISE "02" 
-    else if (materialGUI.int_CendreCuivre_Concentration == 3 || materialGUI.int_IriseDore_Concentration == 3)
-    {
-        result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 2;
-    }
-
 
     //VERT "7" 
     if (materialGUI.int_VertRouge_Concentration == 0 || materialGUI.int_VertRouge_Concentration == 1 || materialGUI.int_VertRouge_Concentration == 2)
@@ -2357,9 +2353,9 @@ void Application::updateDYEconcentration(MaterialGUI& materialGUI)
 
 void Application::updateDYEinterface(MaterialGUI& materialGUI)
 {
-    materialGUI.concentrationRed = materialGUI.Color[0];
-    materialGUI.concentrationGreen = materialGUI.Color[1];
-    materialGUI.concentrationBlue = materialGUI.Color[2];
+    materialGUI.concentrationRed = materialGUI.colorRed / 255.0;
+    materialGUI.concentrationGreen = materialGUI.colorGreen / 255.0;
+    materialGUI.concentrationBlue = materialGUI.colorBlue / 255.0;
     /*
     if (materialGUI.int_VertRouge_Concentration == 0)
     {
@@ -2580,7 +2576,7 @@ void Application::updateDYE(MaterialGUI& materialGUI)
     else
         rgb = make_float3(255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0);
 
-    rgb = make_float3(materialGUI.Color[0], materialGUI.Color[1], materialGUI.Color[2]);
+    rgb = make_float3(materialGUI.colorRed / 255.0, materialGUI.colorGreen / 255.0f, materialGUI.colorBlue / 255.0);
     materialGUI.dye = rgb;
 }
 
@@ -4817,19 +4813,23 @@ bool Application::sendImage(const bool tonemap)
             if (socket_server->isClientConnected()) {
                 int iSendResult = socket_server->socket_send(imagebase64);
                 if (iSendResult > 0) {
+#ifdef DEBUG
                     std::cout << "file = " << imagebase64 << std::endl;
+#endif
+                    std::cout << "image sent" << std::endl;
                 }
                 printf("Bytes sent: %d\n", iSendResult);
             }
 
             int status = std::remove(filename.c_str());
+#ifdef DEBUG
             if (status == 0) {
                 cout << "\nFile Deleted Successfully!";
             }
             else {
                 cout << "\nError Occurred!";
             }
-
+#endif
             return true;
         }
     }

@@ -12,7 +12,7 @@ struct Shade
 {
 	std::string		BxDfType;
 	FunctionIndex	BxDfIndex;
-	int				HairType;
+	std::string		hairType;
 	int				shadeHT;
 	int				shadeColorL;
 	int				shadeColorA;

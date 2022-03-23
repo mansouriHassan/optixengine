@@ -62,6 +62,10 @@ struct MaterialGUI
 	float			melanin_concentration_disparity; // Melanin ratio
 	float			melanin_ratio_disparity; // Melanin ratio
 
+	int				colorRed;
+	int				colorGreen;
+	int				colorBlue;
+
 	//Hair expert color
 	/*
 	float3 cendre = make_float3(136.0f / 255.0f, 136.0f / 255.0f, 255.0f / 255.0f);
@@ -73,8 +77,6 @@ struct MaterialGUI
 	float3 red = make_float3(255.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f);
 	float3 green = make_float3(0.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f);
 	float3 blue = make_float3(0.0f / 255.0f, 0.0f / 255.0f, 255.0f / 255.0f);
-
-	float Color[3] = {0.5f, 0.5f, 0.5f};
 
 	int HT; //PSAN
 	float f_HT;

@@ -90,7 +90,7 @@ void get_config_data()
     }
 }
 
-void send_image(int second)
+void send_image(int millisecond)
 {
     while (true)
     {
@@ -99,7 +99,7 @@ void send_image(int second)
             do {
                 if (socket_server->isClientConnected()) {
                     g_app->sendImage(true);
-                    std::this_thread::sleep_for(std::chrono::seconds(second));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(millisecond));
                 }
             } while (!g_app->looping);
         }
@@ -194,7 +194,9 @@ int main(int argc, char* argv[])
     socket_server = Socket::getInstance();
     config_parser = ConfigParser::getInstance();
     std::thread thread_server(&start_server);   // start server
-    std::thread thread_send_image(&send_image, 1);
+    std::thread thread_config(&get_config_data);   // get config data
+    std::thread thread_view(&change_view, 5);   // get config data
+    std::thread thread_send_image(&send_image, 500); // send image every 500 milliseconds
 
     glfwSetErrorCallback(callbackError);
 

@@ -61,11 +61,7 @@ private:
   FunctionIndex indexBSDF;
   View default_view;
   int hair_type;
-  int hair1_HT;
-  int hair2_HT;
-  int vertRouge_Concentration;
-  int cendreCuivre_Concentration;
-  int iriseDore_Concentration;
+  int hair_HT;
 
   int colorL;
   int colorA;
@@ -73,36 +69,18 @@ private:
 
 public:
 	Shade colorShade;
-	int view_index;
+	int	  view_index;
 	bool isCamreaChanged;
 	bool isMaterialChanged;
 	bool isHairSelected;
 	bool isBxDFTypeChanged;
-	bool isFirstBxDFTypeChanged;
-	bool isSecondBxDFTypeChanged;
 	bool isHTChanged;
 	bool isHairColorChanged;
-	bool isFirstHTChanged;
-	bool isSecondHTChanged;
-	bool isFirstHairColorChanged;
-	bool isSecondHairColorChanged;
 	bool isDynamicSettingsChanged;
 	bool isHairTypeChanged;
 	bool isDyeNeutralHTChanged;
-	bool isMaterialGUIVertChanged;
-	bool isVertRougeConcentrationChanged;
-	bool isMaterialGUIRedChanged;
-	bool isMaterialGUICendreChanged;
-	bool isCendreCuivreConcentrationChanged;
-	bool isMaterialGUICuivreChanged;
-	bool isMaterialGUIIriseChanged;
-	bool IriseDoreConcentrationChanged;
-	bool isMaterialGUIDoreeChanged;
-
-	bool isBaseShadeChanged;
-	bool isCustomShadeChanged;
-
 	bool isConfigFinished;
+
 	std::vector<View> camera_views;
 	std::string view_name;
 };

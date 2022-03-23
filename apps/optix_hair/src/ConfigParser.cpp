@@ -20,12 +20,8 @@ ConfigParser::ConfigParser()
     camera_views = {default_view};
     vecBSDF = {"BRDF Diffuse", "BRDF Specular", "BSDF Specular", "BRDF GGX Smith", "BSDF GGX Smith", "BSDF Hair"};
     hair_type = 0;
-    hair1_HT = 5;
-    hair2_HT = 5;
+    hair_HT = 10;
     indexBSDF = INDEX_BCSDF_HAIR;
-    vertRouge_Concentration = 4;
-    cendreCuivre_Concentration = 4;
-    iriseDore_Concentration = 4;
 
     colorL = 255;
     colorA = 255;
@@ -37,26 +33,9 @@ ConfigParser::ConfigParser()
     isBxDFTypeChanged = false;
     isHTChanged = false;
     isHairColorChanged = false;
-    isFirstBxDFTypeChanged = false;
-    isSecondBxDFTypeChanged = false;
-    isFirstHTChanged = false;
-    isSecondHTChanged = false;
-    isFirstHairColorChanged = false;
-    isSecondHairColorChanged = false;
     isDynamicSettingsChanged = false;
     isHairTypeChanged = false;
     isDyeNeutralHTChanged = false;
-    isMaterialGUIVertChanged = false;
-    isVertRougeConcentrationChanged = false;
-    isMaterialGUIRedChanged = false;
-    isMaterialGUICendreChanged = false;
-    isCendreCuivreConcentrationChanged = false;
-    isMaterialGUICuivreChanged = false;
-    isMaterialGUIIriseChanged = false;
-    isMaterialGUIDoreeChanged = false;
-
-    isBaseShadeChanged = false;
-    isCustomShadeChanged = false;
     isConfigFinished = false;
 
 }
@@ -94,7 +73,7 @@ void ConfigParser::parseConfigData(const std::string& json_data)
         } else if (hairType == "Wavy hair") {
             hair_type = WAVY_HAIR;
         }
-        colorShade.HairType = hair_type;
+        colorShade.hairType = hairType;
 
         /***************************** ColorShade data ***************************/
         const rapidjson::Value& ColorShade = document["ColorShade"];
@@ -110,9 +89,9 @@ void ConfigParser::parseConfigData(const std::string& json_data)
 
         assert(ColorShade.HasMember("HT"));
         assert(ColorShade["HT"].IsInt());
-        hair1_HT = ColorShade["HT"].GetInt();
-        printf("ColorShade HT = %d\n", hair1_HT);
-        colorShade.shadeHT = ColorShade["HT"].GetInt();
+        hair_HT = ColorShade["HT"].GetInt();
+        printf("ColorShade HT = %d\n", hair_HT);
+        colorShade.shadeHT = hair_HT;
         config_json = config_json + "HT : " + std::to_string(colorShade.shadeHT) + "\n";
 
         assert(ColorShade.HasMember("L"));
@@ -134,23 +113,23 @@ void ConfigParser::parseConfigData(const std::string& json_data)
         config_json = config_json + "B : " + std::to_string(colorShade.shadeColorB) + "\n";
 
         /********************************************* RGB Color ***************************************/
-        assert(ColorShade.HasMember("Red"));
-        assert(ColorShade["Red"].IsInt());
-        colorShade.shadeColorRed = ColorShade["Red"].GetInt();
-        printf("BaseShade Red = %d\n", colorShade.shadeColorRed);
-        config_json = config_json + "Red : " + std::to_string(colorShade.shadeColorRed) + "\n";
+        assert(ColorShade.HasMember("colorRed"));
+        assert(ColorShade["colorRed"].IsInt());
+        colorShade.shadeColorRed = ColorShade["colorRed"].GetInt();
+        printf("ColorShade Red = %d\n", colorShade.shadeColorRed);
+        config_json = config_json + "colorRed : " + std::to_string(colorShade.shadeColorRed) + "\n";
 
-        assert(ColorShade.HasMember("Green"));
-        assert(ColorShade["Green"].IsInt());
-        colorShade.shadeColorGreen = ColorShade["Green"].GetInt();
-        printf("BaseShade Green= %d\n", colorShade.shadeColorGreen);
-        config_json = config_json + "Green : " + std::to_string(colorShade.shadeColorGreen) + "\n";
+        assert(ColorShade.HasMember("colorGreen"));
+        assert(ColorShade["colorGreen"].IsInt());
+        colorShade.shadeColorGreen = ColorShade["colorGreen"].GetInt();
+        printf("ColorShade Green= %d\n", colorShade.shadeColorGreen);
+        config_json = config_json + "colorGreen : " + std::to_string(colorShade.shadeColorGreen) + "\n";
 
-        assert(ColorShade.HasMember("Blue"));
-        assert(ColorShade["Blue"].IsInt());
-        colorShade.shadeColorBlue = ColorShade["B"].GetInt();
-        printf("BaseShade Blue = %d\n", colorShade.shadeColorBlue);
-        config_json = config_json + "B : " + std::to_string(colorShade.shadeColorBlue) + "\n";
+        assert(ColorShade.HasMember("colorBlue"));
+        assert(ColorShade["colorBlue"].IsInt());
+        colorShade.shadeColorBlue = ColorShade["colorBlue"].GetInt();
+        printf("ColorShade Blue = %d\n", colorShade.shadeColorBlue);
+        config_json = config_json + "colorBlue : " + std::to_string(colorShade.shadeColorBlue) + "\n";
             
         /************************************************************************/
 
@@ -198,17 +177,8 @@ void ConfigParser::parseConfigData(const std::string& json_data)
             isBxDFTypeChanged = true;
             isHTChanged = true;
             isHairColorChanged = true;
-            isFirstBxDFTypeChanged = true;
-            isSecondBxDFTypeChanged = true;
-            isFirstHTChanged = true;
-            isSecondHTChanged = true;
-            isFirstHairColorChanged = true;
-            isSecondHairColorChanged = true;
             isDynamicSettingsChanged = true;
             isHairTypeChanged = true;
-
-            isBaseShadeChanged = true;
-            isCustomShadeChanged = true;
             
         }
         /************************************************************************/
@@ -225,23 +195,7 @@ int ConfigParser::getHairType() const {
 }
 
 int ConfigParser::getHair1HT() const {
-    return hair1_HT;
-}
-
-int ConfigParser::getHair2HT() const {
-    return hair2_HT;
-}
-
-int ConfigParser::getVertRouge_Concentration() const {
-    return vertRouge_Concentration;
-}
-
-int ConfigParser::getCendreCuivre_Concentration() const {
-    return cendreCuivre_Concentration;
-}
-
-int ConfigParser::getIriseDore_Concentration() const {
-    return iriseDore_Concentration;
+    return hair_HT;
 }
 
 int ConfigParser::getColorL() const {
