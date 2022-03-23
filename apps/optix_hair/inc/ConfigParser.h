@@ -7,6 +7,7 @@
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
 #include "rapidjson/prettywriter.h" // for stringify JSON
 #include "shaders/function_indices.h"
+#include "inc/Shade.h"
 
 #include <iostream>
 #include <string>
@@ -71,6 +72,8 @@ private:
   int colorB;
 
 public:
+	Shade baseShade;
+	Shade customShade;
 	int view_index;
 	bool isCamreaChanged;
 	bool isMaterialChanged;
