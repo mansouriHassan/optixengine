@@ -80,6 +80,7 @@
 
 #include "inc/ConvertImage.h"
 #include "inc/Socket.h"
+#include "inc/ConfigParser.h"
 
 #define APP_EXIT_SUCCESS          0
 
@@ -385,6 +386,7 @@ private:
     int m_lighting_emission[5] = { 12,12,12,12,12 };
     ImagemConverter* imageConverter;
     Socket* socket_server;
+    ConfigParser* config_parser;
 };
 
 #endif // APPLICATION_H

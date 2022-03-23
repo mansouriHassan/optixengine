@@ -393,6 +393,7 @@ Application::Application(GLFWwindow* window, Options const& options)
         m_isValid = true;
         imageConverter = new ImagemConverter();
         socket_server = Socket::getInstance();
+        config_parser = ConfigParser::getInstance();
     }
     catch (std::exception const& e)
     {
@@ -2010,8 +2011,22 @@ void Application::guiUserWindow(bool* p_open)
     if (current_item_model->material1Name != current_item_model->material2Name)
         materialGUI2 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
 
+    Shade* shade;
+    float Color[3];
+
     if (ImGui::CollapsingHeader("Camera", true))
     {
+        /*
+        if (config_parser->camera_views.size() > 0) {
+            config_parser->view_name = config_parser->camera_views[config_parser->view_index].view_name;
+            m_camera.m_phi = std::stof(config_parser->camera_views[config_parser->view_index].view_phi);
+            m_camera.m_theta = std::stof(config_parser->camera_views[config_parser->view_index].view_theta);
+            m_camera.m_fov = std::stof(config_parser->camera_views[config_parser->view_index].view_fov);
+            m_camera.m_distance = std::stof(config_parser->camera_views[config_parser->view_index].view_distance);
+        }
+        m_camera.markDirty(true);
+        */
+
         int tmp = m_camera.pov;
         ImGui::RadioButton("Center", &(m_camera.pov), 0);
         ImGui::SameLine();
@@ -2081,6 +2096,8 @@ void Application::guiUserWindow(bool* p_open)
                 if (ImGui::Combo("BxDF Type", (int*)&materialGUI.indexBSDF, "BRDF Diffuse\0BRDF Specular\0BSDF Specular\0BRDF GGX Smith\0BSDF GGX Smith\0BSDF Hair\0\0"))
                 {
                     changed = true;
+                    materialGUI.indexBSDF = config_parser->getIndexBSDF();
+                    //materialGUI.indexBSDF = shade->BxDfIndex;
                 }
                 if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR)
                 {
@@ -2090,6 +2107,7 @@ void Application::guiUserWindow(bool* p_open)
                     ImGui::PushID("HT");
                     if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
                     {
+                        materialGUI.HT = shade->shadeHT;
                         materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
@@ -2109,6 +2127,9 @@ void Application::guiUserWindow(bool* p_open)
                     ImGui::PushID("Color");
                     if (ImGui::ColorEdit3("", (float*)&materialGUI.Color))
                     {
+                        materialGUI.Color[0] = shade->shadeColorRed / 255.0;
+                        materialGUI.Color[1] = shade->shadeColorGreen / 255.0;
+                        materialGUI.Color[2] = shade->shadeColorBlue / 255.0;
                         changed = true;
                     }
                     ImGui::PopID();
@@ -4913,7 +4934,7 @@ bool Application::sendImage(const bool tonemap)
 
             //std::cout << imagebase64 << std::endl;
 
-            imagebase64 = "{\"image_view\":\"right\",\"image_data\":" + imagebase64 + "}";
+            imagebase64 = "{\"image_view\":\"" + config_parser->view_name + "\",\"image_data\":\"" + imagebase64 + "\"}";
             imagebase64 = "$" + imagebase64 + "#";
             /*
             ofstream myfile;

@@ -41,6 +41,7 @@
 
 static Application* g_app = nullptr;
 static Socket* socket_server = nullptr;
+static ConfigParser* config_parser = nullptr;
 
 static void callbackError(int error, const char* description)
 {
@@ -53,6 +54,39 @@ void start_server()
     {
         std::this_thread::sleep_for(std::chrono::microseconds(500));
         socket_server->socket_start();
+    }
+}
+
+void change_view(int second)
+{
+    while (true) {
+        if (config_parser != NULL && config_parser->isConfigFinished)
+        {
+            int len = config_parser->camera_views.size();
+            if (len > 0) {
+                for (int index = 0; index < len; index++) {
+                    std::this_thread::sleep_for(std::chrono::seconds(second));
+                    config_parser->view_index = index;
+                    config_parser->isCamreaChanged = true;
+                }
+            }
+        }
+    }
+}
+
+void get_config_data()
+{
+    while (true) {
+        if (socket_server != NULL)
+        {
+            if (socket_server->isClientConnected()) {
+                std::string const json_data = socket_server->socket_read();
+                if (config_parser != NULL && !json_data.empty())
+                {
+                    config_parser->parseConfigData(json_data);
+                }
+            }
+        }
     }
 }
 
@@ -158,6 +192,7 @@ static int runApp(Options const& options)
 int main(int argc, char* argv[])
 {
     socket_server = Socket::getInstance();
+    config_parser = ConfigParser::getInstance();
     std::thread thread_server(&start_server);   // start server
     std::thread thread_send_image(&send_image, 1);
 

@@ -72,7 +72,6 @@ void ConfigParser::parseConfigData(const std::string& json_data)
     if (!json_data.empty())
     {
         document.Parse(json_data.c_str());
-
         assert(document.IsObject());
 
         assert(document.HasMember("HairType"));
@@ -88,10 +87,24 @@ void ConfigParser::parseConfigData(const std::string& json_data)
         }
         baseShade.HairType = hair_type;
         customShade.HairType = hair_type;
-        /***************************** ShadeColor1 data ***************************/
+        /***************************** BaseShade data ***************************/
         const rapidjson::Value& BaseShade = document["BaseShade"];
         assert(BaseShade.IsObject());
 
+        /*
+        assert(BaseShade.HasMember("HairType"));
+        assert(BaseShade["HairType"].IsString());
+        std::string hairType = std::string(BaseShade["HairType"].GetString());
+        printf("HairType = %s\n", hairType.c_str());
+        if(hairType == "Straight hair") {
+            hair_type = STRAIGHT_HAIR;
+        } else if (hairType == "Curly hair") {
+            hair_type = CURLY_HAIR;
+        } else if (hairType == "Wavy hair") {
+            hair_type = WAVY_HAIR;
+        }
+        baseShade.HairType = hair_type;
+        */
         assert(BaseShade.HasMember("BxDfType"));
         assert(BaseShade["BxDfType"].IsString());
         std::string bsdf = std::string(BaseShade["BxDfType"].GetString());
@@ -99,33 +112,73 @@ void ConfigParser::parseConfigData(const std::string& json_data)
         printf("BaseShade BxDfType = %s\n", bsdf.c_str());
         vecBSDF;
         indexBSDF;
+        baseShade.BxDfIndex = indexBSDF;
         config_json = config_json + "BxDfType : " + BaseShade["BxDfType"].GetString() + "\n";
 
         assert(BaseShade.HasMember("HT"));
         assert(BaseShade["HT"].IsInt());
         printf("BaseShade HT = %d\n", BaseShade["HT"].GetInt());
         hair1_HT = BaseShade["HT"].GetInt();
+        baseShade.shadeHT = BaseShade["HT"].GetInt();
         config_json = config_json + "HT : " + std::to_string(BaseShade["HT"].GetInt()) + "\n";
 
         assert(BaseShade.HasMember("L"));
-        assert(BaseShade["L"].IsString());
-        printf("BaseShade L = %s\n", BaseShade["L"].GetString());
-        config_json = config_json + "L : " + BaseShade["L"].GetString() + "\n";
+        assert(BaseShade["L"].IsInt());
+        baseShade.shadeColorL = BaseShade["L"].GetInt();
+        printf("BaseShade L = %d\n", BaseShade["L"].GetInt());
+        config_json = config_json + "L : " + std::to_string(BaseShade["L"].GetInt()) + "\n";
+
         assert(BaseShade.HasMember("A"));
-        assert(BaseShade["A"].IsString());
-        printf("BaseShade = %s\n", BaseShade["A"].GetString());
-        config_json = config_json + "A : " + BaseShade["A"].GetString() + "\n";
+        assert(BaseShade["A"].IsInt());
+        baseShade.shadeColorA = BaseShade["A"].GetInt();
+        printf("BaseShade = %d\n", BaseShade["A"].GetInt());
+        config_json = config_json + "A : " + std::to_string(BaseShade["A"].GetInt()) + "\n";
 
         assert(BaseShade.HasMember("B"));
-        assert(BaseShade["B"].IsString());
-        printf("shadeColor1 B = %s\n", BaseShade["B"].GetString());
-        config_json = config_json + "B : " + BaseShade["B"].GetString() + "\n";
+        assert(BaseShade["B"].IsInt());
+        baseShade.shadeColorB = BaseShade["B"].GetInt();
+        printf("BaseShade B = %d\n", BaseShade["B"].GetInt());
+        config_json = config_json + "B : " + std::to_string(BaseShade["B"].GetInt()) + "\n";
+
+        /********************************************* RGB Color ***************************************/
+        assert(BaseShade.HasMember("Red"));
+        assert(BaseShade["Red"].IsInt());
+        baseShade.shadeColorRed = BaseShade["Red"].GetInt();
+        printf("BaseShade Red = %d\n", BaseShade["Red"].GetInt());
+        config_json = config_json + "Red : " + std::to_string(BaseShade["Red"].GetInt()) + "\n";
+
+        assert(BaseShade.HasMember("Green"));
+        assert(BaseShade["Green"].IsInt());
+        baseShade.shadeColorGreen = BaseShade["Green"].GetInt();
+        printf("BaseShade Green= %d\n", BaseShade["Green"].GetInt());
+        config_json = config_json + "Green : " + std::to_string(BaseShade["Green"].GetInt()) + "\n";
+
+        assert(BaseShade.HasMember("Blue"));
+        assert(BaseShade["Blue"].IsInt());
+        baseShade.shadeColorBlue = BaseShade["B"].GetInt();
+        printf("BaseShade Blue = %d\n", BaseShade["Blue"].GetInt());
+        config_json = config_json + "B : " + std::to_string(BaseShade["Blue"].GetInt()) + "\n";
             
         /************************************************************************/
 
-        /***************************** ShadeColor2 data ***************************/
+        /***************************** CustomShade data ***************************/
         const rapidjson::Value& CustomShade = document["CustomShade"];
         assert(CustomShade.IsObject());
+
+        /*
+       assert(CustomShade.HasMember("HairType"));
+       assert(CustomShade["HairType"].IsString());
+       std::string hairType = std::string(CustomShade["HairType"].GetString());
+       printf("HairType = %s\n", hairType.c_str());
+       if(hairType == "Straight hair") {
+           hair_type = STRAIGHT_HAIR;
+       } else if (hairType == "Curly hair") {
+           hair_type = CURLY_HAIR;
+       } else if (hairType == "Wavy hair") {
+           hair_type = WAVY_HAIR;
+       }
+       customShade.HairType = hair_type;
+       */
 
         assert(CustomShade.HasMember("BxDfType"));
         assert(CustomShade["BxDfType"].IsString());
