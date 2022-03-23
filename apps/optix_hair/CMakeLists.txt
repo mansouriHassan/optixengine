@@ -97,6 +97,7 @@ set( HEADERS
   inc/DeviceSingleGPU.h
   inc/MaterialGUI.h
   inc/CustomMaterialGUI.h
+  inc/Shade.h
   inc/MyAssert.h
   inc/Options.h
   inc/Parser.h
