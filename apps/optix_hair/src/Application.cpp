@@ -1988,8 +1988,8 @@ void Application::guiUserWindow(bool* p_open)
 
     //if (no_custom) custom_flag |= ImGuiTreeNodeFlags_OpenOnDoubleClick; // PSAN test
 
-    ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("User", p_open, window_flags))
+    //ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("", p_open, window_flags))
     {
         // Early out if the window is collapsed, as an optimization.
         ImGui::End();
@@ -2011,12 +2011,12 @@ void Application::guiUserWindow(bool* p_open)
     if (current_item_model->material1Name != current_item_model->material2Name)
         materialGUI2 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
 
-    Shade* shade;
+    Shade* shade = &(config_parser->colorShade);
     float Color[3];
 
-    if (ImGui::CollapsingHeader("Camera", true))
+    //if (ImGui::CollapsingHeader("Camera", true))
+    if (config_parser->isCamreaChanged == true)
     {
-        /*
         if (config_parser->camera_views.size() > 0) {
             config_parser->view_name = config_parser->camera_views[config_parser->view_index].view_name;
             m_camera.m_phi = std::stof(config_parser->camera_views[config_parser->view_index].view_phi);
@@ -2025,63 +2025,11 @@ void Application::guiUserWindow(bool* p_open)
             m_camera.m_distance = std::stof(config_parser->camera_views[config_parser->view_index].view_distance);
         }
         m_camera.markDirty(true);
-        */
-
-        int tmp = m_camera.pov;
-        ImGui::RadioButton("Center", &(m_camera.pov), 0);
-        ImGui::SameLine();
-        ImGui::RadioButton("Zoomed Center", &m_camera.pov, 1);
-        ImGui::SameLine();
-        ImGui::RadioButton("Top Front", &(m_camera.pov), 4);
-        ImGui::RadioButton("Left", &(m_camera.pov), 2);
-        ImGui::SameLine();
-        ImGui::RadioButton("Right", &(m_camera.pov), 3);
-        if (m_camera.pov != tmp)
-        {
-            switch (m_camera.pov)
-            {
-            case 0:
-                m_camera.m_phi = 0.251406f;
-                m_camera.m_theta = 0.570703f;
-                m_camera.m_fov = 32.f;
-                m_camera.m_distance = 10.f;
-                break;
-            case 1:
-                m_camera.m_phi = 0.251406f;
-                m_camera.m_theta = 0.570703f;
-                m_camera.m_fov = 12.f;
-                m_camera.m_distance = 10.f;
-                break;
-            case 2:
-                m_camera.m_phi = 0.981875f;
-                m_camera.m_theta = 0.535547;
-                m_camera.m_fov = 32.f;
-                m_camera.m_distance = 10.f;
-                break;
-            case 3:
-                m_camera.m_phi = 0.5092198f;
-                m_camera.m_theta = 0.521875f;
-                m_camera.m_fov = 29.f;
-                m_camera.m_distance = 10.f;
-                break;
-            case 4:
-                m_camera.m_phi = 0.757265f;
-                m_camera.m_theta = 0.719141f;
-                m_camera.m_fov = 29.f;
-                m_camera.m_distance = 10.f;
-                break;
-            default:
-                m_camera.m_phi = 0.251406f;
-                m_camera.m_theta = 0.570703f;
-                m_camera.m_fov = 32.f;
-                m_camera.m_distance = 10.f;
-                break;
-            }
-            m_camera.markDirty(true);
-        }
-
+        config_parser->isCamreaChanged = false;
     }
-    if (ImGui::CollapsingHeader("Material", true))
+    
+    //if (ImGui::CollapsingHeader("Material", true))
+    if(config_parser->isMaterialChanged)
     {
         int i = 0;
         for (; i < static_cast<int>(m_materialsGUI.size()); ++i)
@@ -2089,140 +2037,61 @@ void Application::guiUserWindow(bool* p_open)
             bool changed = false;
 
             MaterialGUI& materialGUI = m_materialsGUI[i];
-
+            /*
             if ((materialGUI.name.find("Hair") != std::string::npos)
                 && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_materialsGUI[i].name.c_str()))
+            */
+            if(config_parser->isHairSelected)
             {
-                if (ImGui::Combo("BxDF Type", (int*)&materialGUI.indexBSDF, "BRDF Diffuse\0BRDF Specular\0BSDF Specular\0BRDF GGX Smith\0BSDF GGX Smith\0BSDF Hair\0\0"))
+                //if (ImGui::Combo("BxDF Type", (int*)&materialGUI.indexBSDF, "BRDF Diffuse\0BRDF Specular\0BSDF Specular\0BRDF GGX Smith\0BSDF GGX Smith\0BSDF Hair\0\0"))
+                if(config_parser->isBxDFTypeChanged)
                 {
-                    changed = true;
                     materialGUI.indexBSDF = config_parser->getIndexBSDF();
                     //materialGUI.indexBSDF = shade->BxDfIndex;
+                    changed = true;
+                    config_parser->isBxDFTypeChanged = false;
                 }
                 if (materialGUI.indexBSDF == INDEX_BCSDF_HAIR)
                 {
                     float pasAffinage(0.25f);
                     ImVec2 sz(20, 20);// size button + -   
 
-                    ImGui::PushID("HT");
-                    if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
+                    //ImGui::PushID("HT");
+                    //if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
+                    if(config_parser->isHTChanged)
                     {
                         materialGUI.HT = shade->shadeHT;
                         materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
                         materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
                         materialGUI.melanin_ratio = m_melanineRatio[materialGUI.HT - 1];
+                        config_parser->isHTChanged = false;
                         changed = true;
                     }
-                    ImGui::SameLine();
+                    //ImGui::SameLine();
 
-                    if (ImGui::ColorEdit3("", (float*)&materialGUI.dyeNeutralHT, ImGuiColorEditFlags_NoInputs))
+                    //if (ImGui::ColorEdit3("", (float*)&materialGUI.dyeNeutralHT, ImGuiColorEditFlags_NoInputs))
+                    if(config_parser->isDyeNeutralHTChanged)
                     {
                         changed = true;
+                        config_parser->isDyeNeutralHTChanged = false;
                     }
-                    ImGui::PopID();
+                    //ImGui::PopID();
 
                     //RGB Color
-                    ImGui::Text("Color");
-                    ImGui::PushID("Color");
-                    if (ImGui::ColorEdit3("", (float*)&materialGUI.Color))
+                    //ImGui::Text("Color");
+                    //ImGui::PushID("Color");
+                    //if (ImGui::ColorEdit3("", (float*)&materialGUI.Color))
+                    if(config_parser->isHairColorChanged)
                     {
                         materialGUI.Color[0] = shade->shadeColorRed / 255.0;
                         materialGUI.Color[1] = shade->shadeColorGreen / 255.0;
                         materialGUI.Color[2] = shade->shadeColorBlue / 255.0;
+                        config_parser->isHairColorChanged = false;
                         changed = true;
                     }
-                    ImGui::PopID();
-#if 0
-                    //PSAN VERT ROUGE 
-                    ImGui::Text("Vert - Rouge");
-                    ImGui::PushID("Vert");
-                    if (ImGui::ColorEdit3("", (float*)&materialGUI.vert, ImGuiColorEditFlags_NoInputs))
-                    {
-                        changed = true;
-                    }
-                    ImGui::PopID();
-                    ImGui::SameLine();
-
-                    ImGui::PushID("Vert-Rouge");
-                    char* vertRougeIndex[] = { "70","77","7","07","","06","6","66","60" };
-                    ImGui::PushItemWidth(250);
-                    if (ImGui::SliderInt("", &materialGUI.int_VertRouge_Concentration, 0, 8, vertRougeIndex[materialGUI.int_VertRouge_Concentration]))
-                    {
-                        changed = true;
-                    }
-                    ImGui::PopItemWidth();
-                    ImGui::PopID();
-
-                    ImGui::PushID("Rouge");
-                    ImGui::SameLine();
-                    if (ImGui::ColorEdit3("", (float*)&materialGUI.red, ImGuiColorEditFlags_NoInputs))
-                    {
-                        changed = true;
-                    }
-                    ImGui::PopID();
-
-                    // PSAN CENDRE CUIVRE
-                    ImGui::Text("Cendre - Cuivre");
-                    ImGui::PushID("Bleu");
-                    if (ImGui::ColorEdit3("", (float*)&materialGUI.cendre, ImGuiColorEditFlags_NoInputs))
-                    {
-                        changed = true;
-                    }
-                    ImGui::PopID();
-                    ImGui::SameLine();
-                    ImGui::PushID("Cendre-Cuivre");
-                    ImGui::PushItemWidth(250);
-
-                    char* CendreCuivreIndex[] = { "10","11","1","01","","04","4","44","40" };
-                    if (ImGui::SliderInt("", &materialGUI.int_CendreCuivre_Concentration, 0, 8, CendreCuivreIndex[materialGUI.int_CendreCuivre_Concentration]))
-                    {
-
-                        changed = true;
-
-                    }
-                    ImGui::PopItemWidth();
-                    ImGui::PopID();
-
-
-                    ImGui::PushID("Cuivre");
-                    ImGui::SameLine();
-                    if (ImGui::ColorEdit3("", (float*)&materialGUI.cuivre, ImGuiColorEditFlags_NoInputs))
-                    {
-                        changed = true;
-                    }
-                    ImGui::PopID();
-
-                    // PSAN IRISE DORE
-                    ImGui::Text("Irise - Dore");
-                    ImGui::PushID("Irise");
-                    if (ImGui::ColorEdit3("", (float*)&materialGUI.irise, ImGuiColorEditFlags_NoInputs))
-                    {
-                        changed = true;
-                    }
-                    ImGui::PopID();
-
-                    ImGui::SameLine();
-                    ImGui::PushID("Irise-Dore");
-                    char* IriseDoreIndex[] = { "20","22","2","02","","03","3","33","30" };
-                    ImGui::PushItemWidth(250);
-                    if (ImGui::SliderInt("", &materialGUI.int_IriseDore_Concentration, 0, 8, IriseDoreIndex[materialGUI.int_IriseDore_Concentration]))
-                    {
-
-                        changed = true;
-
-                    }
-                    ImGui::PopItemWidth();
-                    ImGui::PopID();
-
-                    ImGui::PushID("Dore");
-                    ImGui::SameLine();
-                    if (ImGui::ColorEdit3("", (float*)&materialGUI.doree, ImGuiColorEditFlags_NoInputs))
-                    {
-                        changed = true;
-                    }
-                    ImGui::PopID();
-#endif
+                    //ImGui::PopID();
+                    config_parser->isMaterialChanged = false;
                 }
 
                 if (changed)
@@ -2235,11 +2104,13 @@ void Application::guiUserWindow(bool* p_open)
                     m_raytracer->updateMaterial(i, materialGUI);
                     refresh = true;
                 }
-                ImGui::TreePop();
+                //ImGui::TreePop();
             }
+            config_parser->isHairSelected = false;
         }
     }
-    if (ImGui::CollapsingHeader("Dynamic settings"))
+    //if (ImGui::CollapsingHeader("Dynamic settings"))
+    if(config_parser->isDynamicSettingsChanged)
     {
         bool changed = false;
         const char* current_HDR_value;
@@ -2257,7 +2128,8 @@ void Application::guiUserWindow(bool* p_open)
             materialGUI2 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
 
 
-        if (ImGui::BeginCombo("Hair type", current_item_model_value))
+        //if (ImGui::BeginCombo("Hair type", current_item_model_value))
+        if(config_parser->isHairTypeChanged)
         {
             for (int n = 0; n < m_models.size(); n++)
             {
@@ -2370,9 +2242,9 @@ void Application::guiUserWindow(bool* p_open)
                     }
                 }
             }
-            ImGui::EndCombo();
+            //ImGui::EndCombo();
         }
-
+        config_parser->isDynamicSettingsChanged = false;
     }
 
     ImGui::PopItemWidth();

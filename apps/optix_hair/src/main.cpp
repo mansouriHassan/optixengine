@@ -166,7 +166,7 @@ static int runApp(Options const& options)
             //g_app->guiReferenceManual();  // HACK The ImGUI "Programming Manual" as example code.
             //g_app->guiWindow();             // This application's GUI window rendering commands.
             g_app->guiUserWindow();           // This application's GUI window renderind commands for user expert color.
-            g_app->guiEventHandler();       // SPACE to toggle the GUI windows and all mouse tracking via GuiState.
+            //g_app->guiEventHandler();       // SPACE to toggle the GUI windows and all mouse tracking via GuiState.
             finish = g_app->render();       // OptiX rendering, returns true when benchmark is enabled and the samples per pixel have been rendered.
             g_app->display();               // OpenGL display always required to lay the background for the GUI.
             g_app->guiRender();             // Render all ImGUI elements at last.

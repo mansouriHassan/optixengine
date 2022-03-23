@@ -72,13 +72,16 @@ private:
   int colorB;
 
 public:
-	Shade baseShade;
-	Shade customShade;
+	Shade colorShade;
 	int view_index;
 	bool isCamreaChanged;
 	bool isMaterialChanged;
+	bool isHairSelected;
+	bool isBxDFTypeChanged;
 	bool isFirstBxDFTypeChanged;
 	bool isSecondBxDFTypeChanged;
+	bool isHTChanged;
+	bool isHairColorChanged;
 	bool isFirstHTChanged;
 	bool isSecondHTChanged;
 	bool isFirstHairColorChanged;
@@ -95,6 +98,9 @@ public:
 	bool isMaterialGUIIriseChanged;
 	bool IriseDoreConcentrationChanged;
 	bool isMaterialGUIDoreeChanged;
+
+	bool isBaseShadeChanged;
+	bool isCustomShadeChanged;
 
 	bool isConfigFinished;
 	std::vector<View> camera_views;
