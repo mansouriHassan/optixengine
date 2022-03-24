@@ -2052,13 +2052,12 @@ void Application::guiUserWindow(bool* p_open)
             if ((materialGUI.name.find("Hair") != std::string::npos)
                 && ImGui::TreeNode((void*)(intptr_t)i, "%s", m_materialsGUI[i].name.c_str()))
             */
-            if(config_parser->isHairSelected)
+            if (m_materialsGUI[i].name == "Hair1" || m_materialsGUI[i].name == "Hair2")
             {
                 //if (ImGui::Combo("BxDF Type", (int*)&materialGUI.indexBSDF, "BRDF Diffuse\0BRDF Specular\0BSDF Specular\0BRDF GGX Smith\0BSDF GGX Smith\0BSDF Hair\0\0"))
-                if(config_parser->isBxDFTypeChanged)
+                //if(config_parser->isBxDFTypeChanged)
                 {
                     materialGUI.indexBSDF = config_parser->getIndexBSDF();
-                    //materialGUI.indexBSDF = shade->BxDfIndex;
                     changed = true;
                     config_parser->isBxDFTypeChanged = false;
                 }
@@ -2067,48 +2066,20 @@ void Application::guiUserWindow(bool* p_open)
                     float pasAffinage(0.25f);
                     ImVec2 sz(20, 20);// size button + -
 
-                    //ImGui::PushID("HT");
-                    //if (ImGui::SliderInt("HT", &materialGUI.HT, 1, 10))
-                    if(config_parser->isHTChanged)
-                    {
-                        materialGUI.HT = shade->shadeHT;
-                        materialGUI.HT = 10;
-                        materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
-                        materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
-                        materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
-                        materialGUI.melanin_ratio = m_melanineRatio[materialGUI.HT - 1];
-                        config_parser->isHTChanged = false;
-                        changed = true;
-                    }
-                    //ImGui::SameLine();
+                    materialGUI.HT = shade->shadeHT;
+                    materialGUI.HT = 10;
+                    materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
+                    materialGUI.dyeNeutralHT_Concentration = m_dyeNeutralHT_Concentration[materialGUI.HT - 1];
+                    materialGUI.dyeNeutralHT = m_dyeNeutralHT[materialGUI.HT - 1];
+                    materialGUI.melanin_ratio = m_melanineRatio[materialGUI.HT - 1];
 
-                    //if (ImGui::ColorEdit3("", (float*)&materialGUI.dyeNeutralHT, ImGuiColorEditFlags_NoInputs))
-                    if(config_parser->isDyeNeutralHTChanged)
-                    {
-                        changed = true;
-                        config_parser->isDyeNeutralHTChanged = false;
-                    }
-                    //ImGui::PopID();
+                    materialGUI.colorRed = shade->shadeColorRed;
+                    materialGUI.colorGreen = shade->shadeColorGreen;
+                    materialGUI.colorBlue = shade->shadeColorBlue;
 
-                    // RGB Color
-                    //ImGui::Text("Color");
-                    //ImGui::PushID("Color");
-                    //if (ImGui::ColorEdit3("", (float*)&materialGUI.Color))
-                    if(config_parser->isHairColorChanged)
-                    {
-                        /*
-                        materialGUI.Color[0] = shade->shadeColorRed / 255.0;
-                        materialGUI.Color[1] = shade->shadeColorGreen / 255.0;
-                        materialGUI.Color[2] = shade->shadeColorBlue / 255.0;
-                        */
-                        materialGUI.colorRed = shade->shadeColorRed;
-                        materialGUI.colorGreen = shade->shadeColorGreen;
-                        materialGUI.colorBlue = shade->shadeColorBlue;
-
-                        changed = true;
-                        config_parser->isHairColorChanged = false;
-                    }
-                    //ImGui::PopID();
+                    changed = true;
+                    config_parser->isHTChanged = false;
+                    config_parser->isHairColorChanged = false;
                 }
 
                 if (changed)
@@ -2121,13 +2092,12 @@ void Application::guiUserWindow(bool* p_open)
                     m_raytracer->updateMaterial(i, materialGUI);
                     refresh = true;
                 }
-                //ImGui::TreePop();
             }
             config_parser->isHairSelected = false;
         }
         config_parser->isMaterialChanged = false;
     }
-    //if (ImGui::CollapsingHeader("Dynamic settings"))
+
     if(config_parser->isDynamicSettingsChanged)
     {
         bool changed = false;
@@ -2146,7 +2116,6 @@ void Application::guiUserWindow(bool* p_open)
             materialGUI2 = &m_materialsGUI.at(m_mapMaterialReferences.find(current_item_model->material2Name)->second);
 
 
-        //if (ImGui::BeginCombo("Hair type", current_item_model_value))
         if(config_parser->isHairTypeChanged)
         {
             current_item_model_value = shade->hairType.c_str();
@@ -2155,7 +2124,6 @@ void Application::guiUserWindow(bool* p_open)
             {
                 bool is_selected = (current_item_model == &m_models[n]); // You can store your selection however you want, outside or inside your objects
                 is_selected = true;
-                //if (ImGui::Selectable(m_models[n].name.c_str(), is_selected))
                 if(is_selected)
                 {
                     if (current_item_model != &m_models[n])
@@ -2265,12 +2233,10 @@ void Application::guiUserWindow(bool* p_open)
                 }
                 config_parser->isHairSelected = false;
             }
-            //ImGui::EndCombo();
         }
         config_parser->isDynamicSettingsChanged = false;
     }
 
-    //ImGui::PopItemWidth();
     ImGui::End();
 
     if (refresh)
@@ -2290,7 +2256,7 @@ void Application::updateHT(MaterialGUI& materialGUI)
 
     // hot color
     materialGUI.melanin_concentration = m_melanineConcentration[materialGUI.HT - 1];
-    /*
+
     if (materialGUI.int_VertRouge_Concentration == 7 || materialGUI.int_VertRouge_Concentration == 8)
     {
         result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 4;
@@ -2302,15 +2268,6 @@ void Application::updateHT(MaterialGUI& materialGUI)
         result -= (m_melanineConcentration[materialGUI.HT - 1] - m_melanineConcentration[materialGUI.HT]) / 2;
     }
 
-
-
-    // cold color
-// CENDER "10" IRISE "20"
-    if (materialGUI.int_CendreCuivre_Concentration == 0 || materialGUI.int_IriseDore_Concentration == 0)
-    {
-        result -= m_lightened_x10[materialGUI.HT - 1];
-    }
-
     //VERT "7" 
     if (materialGUI.int_VertRouge_Concentration == 0 || materialGUI.int_VertRouge_Concentration == 1 || materialGUI.int_VertRouge_Concentration == 2)
     {
@@ -2319,33 +2276,12 @@ void Application::updateHT(MaterialGUI& materialGUI)
 
 
     materialGUI.melanin_concentration += result;
-    */
-    materialGUI.melanin_concentration = 10.0f;
     return;
 }
 
 void Application::updateDYEconcentration(MaterialGUI& materialGUI)
 {
     float dyemoyenne;
-    /*
-
-    if (materialGUI.dye_ConcentrationCendreCuivre >= materialGUI.dye_ConcentrationIriseDore && materialGUI.dye_ConcentrationCendreCuivre >= materialGUI.dye_ConcentrationVertRouge)
-    {
-        dyemoyenne = materialGUI.dye_ConcentrationCendreCuivre;
-    }
-
-    if (materialGUI.dye_ConcentrationIriseDore >= materialGUI.dye_ConcentrationCendreCuivre && materialGUI.dye_ConcentrationIriseDore >= materialGUI.dye_ConcentrationVertRouge)
-    {
-        dyemoyenne = materialGUI.dye_ConcentrationIriseDore;
-    }
-
-    if (materialGUI.dye_ConcentrationVertRouge >= materialGUI.dye_ConcentrationCendreCuivre && materialGUI.dye_ConcentrationVertRouge >= materialGUI.dye_ConcentrationIriseDore)
-    {
-        dyemoyenne = materialGUI.dye_ConcentrationVertRouge;
-    }
-
-    materialGUI.dye_concentration = dyemoyenne / m_factorColorantHT[materialGUI.HT - 1];
-    */
     dyemoyenne = materialGUI.concentrationRed + materialGUI.concentrationGreen + materialGUI.concentrationBlue;
     materialGUI.dye_concentration = dyemoyenne;
 
@@ -2356,196 +2292,6 @@ void Application::updateDYEinterface(MaterialGUI& materialGUI)
     materialGUI.concentrationRed = materialGUI.colorRed / 255.0;
     materialGUI.concentrationGreen = materialGUI.colorGreen / 255.0;
     materialGUI.concentrationBlue = materialGUI.colorBlue / 255.0;
-    /*
-    if (materialGUI.int_VertRouge_Concentration == 0)
-    {
-        materialGUI.concentrationVert = m_concentrationVert[3];
-        materialGUI.concentrationRouge = 0.f;
-        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[3];
-    }
-
-    if (materialGUI.int_VertRouge_Concentration == 1)
-    {
-        materialGUI.concentrationVert = m_concentrationVert[2];
-        materialGUI.concentrationRouge = 0.f;
-        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[2];
-    }
-
-    if (materialGUI.int_VertRouge_Concentration == 2)
-    {
-        materialGUI.concentrationVert = m_concentrationVert[1];
-        materialGUI.concentrationRouge = 0.f;
-        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[1];
-    }
-
-    if (materialGUI.int_VertRouge_Concentration == 3)
-    {
-        materialGUI.concentrationVert = m_concentrationVert[0];
-        materialGUI.concentrationRouge = 0.f;
-        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationVert[0];
-    }
-    if (materialGUI.int_VertRouge_Concentration == 4)
-    {
-        materialGUI.concentrationVert = 0.f;
-        materialGUI.concentrationRouge = 0.f;
-        materialGUI.dye_ConcentrationVertRouge = 0.f;
-    }
-
-    if (materialGUI.int_VertRouge_Concentration == 5)
-    {
-        materialGUI.concentrationRouge = m_concentrationRouge[0];
-        materialGUI.concentrationVert = 0.f;
-        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[0];
-    }
-
-    if (materialGUI.int_VertRouge_Concentration == 6)
-    {
-        materialGUI.concentrationRouge = m_concentrationRouge[1];
-        materialGUI.concentrationVert = 0.f;
-        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[1];
-    }
-
-    if (materialGUI.int_VertRouge_Concentration == 7)
-    {
-        materialGUI.concentrationRouge = m_concentrationRouge[2];
-        materialGUI.concentrationVert = 0.f;
-        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[2];
-    }
-
-    if (materialGUI.int_VertRouge_Concentration == 8)
-    {
-        materialGUI.concentrationRouge = m_concentrationRouge[3];
-        materialGUI.concentrationVert = 0.f;
-        materialGUI.dye_ConcentrationVertRouge = m_dye_ConcentrationRouge[3];
-    }
-
-    if (materialGUI.int_CendreCuivre_Concentration == 0)
-    {
-        materialGUI.concentrationCendre = m_concentrationCendre[3];
-        materialGUI.concentrationCuivre = 0.f;
-        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[3];
-    }
-
-    if (materialGUI.int_CendreCuivre_Concentration == 1)
-    {
-        materialGUI.concentrationCendre = m_concentrationCendre[2];
-        materialGUI.concentrationCuivre = 0.f;
-
-        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[2];
-    }
-
-    if (materialGUI.int_CendreCuivre_Concentration == 2)
-    {
-        materialGUI.concentrationCendre = m_concentrationCendre[1];
-        materialGUI.concentrationCuivre = 0.f;
-
-        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[1];
-    }
-
-    if (materialGUI.int_CendreCuivre_Concentration == 3)
-    {
-        materialGUI.concentrationCendre = m_concentrationCendre[0];
-        materialGUI.concentrationCuivre = 0.f;
-
-        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCender[0];
-    }
-
-    // NEUTRE
-    if (materialGUI.int_CendreCuivre_Concentration == 4)
-    {
-        materialGUI.concentrationCendre = 0.f;
-        materialGUI.concentrationCuivre = 0.f;
-        materialGUI.dye_ConcentrationCendreCuivre = 0.0f;
-    }
-    // CUIVRE
-    if (materialGUI.int_CendreCuivre_Concentration == 5)
-    {
-        materialGUI.concentrationCuivre = m_concentrationCuivre[0];
-        materialGUI.concentrationCendre = 0.f;
-        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[0];
-    }
-
-    if (materialGUI.int_CendreCuivre_Concentration == 6)
-    {
-        materialGUI.concentrationCuivre = m_concentrationCuivre[1];
-        materialGUI.concentrationCendre = 0.f;
-        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[1];
-    }
-
-    if (materialGUI.int_CendreCuivre_Concentration == 7)
-    {
-        materialGUI.concentrationCuivre = m_concentrationCuivre[2];
-        materialGUI.concentrationCendre = 0.f;
-        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[2];
-    }
-
-    if (materialGUI.int_CendreCuivre_Concentration == 8)
-    {
-        materialGUI.concentrationCuivre = m_concentrationCuivre[3];
-        materialGUI.concentrationCendre = 0.f;
-        materialGUI.dye_ConcentrationCendreCuivre = m_dye_ConcentrationCover[3];
-    }
-
-    // Irise
-    if (materialGUI.int_IriseDore_Concentration == 0)
-    {
-        materialGUI.concentrationIrise = m_concentrationIrise[3];
-        materialGUI.concentrationDore = 0.f;
-        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[3];
-    }
-    if (materialGUI.int_IriseDore_Concentration == 1)
-    {
-        materialGUI.concentrationIrise = m_concentrationIrise[2];
-        materialGUI.concentrationDore = 0.f;
-        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[2];
-    }
-
-    if (materialGUI.int_IriseDore_Concentration == 2)
-    {
-        materialGUI.concentrationIrise = m_concentrationIrise[1];
-        materialGUI.concentrationDore = 0.f;
-        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[1];
-    }
-
-    if (materialGUI.int_IriseDore_Concentration == 3)
-    {
-        materialGUI.concentrationIrise = m_concentrationIrise[0];
-        materialGUI.concentrationDore = 0.f;
-        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationAsh[0];
-    }
-    // neutre
-    if (materialGUI.int_IriseDore_Concentration == 4)
-    {
-        materialGUI.concentrationIrise = 0.f;
-        materialGUI.concentrationDore = 0.f;
-        materialGUI.dye_ConcentrationIriseDore = 0.f;
-    }
-    //Dore
-    if (materialGUI.int_IriseDore_Concentration == 5)
-    {
-        materialGUI.concentrationDore = m_concentrationDore[0];
-        materialGUI.concentrationIrise = 0.f;
-        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[0];
-    }
-    if (materialGUI.int_IriseDore_Concentration == 6)
-    {
-        materialGUI.concentrationDore = m_concentrationDore[1];
-        materialGUI.concentrationIrise = 0.f;
-        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[1];
-    }
-    if (materialGUI.int_IriseDore_Concentration == 7)
-    {
-        materialGUI.concentrationDore = m_concentrationDore[2];
-        materialGUI.concentrationIrise = 0.f;
-        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[2];
-    }
-    if (materialGUI.int_IriseDore_Concentration == 8)
-    {
-        materialGUI.concentrationDore = m_concentrationDore[3];
-        materialGUI.concentrationIrise = 0.f;
-        materialGUI.dye_ConcentrationIriseDore = m_dye_ConcentrationGold[3];
-    }
-    */
 }
 
 void Application::updateDYE(MaterialGUI& materialGUI)
@@ -3058,6 +2804,7 @@ bool Application::loadSceneDescription(std::string const& filename)
     float curConcentrationRed = 0.0f;
     float curconcentrationGreen = 0.0f;
     float curConcentrationBlue = 0.0f;
+    int curIntConcentrationVertRouge = 4;
 
     float curdyeNeutralHT_Concentration = 0.f;
 
@@ -3295,6 +3042,7 @@ bool Application::loadSceneDescription(std::string const& filename)
                 materialGUI.concentrationRed = curConcentrationRed;
                 materialGUI.concentrationGreen = curconcentrationGreen;
                 materialGUI.concentrationBlue = curConcentrationBlue;
+                materialGUI.int_VertRouge_Concentration = curIntConcentrationVertRouge;
 
 
                 //materialGUI.dyeNeutralHT_Concentration = curdyeNeutralHT_Concentration;

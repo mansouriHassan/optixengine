@@ -76,58 +76,58 @@ void ConfigParser::parseConfigData(const std::string& json_data)
         colorShade.hairType = hairType;
 
         /***************************** ColorShade data ***************************/
-        const rapidjson::Value& ColorShade = document["ColorShade"];
-        assert(ColorShade.IsObject());
+        const rapidjson::Value& ShadeColor = document["ShadeColor"];
+        assert(ShadeColor.IsObject());
 
-        assert(ColorShade.HasMember("BxDfType"));
-        assert(ColorShade["BxDfType"].IsString());
-        std::string bsdf = std::string(ColorShade["BxDfType"].GetString());
+        assert(ShadeColor.HasMember("BxDfType"));
+        assert(ShadeColor["BxDfType"].IsString());
+        std::string bsdf = std::string(ShadeColor["BxDfType"].GetString());
         colorShade.BxDfType = bsdf;
-        printf("ColorShade BxDfType = %s\n", bsdf.c_str());
+        printf("ShadeColor BxDfType = %s\n", bsdf.c_str());
         colorShade.BxDfIndex = indexBSDF;
         config_json = config_json + "BxDfType : " + bsdf + "\n";
 
-        assert(ColorShade.HasMember("HT"));
-        assert(ColorShade["HT"].IsInt());
-        hair_HT = ColorShade["HT"].GetInt();
-        printf("ColorShade HT = %d\n", hair_HT);
+        assert(ShadeColor.HasMember("HT"));
+        assert(ShadeColor["HT"].IsInt());
+        hair_HT = ShadeColor["HT"].GetInt();
+        printf("ShadeColor HT = %d\n", hair_HT);
         colorShade.shadeHT = hair_HT;
         config_json = config_json + "HT : " + std::to_string(colorShade.shadeHT) + "\n";
 
-        assert(ColorShade.HasMember("L"));
-        assert(ColorShade["L"].IsInt());
-        colorShade.shadeColorL = ColorShade["L"].GetInt();
-        printf("ColorShade L = %d\n", colorShade.shadeColorL);
+        assert(ShadeColor.HasMember("L"));
+        assert(ShadeColor["L"].IsInt());
+        colorShade.shadeColorL = ShadeColor["L"].GetInt();
+        printf("ShadeColor L = %d\n", colorShade.shadeColorL);
         config_json = config_json + "L : " + std::to_string(colorShade.shadeColorL) + "\n";
 
-        assert(ColorShade.HasMember("A"));
-        assert(ColorShade["A"].IsInt());
-        colorShade.shadeColorA = ColorShade["A"].GetInt();
+        assert(ShadeColor.HasMember("A"));
+        assert(ShadeColor["A"].IsInt());
+        colorShade.shadeColorA = ShadeColor["A"].GetInt();
         printf("BaseShade = %d\n", colorShade.shadeColorA);
         config_json = config_json + "A : " + std::to_string(colorShade.shadeColorA) + "\n";
 
-        assert(ColorShade.HasMember("B"));
-        assert(ColorShade["B"].IsInt());
-        colorShade.shadeColorB = ColorShade["B"].GetInt();
+        assert(ShadeColor.HasMember("B"));
+        assert(ShadeColor["B"].IsInt());
+        colorShade.shadeColorB = ShadeColor["B"].GetInt();
         printf("ColorShade B = %d\n", colorShade.shadeColorB);
         config_json = config_json + "B : " + std::to_string(colorShade.shadeColorB) + "\n";
 
         /********************************************* RGB Color ***************************************/
-        assert(ColorShade.HasMember("colorRed"));
-        assert(ColorShade["colorRed"].IsInt());
-        colorShade.shadeColorRed = ColorShade["colorRed"].GetInt();
+        assert(ShadeColor.HasMember("colorRed"));
+        assert(ShadeColor["colorRed"].IsInt());
+        colorShade.shadeColorRed = ShadeColor["colorRed"].GetInt();
         printf("ColorShade Red = %d\n", colorShade.shadeColorRed);
         config_json = config_json + "colorRed : " + std::to_string(colorShade.shadeColorRed) + "\n";
 
-        assert(ColorShade.HasMember("colorGreen"));
-        assert(ColorShade["colorGreen"].IsInt());
-        colorShade.shadeColorGreen = ColorShade["colorGreen"].GetInt();
+        assert(ShadeColor.HasMember("colorGreen"));
+        assert(ShadeColor["colorGreen"].IsInt());
+        colorShade.shadeColorGreen = ShadeColor["colorGreen"].GetInt();
         printf("ColorShade Green= %d\n", colorShade.shadeColorGreen);
         config_json = config_json + "colorGreen : " + std::to_string(colorShade.shadeColorGreen) + "\n";
 
-        assert(ColorShade.HasMember("colorBlue"));
-        assert(ColorShade["colorBlue"].IsInt());
-        colorShade.shadeColorBlue = ColorShade["colorBlue"].GetInt();
+        assert(ShadeColor.HasMember("colorBlue"));
+        assert(ShadeColor["colorBlue"].IsInt());
+        colorShade.shadeColorBlue = ShadeColor["colorBlue"].GetInt();
         printf("ColorShade Blue = %d\n", colorShade.shadeColorBlue);
         config_json = config_json + "colorBlue : " + std::to_string(colorShade.shadeColorBlue) + "\n";
             
